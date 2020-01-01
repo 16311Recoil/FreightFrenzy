@@ -33,7 +33,7 @@ public class BlueWarehousePark extends LinearOpMode {
 
         waitForStart();
 
-        robot.getManip().goToPosition(47);
+        robot.getManip().goToPosition(47, 0);
 
         Thread.sleep(2000);
 

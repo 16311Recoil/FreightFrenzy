@@ -62,7 +62,7 @@ public class RedAutoDeliverPark extends LinearOpMode {
 
         waitForStart();
 
-        robot.getManip().goToPosition(48);
+        robot.getManip().goToPosition(-480, 0);
         Thread.sleep(1000);
         robot.getManip().rotateClawUp();
         Thread.sleep(300);
@@ -75,11 +75,11 @@ public class RedAutoDeliverPark extends LinearOpMode {
 
         // TODO: Fix vision
         if (pos == VisionTestRedWarehouse.DeterminationPipeline.MarkerPosition.LEFT)
-            hub_pos = 70;
+            hub_pos = -500;
         else if (pos == VisionTestRedWarehouse.DeterminationPipeline.MarkerPosition.CENTER)
-            hub_pos = 137;
+            hub_pos = -1400;
         else{
-            hub_pos = 220;
+            hub_pos = -2500;
             extra += 1.5;
         }
 
@@ -87,13 +87,10 @@ public class RedAutoDeliverPark extends LinearOpMode {
         if (pos == VisionTestRedWarehouse.DeterminationPipeline.MarkerPosition.RIGHT){
             robot.getTurret().setPosition(27);
             robot.getManip().setArmRotatorPower(0.3);
-            for (int i = 60; i <= 220; i += 5){
-                robot.getManip().goToPosition(i);
-                Thread.sleep(30);
-            }
+            robot.getManip().goToPosition(-2500, 27);
         }
         else {
-            robot.getManip().goToPosition(hub_pos);
+            robot.getManip().goToPosition(hub_pos, 0);
         }
         robot.getManip().rotateClawUp();
 
@@ -111,7 +108,7 @@ public class RedAutoDeliverPark extends LinearOpMode {
         robot.getManip().rotateClawDown();
 
         Thread.sleep(400);
-        robot.getManip().goToPosition(80);
+        robot.getManip().goToPosition(80, 0);
 
         // Move to park
         robot.getDrivetrain().moveInches(5, power + 0.1, true, 7);

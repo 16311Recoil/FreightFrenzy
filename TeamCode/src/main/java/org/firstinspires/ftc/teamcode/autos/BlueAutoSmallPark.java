@@ -63,7 +63,7 @@ public class BlueAutoSmallPark extends LinearOpMode {
 
         waitForStart();
 
-        robot.getManip().goToPosition(48);
+        robot.getManip().goToPosition(-480, 0);
         Thread.sleep(1000);
         robot.getManip().rotateClawUp();
         Thread.sleep(300);
@@ -76,11 +76,11 @@ public class BlueAutoSmallPark extends LinearOpMode {
 
         // TODO: Fix vision
         if (pos == VisionTestBlueDuck.DeterminationPipeline.MarkerPosition.LEFT)
-            hub_pos = 70;
+            hub_pos = -500;
         else if (pos == VisionTestBlueDuck.DeterminationPipeline.MarkerPosition.CENTER)
-            hub_pos = 137;
+            hub_pos = -1400;
         else{
-            hub_pos = 220;
+            hub_pos = -2500;
             extra += 1.25;
         }
 
@@ -88,13 +88,10 @@ public class BlueAutoSmallPark extends LinearOpMode {
         if (pos == VisionTestBlueDuck.DeterminationPipeline.MarkerPosition.RIGHT){
             //robot.getTurret().setPosition(-96);
             robot.getManip().setArmRotatorPower(0.3);
-            for (int i = 60; i <= 220; i += 5){
-                robot.getManip().goToPosition(i);
-                Thread.sleep(30);
-            }
+            robot.getManip().goToPosition(-2500, 0);
         }
         else {
-            robot.getManip().goToPosition(hub_pos);
+            robot.getManip().goToPosition(hub_pos, 0);
         }
         robot.getManip().rotateClawUp();
 
@@ -112,7 +109,7 @@ public class BlueAutoSmallPark extends LinearOpMode {
         robot.getManip().rotateClawDown();
 
         Thread.sleep(400);
-        robot.getManip().goToPosition(80);
+        robot.getManip().goToPosition(-800, 0);
 
         // Move to duck
         robot.getDrivetrain().moveInchesAngleLock(20 + extra, power + 0.1, true, robot.getSensors().getFirstAngle(), 7);
@@ -120,10 +117,7 @@ public class BlueAutoSmallPark extends LinearOpMode {
 
         // Put arm into excalibur mode
         robot.getManip().setArmRotatorPower(0.5);
-        for (int i = 160; i <= 370; i += 10){
-            robot.getManip().goToPosition(i);
-            Thread.sleep(32);
-        }
+        robot.getManip().goToPosition(-3000, 0);
 
         Thread.sleep(1000);
 
@@ -172,14 +166,12 @@ public class BlueAutoSmallPark extends LinearOpMode {
 
         //lower arm
         robot.getManip().setArmRotatorPower(0.1);
-        for (int i = 360; i >= 100; i -= 5){
-            robot.getManip().goToPosition(i);
-            Thread.sleep(30);
-        }
+        robot.getManip().goToPosition(-1000, 0);
 
         Thread.sleep(300);
 
         robot.getTurret().setPosition(-80);
+        robot.getManip().goToPosition(-1000, -80);
 
         // Park in storage unit
         robot.getDrivetrain().moveInchesAngleLock(20, power + 0.15, false, robot.getSensors().getFirstAngle(), 4);

@@ -63,7 +63,7 @@ public class RedAutoDeliverCycle extends LinearOpMode {
 
         waitForStart();
 
-        robot.getManip().goToPosition(38);
+        robot.getManip().goToPosition(-380, 0);
         Thread.sleep(1000);
         robot.getManip().rotateClawUp();
         Thread.sleep(300);
@@ -74,13 +74,12 @@ public class RedAutoDeliverCycle extends LinearOpMode {
 
         int hub_pos;
 
-        // TODO: Fix vision
         if (pos == VisionTestRedWarehouse.DeterminationPipeline.MarkerPosition.LEFT)
-            hub_pos = 57;
+            hub_pos = -500;
         else if (pos == VisionTestRedWarehouse.DeterminationPipeline.MarkerPosition.CENTER)
-            hub_pos = 120;
+            hub_pos = -1400;
         else{
-            hub_pos = 220;
+            hub_pos = -2200;
             extra += 1.25;
         }
 
@@ -88,13 +87,10 @@ public class RedAutoDeliverCycle extends LinearOpMode {
         if (pos == VisionTestRedWarehouse.DeterminationPipeline.MarkerPosition.RIGHT){
             robot.getTurret().setPosition(-69);
             robot.getManip().setArmRotatorPower(0.3);
-            for (int i = 60; i <= 220; i += 5){
-                robot.getManip().goToPosition(i);
-                Thread.sleep(30);
-            }
+            robot.getManip().goToPosition(-2500, -69);
         }
         else {
-            robot.getManip().goToPosition(hub_pos);
+            robot.getManip().goToPosition(hub_pos, 0);
         }
         robot.getManip().rotateClawUp();
 
@@ -111,7 +107,7 @@ public class RedAutoDeliverCycle extends LinearOpMode {
         robot.getDrivetrain().moveInches(-22 - extra, power + 0.2, false, 3);
 
         Thread.sleep(400);
-        robot.getManip().goToPosition(80);
+        robot.getManip().goToPosition(-800, 0);
 
         // Move to park
         robot.getDrivetrain().moveInches(5, power + 0.15, true, 7);
@@ -128,7 +124,7 @@ public class RedAutoDeliverCycle extends LinearOpMode {
         dashboard.sendTelemetryPacket(p);
 
         robot.getTurret().setPosition(-98);
-        robot.getManip().goToPosition(0);
+        robot.getManip().goToPosition(-50, -98);
         robot.getDrivetrain().setMotorPowers(0.35,0,0,0.35);
 
         Thread.sleep(800);
@@ -141,7 +137,7 @@ public class RedAutoDeliverCycle extends LinearOpMode {
         Thread.sleep(600);
 
         //Move and Deliver
-        robot.getManip().goToPosition(120);
+        robot.getManip().goToPosition(-1200, 180);
         robot.getTurret().setPosition(180);
         Thread.sleep(200);
         robot.getDrivetrain().moveInchesAngleLock2(-24, power + 0.25, 0.17,false, robot.getSensors(), 5);
@@ -157,7 +153,7 @@ public class RedAutoDeliverCycle extends LinearOpMode {
         robot.getDrivetrain().moveInches(23, power + 0.2, true, 3);
         Thread.sleep(500);
         robot.getTurret().setPosition(-98);
-        robot.getManip().goToPosition(0);
+        robot.getManip().goToPosition(-50, -98);
 
 
         robot.getDrivetrain().moveInchesAngleLock2(26, power + 0.25, 0.1,false, robot.getSensors(), 4);

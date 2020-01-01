@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Crab;
 import org.firstinspires.ftc.teamcode.VisionTestBlueWarehouse;
@@ -45,7 +46,6 @@ public class BlueAutoDeliverPark extends LinearOpMode {
             }
         });
 
-        pipeline.setSide(true);
         while (!isStarted()) {
             TelemetryPacket p = new TelemetryPacket();
             dashboard.startCameraStream(robot.getSensors().getWebcam(), 30);
@@ -61,11 +61,11 @@ public class BlueAutoDeliverPark extends LinearOpMode {
 
         waitForStart();
 
-        robot.getManip().goToPosition(48);
+        robot.getTurret().setPosition(-96);
+        robot.getManip().goToPosition(-380, -96);
         Thread.sleep(1000);
         robot.getManip().rotateClawUp();
         Thread.sleep(300);
-        robot.getTurret().setPosition(-96);
 
 
         // robot.getManip().mechGrab();
@@ -74,38 +74,30 @@ public class BlueAutoDeliverPark extends LinearOpMode {
 
         // TODO: Fix vision
         if (pos == VisionTestBlueWarehouse.DeterminationPipeline.MarkerPosition.LEFT)
-            hub_pos = 77;
+            hub_pos = 57;
         else if (pos == VisionTestBlueWarehouse.DeterminationPipeline.MarkerPosition.CENTER)
-            hub_pos = 132;
+            hub_pos = 120;
         else{
             hub_pos = 220;
-            extra += 1.5;
+            extra += 1.25;
         }
 
         // raise arm BEFORE we move forward
         if (pos == VisionTestBlueWarehouse.DeterminationPipeline.MarkerPosition.RIGHT){
             robot.getTurret().setPosition(-96);
             robot.getManip().setArmRotatorPower(0.3);
-            for (int i = 60; i <= 210; i += 5){
-                robot.getManip().goToPosition(i);
-                Thread.sleep(30);
-            }
+            robot.getManip().goToPosition(-2500, -96);
         }
         else {
-            robot.getManip().goToPosition(hub_pos);
+            robot.getManip().goToPosition(hub_pos, 0);
         }
         robot.getManip().rotateClawUp();
 
         // move towards the hub
         // TODO: Move correct distance
-        robot.getDrivetrain().moveInches(21 + extra, power + 0.075, false, 4);
+        robot.getDrivetrain().moveInches(21 + extra, power, false, 4);
         Thread.sleep(1700);
-        if (pos == VisionTestBlueWarehouse.DeterminationPipeline.MarkerPosition.RIGHT){
-            robot.getDrivetrain().turnToPID(-1 * Math.toRadians(55), robot.getSensors(), 0.4, 2);
-        }
-        else {
-            robot.getDrivetrain().turnToPID(-1 * Math.toRadians(50), robot.getSensors(), 0.4, 2);
-        }
+        robot.getDrivetrain().turnToPID(-Math.PI / 4, robot.getSensors(), 0.4, 2);
         // drop block
         robot.getManip().mechRelease();
         Thread.sleep(1200);
@@ -116,7 +108,7 @@ public class BlueAutoDeliverPark extends LinearOpMode {
         robot.getManip().rotateClawDown();
 
         Thread.sleep(400);
-        robot.getManip().goToPosition(80);
+        robot.getManip().goToPosition(-800, 0);
 
         // Move to park
         robot.getDrivetrain().moveInchesAngleLock(-5, power + 0.1, true, robot.getSensors().getFirstAngle(), 7);

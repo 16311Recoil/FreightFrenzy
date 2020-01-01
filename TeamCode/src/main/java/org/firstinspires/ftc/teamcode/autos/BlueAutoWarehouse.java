@@ -117,7 +117,7 @@ public class BlueAutoWarehouse extends LinearOpMode {
         robot.getManip().rotateClawDown();
 
         Thread.sleep(400);
-        robot.getManip().goToPosition(80, 0);
+        robot.getManip().goToPosition(-800, 0);
 
         // Move to duck
         robot.getDrivetrain().moveInchesAngleLock(38 + extra, power + 0.1, true, robot.getSensors().getFirstAngle(), 7);
@@ -125,10 +125,7 @@ public class BlueAutoWarehouse extends LinearOpMode {
 
         // Put arm into excalibur mode
         robot.getManip().setArmRotatorPower(0.5);
-        for (int i = 160; i <= 370; i += 10){
-            robot.getManip().goToPosition(i, 0);
-            Thread.sleep(25);
-        }
+        robot.getManip().goToPosition(-3000, 0);
 
         Thread.sleep(1000);
 
@@ -193,9 +190,8 @@ public class BlueAutoWarehouse extends LinearOpMode {
 
         Thread.sleep(1200);
 
-        robot.getManip().setArmRotatorPower(0.1);
-        for (int i = 350; i >= 50; i -= 100)
-            robot.getManip().goToPosition(50, 0);
+        robot.getManip().setArmRotatorPower(0.2);
+        robot.getManip().goToPosition(-500, 0);
         // Park in freight area
 
 

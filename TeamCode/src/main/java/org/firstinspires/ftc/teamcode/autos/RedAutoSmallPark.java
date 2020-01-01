@@ -62,11 +62,11 @@ public class RedAutoSmallPark extends LinearOpMode {
 
         waitForStart();
 
-        robot.getManip().goToPosition(48);
+        robot.getTurret().setPosition(-90);
+        robot.getManip().goToPosition(-480, -90);
         Thread.sleep(700);
         robot.getManip().rotateClawUp();
         Thread.sleep(300);
-        robot.getTurret().setPosition(-90);
 
 
         // robot.getManip().mechGrab();
@@ -75,11 +75,11 @@ public class RedAutoSmallPark extends LinearOpMode {
 
         // TODO: Fix vision
         if (pos == VisionTestRedDuck.DeterminationPipeline.MarkerPosition.LEFT)
-            hub_pos = 70;
+            hub_pos = -500;
         else if (pos == VisionTestRedDuck.DeterminationPipeline.MarkerPosition.CENTER)
-            hub_pos = 137;
+            hub_pos = -1400;
         else{
-            hub_pos = 220;
+            hub_pos = -2500;
             extra += 1.25;
         }
 
@@ -87,13 +87,10 @@ public class RedAutoSmallPark extends LinearOpMode {
         if (pos == VisionTestRedDuck.DeterminationPipeline.MarkerPosition.RIGHT){
             robot.getTurret().setPosition(-90);
             robot.getManip().setArmRotatorPower(0.3);
-            for (int i = 60; i <= 220; i += 5){
-                robot.getManip().goToPosition(i);
-                Thread.sleep(30);
-            }
+            robot.getManip().goToPosition(-2200, -90);
         }
         else {
-            robot.getManip().goToPosition(hub_pos);
+            robot.getManip().goToPosition(hub_pos, 0);
         }
         robot.getManip().rotateClawUp();
 
@@ -115,7 +112,7 @@ public class RedAutoSmallPark extends LinearOpMode {
         robot.getManip().rotateClawDown();
 
         Thread.sleep(400);
-        robot.getManip().goToPosition(80);
+        robot.getManip().goToPosition(-800, 0);
 
         // Move to duck
         robot.getDrivetrain().moveInches(-17, power + 0.1, true, 7);
@@ -123,10 +120,7 @@ public class RedAutoSmallPark extends LinearOpMode {
 
         // Put arm into excalibur mode
         robot.getManip().setArmRotatorPower(0.5);
-        for (int i = 160; i <= 370; i += 10){
-            robot.getManip().goToPosition(i);
-            Thread.sleep(31);
-        }
+        robot.getManip().goToPosition(-3000, 0);
 
         Thread.sleep(1000);
 
@@ -195,8 +189,7 @@ public class RedAutoSmallPark extends LinearOpMode {
 
         robot.getTurret().setPosition(-30);
         robot.getManip().setArmRotatorPower(0.1);
-        for (int i = 350; i >= 50; i -= 100)
-            robot.getManip().goToPosition(i);
+        robot.getManip().goToPosition(-500, -30);
 
         robot.getDrivetrain().setAllMotors(0);
 
