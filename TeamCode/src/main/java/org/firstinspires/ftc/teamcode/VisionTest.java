@@ -20,8 +20,8 @@ import org.openftc.easyopencv.OpenCvPipeline;
  * detecting the team marker when lined up with
  * the sample regions over the first 3 stones.
  */
-@TeleOp
-public class Vision extends LinearOpMode
+@TeleOp(name = "visionTest", group = "test")
+public class VisionTest extends LinearOpMode
 {
     OpenCvInternalCamera phoneCam;
     DeterminationPipeline pipeline;
