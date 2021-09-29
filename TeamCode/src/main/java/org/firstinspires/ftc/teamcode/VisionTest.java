@@ -16,12 +16,12 @@ import org.openftc.easyopencv.OpenCvInternalCamera;
 import org.openftc.easyopencv.OpenCvPipeline;
 
 /*
- * This sample demonstrates a basic (but battle-tested and essentially
- * 100% accurate) method of detecting the skystone when lined up with
+ * This sample demonstrates a basic  method of
+ * detecting the team marker when lined up with
  * the sample regions over the first 3 stones.
  */
-@TeleOp
-public class Vision extends LinearOpMode
+@TeleOp(name = "visionTest", group = "test")
+public class VisionTest extends LinearOpMode
 {
     OpenCvInternalCamera phoneCam;
     DeterminationPipeline pipeline;
@@ -29,12 +29,7 @@ public class Vision extends LinearOpMode
     @Override
     public void runOpMode()
     {
-        /**
-         * NOTE: Many comments have been omitted from this sample for the
-         * sake of conciseness. If you're just starting out with EasyOpenCv,
-         * you should take a look at {@link InternalCamera1Example} or its
-         * webcam counterpart, {@link WebcamExample} first.
-         */
+
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         phoneCam = OpenCvCameraFactory.getInstance().createInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
@@ -78,7 +73,7 @@ public class Vision extends LinearOpMode
     public static class DeterminationPipeline extends OpenCvPipeline
     {
         /*
-         * An enum to define the skystone position
+         * An enum to define the positions
          */
         public enum MarkerPosition
         {
@@ -208,12 +203,12 @@ public class Vision extends LinearOpMode
              *
              * We then take the average pixel value of 3 different regions on that Cb
              * channel, one positioned over each stone. The brightest of the 3 regions
-             * is where we assume the SkyStone to be, since the normal stones show up
+             * is where we assume the marker to be, since the normal stones show up
              * extremely darkly.
              *
              * We also draw rectangles on the screen showing where the sample regions
              * are, as well as drawing a solid rectangle over top the sample region
-             * we believe is on top of the SkyStone.
+             * we believe contains the marker
              *
              * In order for this whole process to work correctly, each sample region
              * should be positioned in the center of each of the first 3 stones, and
@@ -274,7 +269,7 @@ public class Vision extends LinearOpMode
             /*
              * Find the max of the 3 averages
              */
-            int maxOneTwo = Math.max(avg1, avg2);
+            int maxOneTwo = Math.max(avg1, avg2);// may need to change to min depending on color
             int max = Math.max(maxOneTwo, avg3);
 
             /*
