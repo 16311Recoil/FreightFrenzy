@@ -16,6 +16,7 @@ public class Manipulator {
         Servo extender = null;
         double clampBaseLength = 10, clampExtendedLength = 15;
         double height = 10;
+
         public void init(@NonNull OpMode opMode){
             shoulder = opMode.hardwareMap.get(Servo.class,  "servo180");
             grabber = opMode.hardwareMap.get(Servo.class,   "grabbyGrabGrab");
@@ -25,6 +26,7 @@ public class Manipulator {
         public void MoveShoulderTo(double angle){
             shoulder.setPosition(angle);
         }
+
         public void SetExtenderLength(double length){
             extender.setPosition(180 * (length - clampBaseLength) / (clampExtendedLength - clampBaseLength));
         }
@@ -65,12 +67,10 @@ public class Manipulator {
 
     Clamp clamp;
 
-    DcMotor spoolWinder = null;
-
     public void init(@NonNull OpMode opMode) {
-        flyWheel = opMode.hardwareMap.get(DcMotor.class,    "duck_wheel");
-        spoolWinder = opMode.hardwareMap.get(DcMotor.class, "lift_spool");
+        flyWheel = opMode.hardwareMap.get(DcMotor.class,"duck_wheel");
         clamp.init(opMode);
+        opMode.telemetry.addLine("Manipulator Init Completed");
     }
 
     public boolean DetectDuck(){
