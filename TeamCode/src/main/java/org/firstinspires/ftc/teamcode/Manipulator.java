@@ -7,17 +7,17 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class Manipulator {
-    DcMotor flyWheel = null;
+    DcMotor flyWheel;
 
     static class Clamp{
-        Servo shoulder = null;
-        Servo grabber = null;
-        Servo magSwitch = null;
-        Servo extender = null;
+        Servo shoulder;
+        Servo grabber;
+        Servo magSwitch;
+        Servo extender;
         double clampBaseLength = 10, clampExtendedLength = 15;
         double height = 10;
 
-        public void init(@NonNull OpMode opMode){
+        public Clamp(@NonNull OpMode opMode){
             shoulder = opMode.hardwareMap.get(Servo.class,  "servo180");
             grabber = opMode.hardwareMap.get(Servo.class,   "grabbyGrabGrab");
             magSwitch = opMode.hardwareMap.get(Servo.class, "magSwitch");
@@ -67,10 +67,11 @@ public class Manipulator {
 
     Clamp clamp;
 
-    public void init(@NonNull OpMode opMode) {
+    public Manipulator(@NonNull OpMode opMode) {
         flyWheel = opMode.hardwareMap.get(DcMotor.class,"duck_wheel");
-        clamp.init(opMode);
+        clamp = new Clamp(opMode);
         opMode.telemetry.addLine("Manipulator Init Completed");
+        opMode.telemetry.update();
     }
 
     public boolean DetectDuck(){
