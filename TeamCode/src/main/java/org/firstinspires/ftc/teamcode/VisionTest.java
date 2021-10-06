@@ -2,7 +2,11 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
+import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
@@ -26,11 +30,33 @@ public class VisionTest extends LinearOpMode
     OpenCvInternalCamera phoneCam;
     DeterminationPipeline pipeline;
 
+    // Adjust these numbers to suit your robot.
+    final double DESIRED_DISTANCE = 8.0; //  this is how close the camera should get to the target (inches)
+    //  The GAIN constants set the relationship between the measured position error,
+    //  and how much power is applied to the drive motors.  Drive = Error * Gain
+    //  Make these values smaller for smoother control.
+    final double SPEED_GAIN =   0.02 ;   //  Speed Control "Gain". eg: Ramp up to 50% power at a 25 inch error.   (0.50 / 25.0)
+    final double TURN_GAIN  =   0.01 ;   //  Turn Control "Gain".  eg: Ramp up to 25% power at a 25 degree error. (0.25 / 25.0)
+
+    final double MM_PER_INCH = 25.40 ;   //  Metric conversion
+
+    private static final String VUFORIA_KEY =
+            "AZSiMOH/////AAABmfP3UCfG4Un7sktEdqGC6b+IVXn+DiesrPGg6m3/fLyrjUX2QbKSdkc9yF2VsOrnhnd0twYsjqzw7g0Pugx75h3Jb8AF51d/90Y/byTitZyMIkTcxZyYtwZHogR7POp0c8lzep26+fKuQLMYK+fGUGduWvO/191isCSBh4zuH6zaKnzPXdMWc0r0q8vH403mREftEG2Zl/rpFX/mkqe3p98GIEVApXuc5kVSRO1Weer5mCr8kuDg68bLuPOa/3gBXfAQwFe3mIngZdHmscqQiWgOe80sjCzy1Pe7cVLEmiGnadzvZn8ONTwCzSMLNOT8i208CYCQHhy7USrmx4/ZyJ+ap5OOzDulonMGJO6rjxfH";
+
+    VuforiaLocalizer vuforia    = null;
+    OpenGLMatrix targetPose     = null;
+    String targetName           = "";
+
+
     @Override
     public void runOpMode()
     {
+        waitForStart();
 
-
+        boolean targetFound     = false;    // Set to true when a target is detected by Vuforia
+        double  drive           = 0;        // Desired forward power (-1 to +1)
+        double  turn            = 0;        // Desired turning power (-1 to +1)
+        Point center = new Point();
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         phoneCam = OpenCvCameraFactory.getInstance().createInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
         pipeline = new DeterminationPipeline();
@@ -62,12 +88,17 @@ public class VisionTest extends LinearOpMode
 
         while (opModeIsActive())
         {
+
             telemetry.addData("Analysis", pipeline.getAnalysis());
+
+            telemetry.addData("Range",  "%5.1f inches", pipeline.targetDistance(pipeline.getAnalysis().toString()));
+            telemetry.addData("Bearing","%3.0f degrees", pipeline.targetBearing(pipeline.getAnalysis().toString()));
             telemetry.update();
 
             // Don't burn CPU cycles busy-looping in this sample
             sleep(50);
         }
+
     }
 
     public static class DeterminationPipeline extends OpenCvPipeline
@@ -328,6 +359,7 @@ public class VisionTest extends LinearOpMode
              * to add some annotations to this buffer earlier up.
              */
             return input;
+
         }
 
         /*
@@ -337,5 +369,67 @@ public class VisionTest extends LinearOpMode
         {
             return position;
         }
+
+        public double targetDistance(String direction){
+            final double MM_PER_INCH = 25.40 ;
+            double  targetRange     = 0;        // Distance from camera to target in Inches
+            double  targetBearing   = 0;        // Robot Heading, relative to target.  Positive degrees means target is to the right.
+            Point center = new Point();
+
+            if(direction.equals("LEFT")){
+                center.x = Math.abs((region1_pointA.x - region1_pointB.x) / 2);
+                center.y = Math.abs((region1_pointA.y - region1_pointB.y) / 2);
+            }
+            else if(direction.equals("CENTER")){
+                center.x = Math.abs((region2_pointA.x - region2_pointB.x) / 2);
+                center.y = Math.abs((region2_pointA.y - region2_pointB.y) / 2);
+            }
+            else{//RIGHT
+                center.x = Math.abs((region3_pointA.x - region3_pointB.x) / 2);
+                center.y = Math.abs((region3_pointA.y - region3_pointB.y) / 2);
+            }
+
+            double targetX = center.x / MM_PER_INCH; // Image X axis
+            double targetY = center.y / MM_PER_INCH; // Image Z axis
+
+            targetRange = Math.hypot(targetX, targetY);
+
+            // target bearing is based on angle formed between the X axis and the target range line
+            //targetBearing = Math.toDegrees(Math.asin(targetX / targetRange));
+            return targetRange;
+        }
+        public double targetBearing(String direction){
+            final double MM_PER_INCH = 25.40 ;
+            double  targetRange     = 0;        // Distance from camera to target in Inches
+            double  targetBearing   = 0;        // Robot Heading, relative to target.  Positive degrees means target is to the right.
+            Point center = new Point();
+
+            if(direction.equals("LEFT")){
+                center.x = Math.abs((region1_pointA.x - region1_pointB.x) / 2);
+                center.y = Math.abs((region1_pointA.y - region1_pointB.y) / 2);
+            }
+            else if(direction.equals("CENTER")){
+                center.x = Math.abs((region2_pointA.x - region2_pointB.x) / 2);
+                center.y = Math.abs((region2_pointA.y - region2_pointB.y) / 2);
+            }
+            else{//RIGHT
+                center.x = Math.abs((region3_pointA.x - region3_pointB.x) / 2);
+                center.y = Math.abs((region3_pointA.y - region3_pointB.y) / 2);
+            }
+
+            double targetX = center.x / MM_PER_INCH; // Image X axis
+            double targetY = center.y / MM_PER_INCH; // Image Z axis
+
+            targetRange = Math.hypot(targetX, targetY);
+
+            // target bearing is based on angle formed between the X axis and the target range line
+            //targetBearing = Math.toDegrees(Math.asin(targetX / targetRange));
+            return targetBearing;
+        }
+
+
+
+
+
     }
 }
