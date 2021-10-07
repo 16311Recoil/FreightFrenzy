@@ -421,6 +421,7 @@ public class VisionTest extends LinearOpMode
             double targetY = center.y / MM_PER_INCH; // Image Z axis
 
             targetRange = Math.hypot(targetX, targetY);
+            targetBearing = Math.toDegrees(Math.asin(targetX / targetRange));
 
             // target bearing is based on angle formed between the X axis and the target range line
             //targetBearing = Math.toDegrees(Math.asin(targetX / targetRange));
