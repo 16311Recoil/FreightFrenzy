@@ -91,8 +91,8 @@ public class VisionTest extends LinearOpMode
 
             telemetry.addData("Analysis", pipeline.getAnalysis());
 
-            telemetry.addData("Range",  "%5.1f inches", pipeline.targetDistance(pipeline.getAnalysis().toString()));
-            telemetry.addData("Bearing","%3.0f degrees", pipeline.targetBearing(pipeline.getAnalysis().toString()));
+            telemetry.addData("Range",  "%5.1f inches", pipeline.targetDistance(pipeline.getAnalysis()));
+            //telemetry.addData("Bearing","%3.0f degrees", pipeline.targetBearing(pipeline.getAnalysis()));
             telemetry.update();
 
             // Don't burn CPU cycles busy-looping in this sample
@@ -370,17 +370,18 @@ public class VisionTest extends LinearOpMode
             return position;
         }
 
-        public double targetDistance(String direction){
+        public double targetDistance(Enum direction){
+
             final double MM_PER_INCH = 25.40 ;
             double  targetRange     = 0;        // Distance from camera to target in Inches
             double  targetBearing   = 0;        // Robot Heading, relative to target.  Positive degrees means target is to the right.
             Point center = new Point();
 
-            if(direction.equals("LEFT")){
+            if(direction == MarkerPosition.LEFT){
                 center.x = Math.abs((region1_pointA.x - region1_pointB.x) / 2);
                 center.y = Math.abs((region1_pointA.y - region1_pointB.y) / 2);
             }
-            else if(direction.equals("CENTER")){
+            else if(direction == MarkerPosition.CENTER){
                 center.x = Math.abs((region2_pointA.x - region2_pointB.x) / 2);
                 center.y = Math.abs((region2_pointA.y - region2_pointB.y) / 2);
             }
