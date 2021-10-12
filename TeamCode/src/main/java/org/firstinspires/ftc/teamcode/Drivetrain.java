@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-public class Drivetrain {
+public class Drivetrain{
 
     private DcMotorEx f, r, l, b;
     private LinearOpMode linear_OpMode;
