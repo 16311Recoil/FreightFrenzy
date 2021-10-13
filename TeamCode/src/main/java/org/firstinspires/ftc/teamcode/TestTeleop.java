@@ -18,6 +18,11 @@ public class TestTeleop extends OpMode{
         l = hardwareMap.get(DcMotor.class, "l");
         b = hardwareMap.get(DcMotor.class, "b");
 
+        f.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        r.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        l.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        b.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
     }
 
     @Override
