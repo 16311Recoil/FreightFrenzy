@@ -13,6 +13,9 @@ public class Manipulator {
     private LinearOpMode linear_OpMode;
     private OpMode iterative_OpMode;
 
+    private boolean grabEnabled = false;
+    private boolean magEnabled = false;
+
     DcMotor flyWheel;
 
     DcMotor armRotator; // (previous shoulder) this is a motor not a servo
@@ -28,14 +31,20 @@ public class Manipulator {
     private final double MAG_OFF = 0;
     private final double DUCK_POWER = 0;
     private final int DUCK_TIME = 0;
+    private final double ARM_POWER = 0.5;
+    private final int ARM_FLOOR_ANGLE = 20;
+    private final double MOTOR_ARM_GEAR_RATIO = 0.25; // 0.25 = The motor gear is 1/4 the size of the resulting arm movement
+    private final double ARM_LENGTH = 10;
 
-    public Manipulator(LinearOpMode opMode) { //Need a constructor for both LinearOpmode and Opmode
-        this.linear_OpMode = opMode;
+    private final double[] LEVELS = {0, 0, 0, 0};
 
-        flyWheel = opMode.hardwareMap.get(DcMotorEx.class,"duck_wheel");
-        armRotator = opMode.hardwareMap.get(DcMotorEx.class,  "armRotator");
-        grabber = opMode.hardwareMap.get(Servo.class,   "grabbyGrabGrab");
-        magSwitch = opMode.hardwareMap.get(Servo.class, "magSwitch");
+    public Manipulator(LinearOpMode linear_OpMode) {
+        this.linear_OpMode = linear_OpMode;
+
+        flyWheel = linear_OpMode.hardwareMap.get(DcMotorEx.class,"duck_wheel");
+        armRotator = linear_OpMode.hardwareMap.get(DcMotorEx.class,  "armRotator");
+        grabber = linear_OpMode.hardwareMap.get(Servo.class,   "grabbyGrabGrab");
+        magSwitch = linear_OpMode.hardwareMap.get(Servo.class, "magSwitch");
 
         flyWheel.setDirection(DcMotorSimple.Direction.FORWARD);
         armRotator.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -43,9 +52,12 @@ public class Manipulator {
         flyWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         armRotator.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        armRotator.setPower(0);
+        armRotator.setTargetPosition((int)(ARM_FLOOR_ANGLE / MOTOR_ARM_GEAR_RATIO));
+        armRotator.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        opMode.telemetry.addLine("Manipulator Init Completed");
-        opMode.telemetry.update();
+        linear_OpMode.telemetry.addLine("Manipulator Init Completed");
+        linear_OpMode.telemetry.update();
     }
 
     public Manipulator(OpMode opMode) {
@@ -62,17 +74,13 @@ public class Manipulator {
         flyWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         armRotator.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        armRotator.setPower(0);
+        armRotator.setTargetPosition((int)(ARM_FLOOR_ANGLE / MOTOR_ARM_GEAR_RATIO));
+        armRotator.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         opMode.telemetry.addLine("Manipulator Init Completed");
         opMode.telemetry.update();
     }
-
-    //use camel case so basically first word uncapital every other word capital ex: moveTo instead of MoveTo
-
-
-    //Turret methods wouldn't exist in this class
-
-    //Detection isn't part of this class either, that fuctionality would be added in the robot class probably
 
     // --- Low-level Arm Control Functions -- //
 
@@ -89,7 +97,7 @@ public class Manipulator {
     }
 
     public void magRelease(){
-        magSwitch.setPosition(0);
+        magSwitch.setPosition(MAG_OFF);
     }
 
     // --- Abstracted Arm Control Functions --- //
@@ -120,28 +128,85 @@ public class Manipulator {
     }
 
 
-    //TODO for STAS + ANYA
+    // for STAS + ANYA
+    // Complete!
 
     public void toggleGrabber(){
+        if (grabEnabled) {
+            mechRelease();
+        } else {
+            mechGrab();
+        }
+        grabEnabled = !grabEnabled;
     }
 
     public void toggleMagnet(){
+        if (magEnabled) {
+            magRelease();
+        } else {
+            magGrab();
+        }
+        magEnabled = !magEnabled;
     }
 
-    public void setArmRotatorPower(){
-
+    public void setArmRotatorPower(double power){
+        armRotator.setPower(power);
     }
 
     public void goToLevel(double level){
-        //knowing that you are dealing with a motor for the armRotator,
-        // figure out how you can stop the motor at the correct height for the floor, bottom, middle and top levels (0, 1, 2, 3)
-        // (TIP: You need to stall out the motor once you get to the destired height)
-        // (TIP: Use motorName.getCurrentPosition() to get the encoder value, but don't worry about converting to inches yet)
-        // Might to make multiple variables or other methods to properly do
+        // Use angles in rads for math funcs
+        // Calculate arm circle lower and upper bounds
+        double lower = -Math.sin(toRad(ARM_FLOOR_ANGLE)) * ARM_LENGTH - ARM_LENGTH,
+                upper = lower + ARM_LENGTH * 2;
+
+        double c = (lower + upper) / 2.0;
+
+        // find the angle on the circle
+        // FIXME: There's probably a better way to do this calculation
+        double new_target = toDeg(Math.asin(Math.abs(level - c) / ARM_LENGTH)) * (level < c ? -1 : 1);
+        if (ARM_FLOOR_ANGLE < 270){
+            new_target = 180 - new_target;
+        }
+        // Adjust for gear ratios
+        armRotator.setTargetPosition((int)(new_target / MOTOR_ARM_GEAR_RATIO));
+        armRotator.setPower(ARM_POWER);
     }
 
+    double toRad(double angle){
+        return angle / 180.0 * Math.PI;
+    }
+
+    double toDeg(double rad){
+        return rad * 180.0 / Math.PI;
+    }
+
+    double linearInterpolate(double a, double b, double t){
+        return a + (b - a) * t;
+    }
+
+    double inverseLinearInterpolate(double min_val, double max_val, double res){
+        // a + (b - a) * t = r
+        // t = (r - a) / (b - a)
+        return (res - min_val) / (max_val - min_val);
+    }
+
+    /**
+     * Release grabber at an *exact height* (in inches)
+     * @param level Height (in inches) to set
+     */
     public void placeLevel(double level){
         goToLevel(level);
+        release();
+    }
+
+    /**
+     * Release grabber at a preset position
+     * @param level_index The number of the preset level;
+     *                    0: Floor;
+     *                    1-3: Hub levels
+     */
+    public void placePresetLevel(int level_index){
+        goToLevel(LEVELS[level_index]);
         release();
     }
 
@@ -150,8 +215,4 @@ public class Manipulator {
         goToLevel(0);
         grab();
     }
-
-
-
-
 }
