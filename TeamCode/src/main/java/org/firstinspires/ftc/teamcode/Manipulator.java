@@ -36,7 +36,7 @@ public class Manipulator {
     private final double MOTOR_ARM_GEAR_RATIO = 0.25; // 0.25 = The motor gear is 1/4 the size of the resulting arm movement
     private final double ARM_LENGTH = 10;
 
-    private final double[] LEVELS = {0, 0, 0, 0};
+    private final double[] LEVELS = {0, 3 + 2 + 0.5, 8.5 + 2 + 0.5, 14.75 + 2 + 0.5};
 
     public Manipulator(LinearOpMode linear_OpMode) {
         this.linear_OpMode = linear_OpMode;
@@ -56,7 +56,7 @@ public class Manipulator {
         armRotator.setTargetPosition((int)(ARM_FLOOR_ANGLE / MOTOR_ARM_GEAR_RATIO));
         armRotator.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        linear_OpMode.telemetry.addLine("Manipulator Init Completed");
+        linear_OpMode.telemetry.addLine("Manipulator Init Completed - Linear");
         linear_OpMode.telemetry.update();
     }
 
@@ -78,7 +78,7 @@ public class Manipulator {
         armRotator.setTargetPosition((int)(ARM_FLOOR_ANGLE / MOTOR_ARM_GEAR_RATIO));
         armRotator.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        opMode.telemetry.addLine("Manipulator Init Completed");
+        opMode.telemetry.addLine("Manipulator Init Completed - Iterative");
         opMode.telemetry.update();
     }
 
@@ -154,7 +154,6 @@ public class Manipulator {
     }
 
     public void goToLevel(double level){
-        // Use angles in rads for math funcs
         // Calculate arm circle lower and upper bounds
         double lower = -Math.sin(toRad(ARM_FLOOR_ANGLE)) * ARM_LENGTH - ARM_LENGTH,
                 upper = lower + ARM_LENGTH * 2;
