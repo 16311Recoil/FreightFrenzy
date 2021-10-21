@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.drive;
+package org.firstinspires.ftc.teamcode;
 
 import androidx.annotation.NonNull;
 
@@ -21,6 +21,7 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
@@ -50,7 +51,7 @@ import static org.firstinspires.ftc.teamcode.drive.DriveConstants.kV;
  * Simple tank drive hardware implementation for REV hardware.
  */
 @Config
-public class SampleTankDrive extends TankDrive {
+public class DrivetrainRR extends TankDrive {
     public static PIDCoefficients AXIAL_PID = new PIDCoefficients(0, 0, 0);
     public static PIDCoefficients CROSS_TRACK_PID = new PIDCoefficients(0, 0, 0);
     public static PIDCoefficients HEADING_PID = new PIDCoefficients(0, 0, 0);
@@ -70,7 +71,8 @@ public class SampleTankDrive extends TankDrive {
 
     private VoltageSensor batteryVoltageSensor;
 
-    public SampleTankDrive(HardwareMap hardwareMap) {
+    public DrivetrainRR(HardwareMap hardwareMap, boolean forward) {
+        // Copy Paste Set-Up
         super(kV, kA, kStatic, TRACK_WIDTH);
 
         follower = new TankPIDVAFollower(AXIAL_PID, CROSS_TRACK_PID,
@@ -80,29 +82,49 @@ public class SampleTankDrive extends TankDrive {
 
         batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
 
+        //Turn on Bulk Reading
         for (LynxModule module : hardwareMap.getAll(LynxModule.class)) {
             module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
 
-        // TODO: adjust the names of the following hardware devices to match your configuration
+        //Initialize Gyro - TODO: Decide if to allow creation of imu in this class or create/pass a sensors object
+        //getRawExternalHeading in this class and any gyro call in other classes will use .getFirstAngle() b/c of orientation of the control hub
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS;
         imu.initialize(parameters);
 
-        // TODO: if your hub is mounted vertically, remap the IMU axes so that the z-axis points
-        // upward (normal to the floor) using a command like the following:
-        // BNO055IMUUtil.remapAxes(imu, AxesOrder.XYZ, AxesSigns.NPN);
+        //Below is the initialization and hardware mapping of motors
+        DcMotorEx f, l, r, b;
 
-        // add/remove motors depending on your robot (e.g., 6WD)
-        DcMotorEx front = hardwareMap.get(DcMotorEx.class, "front");
-        DcMotorEx left = hardwareMap.get(DcMotorEx.class, "left");
-        DcMotorEx right = hardwareMap.get(DcMotorEx.class, "right");
-        DcMotorEx back = hardwareMap.get(DcMotorEx.class, "back");
+        //depending on whether its the forward dt or the sideways dt, we change which motors are initialized / hardware mapped
+        //(we pass forward in as a parameter in the constructor to choose)
 
-        motors = Arrays.asList(front, left, right, back);
-        leftMotors = Arrays.asList(left);
-        rightMotors = Arrays.asList(right);
+        if (forward){
+            l = hardwareMap.get(DcMotorEx.class, "l");
+            r = hardwareMap.get(DcMotorEx.class, "r");
+
+            //done this way because that was how this class was written and I copy pasted it
+            motors = Arrays.asList(l, r);
+            leftMotors = Arrays.asList(l);
+            rightMotors = Arrays.asList(r);
+
+            //Only l needs to ever be reversed
+            l.setDirection(DcMotorSimple.Direction.REVERSE);
+        }
+        else {
+
+            f = hardwareMap.get(DcMotorEx.class, "f");
+            b = hardwareMap.get(DcMotorEx.class, "b");
+
+            //done this way because that was how this class was written and I copy pasted it
+            //front is considered the left motor in this case because we consider the right direction to the new "forward" when moving sideways
+            motors = Arrays.asList(f, b);
+            leftMotors = Arrays.asList(f);
+            rightMotors = Arrays.asList(b);
+        }
+
+
 
         for (DcMotorEx motor : motors) {
             MotorConfigurationType motorConfigurationType = motor.getMotorType().clone();
@@ -120,13 +142,19 @@ public class SampleTankDrive extends TankDrive {
             setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, MOTOR_VELO_PID);
         }
 
-        // TODO: reverse any motors using DcMotor.setDirection()
 
         // TODO: if desired, use setLocalizer() to change the localization method
         // for instance, setLocalizer(new ThreeTrackingWheelLocalizer(...));
 
+
+        //  TODO: Aditya :Implement this after odom is made
+        // I have no clue which localizer its using right now, I think a default constructor for a tank drivetrain localizer?
+        // but no clue if that is made so it uses the encoders from the wheel motors.
+
         trajectorySequenceRunner = new TrajectorySequenceRunner(follower, HEADING_PID);
     }
+
+    //====================Start of Copy Paste RR Util Methods============================
 
     public TrajectoryBuilder trajectoryBuilder(Pose2d startPose) {
         return new TrajectoryBuilder(startPose, VEL_CONSTRAINT, accelConstraint);
