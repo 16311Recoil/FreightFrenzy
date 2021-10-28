@@ -13,9 +13,7 @@ public class Turret {
 
     DcMotor turretMotor;
 
-    private double angle = 0;
     private int targetAngle = 0;
-    private double lastRobotDirection = 0;
 
     private final double ROTATION_SPEED = 0;
 
@@ -28,7 +26,7 @@ public class Turret {
         turretMotor.setTargetPosition(0);
         turretMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        opMode.telemetry.addLine("Turret init completed");
+        opMode.telemetry.addLine("Turret Init Completed - Linear");
         opMode.telemetry.update();
     }
 
@@ -41,7 +39,7 @@ public class Turret {
         turretMotor.setTargetPosition(0);
         turretMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        opMode.telemetry.addLine("Turret init completed");
+        opMode.telemetry.addLine("Turret Init Completed - Iterative");
         opMode.telemetry.update();
     }
 
@@ -49,7 +47,7 @@ public class Turret {
         targetAngle = angle;
     }
 
-    public void update(double robotDirection, double deltaTime){
+    public void update(double robotDirection){
         turretMotor.setTargetPosition(nearestAngleToTurret((int)(targetAngle - robotDirection)));
     }
 
