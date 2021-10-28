@@ -90,11 +90,7 @@ public class Drivetrain{
     }
 
     public void turn(double power, boolean turnRight) {
-        int turnMultiplier = -1;
-        if (turnRight) {
-            turnMultiplier = 1;
-        }
-        power *= turnMultiplier;
+        power *= turnRight ? 1 : -1;
         f.setPower(power);
         r.setPower(-power);
         l.setPower(power);
@@ -143,15 +139,16 @@ public class Drivetrain{
         double back = b.getCurrentPosition();
         double counter = 4;
 
+        // encoder values of 0 indicate the encoder wire is unplugged
         if (front == 0){counter--;}
         if (back == 0) {counter--;}
         if (right == 0){counter--;}
         if (left == 0) {counter--;}
 
-        iterative_OpMode.telemetry.addData("left", l.getCurrentPosition());
-        iterative_OpMode.telemetry.addData("right", r.getCurrentPosition());
-        iterative_OpMode.telemetry.addData("front", f.getCurrentPosition());
-        iterative_OpMode.telemetry.addData("back", b.getCurrentPosition());
+        iterative_OpMode.telemetry.addData("left", left);
+        iterative_OpMode.telemetry.addData("right", right);
+        iterative_OpMode.telemetry.addData("front", front);
+        iterative_OpMode.telemetry.addData("back", back);
 
         return (front + left + right + back) / counter;
     }
@@ -159,10 +156,10 @@ public class Drivetrain{
 
 //============================ Auto ===============================================
     public void spinDuck(){
-        double spinAmount = 2000; //test
+        double spinAmount = 450; //test
         double initEncoders = getEncodersAll();
-        while (spinAmount > initEncoders - getEncodersAll()){
-            turn(0.3, false);
+        while (Math.abs(getEncodersAll() - initEncoders) < spinAmount){
+            turn(0.3, true);
         }
         setAllMotors(0);
     }
