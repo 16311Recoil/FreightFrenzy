@@ -167,18 +167,22 @@ public class Drivetrain{
 
 //========================= Tele-Op Methods =======================================
 
-    public double lockHeadingAngle(double initAngle, double angle){
+    public double lockHeadingAngle(double initAngle, double angle) {
         return Math.sin(angle - initAngle);
     }
 
     public void moveTeleOp_Plus(double x, double y, double z, double speedMultiplier, double turnMultiplier){ // Lstick.x, Lstick.y, Rstick.x
         double powerF, powerR, powerL, powerB;
-        powerF = Range.clip((x * speedMultiplier) + (z * turnMultiplier), -1,1); //front
-        powerR = Range.clip((y * speedMultiplier) + (z * turnMultiplier), -1,1); // left
-        powerL = Range.clip((y * speedMultiplier) - (z * turnMultiplier), -1,1); // right
-        powerB = Range.clip((x * speedMultiplier) - (z * turnMultiplier), -1,1); // back
+        powerF = sigmoid((x * speedMultiplier) + (z * turnMultiplier)); //front
+        powerR = sigmoid((y * speedMultiplier) + (z * turnMultiplier)); // left
+        powerL = sigmoid((y * speedMultiplier) - (z * turnMultiplier)); // right
+        powerB = sigmoid((x * speedMultiplier) - (z * turnMultiplier)); // back
 
         setMotorPowers(powerF, powerR, powerL, powerB);
+    }
+
+    public double sigmoid(double x){
+        return 2.0 / (1 + Math.exp(-2.5 * x)) - 1;
     }
 
     public void moveTeleOp_X(double x, double y, double z, double speedMultiplier, double turnMultiplier){ // Lstick.x, Lstick.y, Rstick.x
