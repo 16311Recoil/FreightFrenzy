@@ -5,6 +5,16 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import java.util.List;
+import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection;
+import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
+import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
+
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -14,6 +24,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
+import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
 /**
  * This OpMode illustrates using a webcam to locate and drive towards ANY Vuforia target.
@@ -52,6 +63,13 @@ public class ConceptVuforiaDriveToTargetWebcam extends LinearOpMode
     final double TURN_GAIN  =   0.01 ;   //  Turn Control "Gain".  eg: Ramp up to 25% power at a 25 degree error. (0.25 / 25.0)
 
     final double MM_PER_INCH = 25.40 ;   //  Metric conversion
+    private static final String TFOD_MODEL_ASSET = "FreightFrenzy_BCDM.tflite";
+    private static final String[] LABELS = {
+            "Ball",
+            "Cube",
+            "Duck",
+            "Marker"
+    };
 
     /*
      * IMPORTANT: You need to obtain your own license key to use Vuforia. The string below with which
@@ -66,9 +84,11 @@ public class ConceptVuforiaDriveToTargetWebcam extends LinearOpMode
      * and paste it in to your code on the next line, between the double quotes.
      */
     private static final String VUFORIA_KEY =
-            " --- YOUR NEW VUFORIA KEY GOES HERE  --- ";
+            "AZSiMOH/////AAABmfP3UCfG4Un7sktEdqGC6b+IVXn+DiesrPGg6m3/fLyrjUX2QbKSdkc9yF2VsOrnhnd0twYsjqzw7g0Pugx75h3Jb8AF51d/90Y/byTitZyMIkTcxZyYtwZHogR7POp0c8lzep26+fKuQLMYK+fGUGduWvO/191isCSBh4zuH6zaKnzPXdMWc0r0q8vH403mREftEG2Zl/rpFX/mkqe3p98GIEVApXuc5kVSRO1Weer5mCr8kuDg68bLuPOa/3gBXfAQwFe3mIngZdHmscqQiWgOe80sjCzy1Pe7cVLEmiGnadzvZn8ONTwCzSMLNOT8i208CYCQHhy7USrmx4/ZyJ+ap5OOzDulonMGJO6rjxfH";
 
-    VuforiaLocalizer vuforia    = null;
+    //VuforiaLocalizer vuforia    = null;
+    private VuforiaLocalizer vuforia;
+    private TFObjectDetector tfod;
     OpenGLMatrix targetPose     = null;
     String targetName           = "";
 
@@ -77,6 +97,8 @@ public class ConceptVuforiaDriveToTargetWebcam extends LinearOpMode
 
     @Override public void runOpMode()
     {
+        initVuforia();
+        initTfod();
         /*
          * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
          * To get an on-phone camera preview, use the code below.
@@ -198,5 +220,33 @@ public class ConceptVuforiaDriveToTargetWebcam extends LinearOpMode
 
             sleep(10);
         }
+    }
+    private void initVuforia() {
+        /*
+         * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
+         */
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
+
+        parameters.vuforiaLicenseKey = VUFORIA_KEY;
+        parameters.cameraDirection = CameraDirection.BACK;
+
+        //  Instantiate the Vuforia engine
+        vuforia = ClassFactory.getInstance().createVuforia(parameters);
+
+        // Loading trackables is not necessary for the TensorFlow Object Detection engine.
+    }
+
+    /**
+     * Initialize the TensorFlow Object Detection engine.
+     */
+    private void initTfod() {
+        int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
+                "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+        tfodParameters.minResultConfidence = 0.8f;
+        tfodParameters.isModelTensorFlow2 = true;
+        tfodParameters.inputSize = 320;
+        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABELS);
     }
 }
