@@ -81,6 +81,21 @@ public class Drivetrain{
 
  //================== Utility Methods ============================================
 
+    public void setMotorBrake(boolean brake){
+        if (brake){
+            f.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            f.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            l.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            b.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        }
+        else {
+            f.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            f.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            l.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            b.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        }
+    }
+
     public void setMotorPowers(double powerF, double powerR, double powerL, double powerB) {
         f.setPower(powerF);
         r.setPower(powerR);
@@ -160,13 +175,28 @@ public class Drivetrain{
 
 
 //============================ Auto ===============================================
-    public void spinDuck(){
-        double spinAmount = 450; //test
-        double initEncoders = getEncodersAll();
-        while (Math.abs(getEncodersAll() - initEncoders) < spinAmount){
-            turn(0.3, true);
-        }
-        setAllMotors(0);
+public void spinDuck(double turnPower, double movePower, double moveAngle, double angle, boolean turnRight){
+    double powerF, powerR, powerL, powerB, newX, newY;
+
+    moveAngle -= Math.PI; //correcting opposite thing
+    moveAngle -= (Math.PI / 6); //correcting spin angle change
+
+    int turnDirection = -1;
+    if (turnRight) {
+        turnDirection = 1;
+    }
+
+
+
+    newX = rotateX( Math.cos(moveAngle), Math.sin(moveAngle), angle);
+    newY = rotateY(Math.cos(moveAngle), Math.sin(moveAngle), angle);
+
+    powerF = (movePower * newX) + (turnPower * turnDirection);
+    powerR = (movePower * newY) + (turnPower * turnDirection);
+    powerL = (movePower * newY) - (turnPower * turnDirection);
+    powerB = (movePower * newX) - (turnPower * turnDirection);
+
+    setMotorPowers(powerF, powerR, powerL, powerB);
     }
 
 
@@ -174,6 +204,27 @@ public class Drivetrain{
 
     public double lockHeadingAngle(double initAngle, double angle) {
         return Math.sin(angle - initAngle);
+    }
+
+    public double lockNearestX(double angle){
+
+        if (angle < 0){
+            if (angle < (-Math.PI / 2)){
+                return (-3 * Math.PI) / 4;
+            }
+            else{
+                return (-Math.PI / 4);
+            }
+        }
+        else {
+            if (angle > (Math.PI / 2)){
+                return (3 * Math.PI) / 4;
+            }
+            else {
+                return (Math.PI / 4);
+            }
+        }
+
     }
 
     public void moveTeleOp_Plus(double x, double y, double z, double speedMultiplier, double turnMultiplier) { // Lstick.x, Lstick.y, Rstick.x
