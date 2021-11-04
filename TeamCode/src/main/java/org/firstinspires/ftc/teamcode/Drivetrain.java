@@ -9,6 +9,11 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
+import com.sun.tools.javac.util.ArrayUtils;
+
+import java.lang.reflect.Array;
+import java.util.Arrays;
+import java.util.Collections;
 
 public class Drivetrain{
 
@@ -171,26 +176,50 @@ public class Drivetrain{
         return Math.sin(angle - initAngle);
     }
 
-    public void moveTeleOp_Plus(double x, double y, double z, double speedMultiplier, double turnMultiplier){ // Lstick.x, Lstick.y, Rstick.x
+    public void moveTeleOp_Plus(double x, double y, double z, double speedMultiplier, double turnMultiplier) { // Lstick.x, Lstick.y, Rstick.x
         double powerF, powerR, powerL, powerB;
-        powerF = sigmoid((x * speedMultiplier) + (z * turnMultiplier)); //front
-        powerR = sigmoid((y * speedMultiplier) + (z * turnMultiplier)); // left
-        powerL = sigmoid((y * speedMultiplier) - (z * turnMultiplier)); // right
-        powerB = sigmoid((x * speedMultiplier) - (z * turnMultiplier)); // back
+        powerF = (x * speedMultiplier) + (z * turnMultiplier); //front
+        powerR = (y * speedMultiplier) + (z * turnMultiplier); // left
+        powerL = (y * speedMultiplier) - (z * turnMultiplier); // right
+        powerB = (x * speedMultiplier) - (z * turnMultiplier); // back
+        double m = Math.abs(max(powerF, powerR, powerL, powerB));
+        if (m > 1){
+            powerF /= m;
+            powerR /= m;
+            powerL /= m;
+            powerB /= m;
+        }
 
         setMotorPowers(powerF, powerR, powerL, powerB);
     }
+    
+    private double max(double ... vals){
+        double m = vals[0];
+        for (double val: vals
+             ) {
+            m = Math.max(val, m);
+        }
+        return m;
+    }
 
-    public double sigmoid(double x){
+    private double sigmoid(double x){
         return 2.0 / (1 + Math.exp(-2.5 * x)) - 1;
     }
 
     public void moveTeleOp_X(double x, double y, double z, double speedMultiplier, double turnMultiplier){ // Lstick.x, Lstick.y, Rstick.x
         double powerF, powerR, powerL, powerB;
-        powerF = Range.clip(((x + y) * speedMultiplier) + (z * turnMultiplier), -1,1); //front
-        powerR = Range.clip(((-x + y) * speedMultiplier) + (z * turnMultiplier), -1,1); // left
-        powerL = Range.clip(((-x + y) * speedMultiplier) - (z * turnMultiplier), -1,1); // right
-        powerB = Range.clip(((x + y) * speedMultiplier) - (z * turnMultiplier), -1,1); // back
+        powerF = ((x + y) * speedMultiplier) + (z * turnMultiplier); //front
+        powerR = ((-x + y) * speedMultiplier) + (z * turnMultiplier); // left
+        powerL = ((-x + y) * speedMultiplier) - (z * turnMultiplier); // right
+        powerB = ((x + y) * speedMultiplier) - (z * turnMultiplier); // back
+
+        double m = Math.abs(max(powerF, powerR, powerL, powerB));
+        if (m > 1){
+            powerF /= m;
+            powerR /= m;
+            powerL /= m;
+            powerB /= m;
+        }
 
         setMotorPowers(powerF, powerR, powerL, powerB);
     }
@@ -203,10 +232,18 @@ public class Drivetrain{
         newX = rotateX(x,y,angle);
         newY = rotateY(x,y,angle);
 
-        powerF = Range.clip((newX * speedMultiplier) + (z * turnMultiplier), -1,1); //front
-        powerR = Range.clip((newY * speedMultiplier) + (z * turnMultiplier), -1,1); // left
-        powerL = Range.clip((newY * speedMultiplier) - (z * turnMultiplier), -1,1); // right
-        powerB = Range.clip((newX * speedMultiplier) - (z * turnMultiplier), -1,1); // back
+        powerF = (newX * speedMultiplier) + (z * turnMultiplier); //front
+        powerR = (newY * speedMultiplier) + (z * turnMultiplier); // left
+        powerL = (newY * speedMultiplier) - (z * turnMultiplier); // right
+        powerB = (newX * speedMultiplier) - (z * turnMultiplier); // back
+
+        double m = Math.abs(max(powerF, powerR, powerL, powerB));
+        if (m > 1){
+            powerF /= m;
+            powerR /= m;
+            powerL /= m;
+            powerB /= m;
+        }
 
         setMotorPowers(powerF, powerR, powerL, powerB);
     }
@@ -217,10 +254,18 @@ public class Drivetrain{
         newX = rotateX(x,y,angle);
         newY = rotateY(x,y,angle);
 
-        powerF = Range.clip(((newX + newY) * speedMultiplier) + (z * turnMultiplier), -1,1); //front
-        powerR = Range.clip(((-newX + newY) * speedMultiplier) + (z * turnMultiplier), -1,1); // left
-        powerL = Range.clip(((-newX + newY) * speedMultiplier) - (z * turnMultiplier), -1,1); // right
-        powerB = Range.clip(((newX + newY) * speedMultiplier) - (z * turnMultiplier), -1,1); // back
+        powerF = ((newX + newY) * speedMultiplier) + (z * turnMultiplier); //front
+        powerR = ((-newX + newY) * speedMultiplier) + (z * turnMultiplier); // left
+        powerL = ((-newX + newY) * speedMultiplier) - (z * turnMultiplier); // right
+        powerB = ((newX + newY) * speedMultiplier) - (z * turnMultiplier); // back
+
+        double m = Math.abs(max(powerF, powerR, powerL, powerB));
+        if (m > 1){
+            powerF /= m;
+            powerR /= m;
+            powerL /= m;
+            powerB /= m;
+        }
 
         setMotorPowers(powerF, powerR, powerL, powerB);
     }
