@@ -147,6 +147,15 @@ public class Manipulator {
         magEnabled = !magEnabled;
     }
 
+    public void setArmMode(boolean powerMode){
+        if (powerMode){
+            armRotator.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        }
+        else {
+            armRotator.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        }
+    }
+
     public void setArmRotatorPower(double power){
         armRotator.setPower(power);
     }

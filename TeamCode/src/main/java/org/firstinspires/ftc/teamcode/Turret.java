@@ -17,14 +17,7 @@ public class Turret {
 
     private final double ROTATION_SPEED = 0;
     double ENCODER_TO_ANGLE_RATIO = 0.4643;
-    public void setTurretMode(boolean powerMode){
-        if (powerMode){
-            turretMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        }
-        else {
-            turretMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        }
-    }
+
     public Turret(LinearOpMode opMode){
         linear_OpMode = opMode;
 
@@ -55,6 +48,19 @@ public class Turret {
 
     public void setDirection(int angle){
         targetAngle = angle;
+    }
+
+    public void setTurretMode(boolean powerMode){
+        if (powerMode){
+            turretMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        }
+        else {
+            turretMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        }
+    }
+
+    public void setTurretPower (double power){
+        turretMotor.setPower(power);
     }
 
     public void update(double robotDirection){
