@@ -33,6 +33,7 @@ public class Manipulator {
     private final double ROBOT_HEIGHT = 16;
     // private final double ARM_FLOOR_ANGLE = Math.toDegrees(Math.acos(ARM_LENGTH / ROBOT_HEIGHT)); // Angle at which the arm would be touching the floor
     private final double HEIGHT_LOWER_BOUND = 6;
+    private final double DEGREE_TO_ENCODER_TICK = 537.7 / 360;
     // Robot height: 16
 
     private final double[] LEVELS = {0, 3 + 2 + 0.5, 8.5 + 2 + 0.5, 14.75 + 2 + 0.5};
@@ -176,7 +177,7 @@ public class Manipulator {
         new_target = 180 - new_target;
 
         // Adjust for gear ratios
-        armRotator.setTargetPosition((int)(new_target / MOTOR_ARM_GEAR_RATIO));
+        armRotator.setTargetPosition((int)(new_target / MOTOR_ARM_GEAR_RATIO * DEGREE_TO_ENCODER_TICK));
         armRotator.setPower(ARM_POWER);
     }
 
