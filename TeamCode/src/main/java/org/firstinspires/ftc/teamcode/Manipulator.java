@@ -1,15 +1,11 @@
 package org.firstinspires.ftc.teamcode;
 
-import androidx.annotation.NonNull;
-
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
-
-import java.time.temporal.ValueRange;
 
 public class Manipulator {
     private LinearOpMode linear_OpMode;
@@ -31,21 +27,13 @@ public class Manipulator {
     // private final double DUCK_POWER = 0;
     // private final int DUCK_TIME = 0;
     private final double ARM_POWER = 0.5;
-    private final double MOTOR_ARM_GEAR_RATIO = 0.25; // 0.25 = The motor rotation is 1/4 of the resulting arm rotation
+    // TODO: FIND ARM GEAR RATIO
+    private final double MOTOR_ARM_GEAR_RATIO = 1; // 0.25 = The motor rotation is 1/4 of the resulting arm rotation
     private final double ARM_LENGTH = 15;
     private final double ROBOT_HEIGHT = 16;
-    private final double ARM_FLOOR_ANGLE = Math.acos(ARM_LENGTH / ROBOT_HEIGHT); // Angle at which the arm would be touching the floor
+    // private final double ARM_FLOOR_ANGLE = Math.toDegrees(Math.acos(ARM_LENGTH / ROBOT_HEIGHT)); // Angle at which the arm would be touching the floor
     private final double HEIGHT_LOWER_BOUND = 6;
     // Robot height: 16
-    /*
-    V Robot
-      /|
-     / |  < Arm
-    /  |
-    ----
-    cos A = arm length / robot length
-    A = acos(arm length / robot length)
-     */
 
     private final double[] LEVELS = {0, 3 + 2 + 0.5, 8.5 + 2 + 0.5, 14.75 + 2 + 0.5};
 
@@ -64,7 +52,7 @@ public class Manipulator {
         armRotator.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         armRotator.setPower(0);
-        armRotator.setTargetPosition((int)(ARM_FLOOR_ANGLE / MOTOR_ARM_GEAR_RATIO));
+        armRotator.setTargetPosition((int)(180 / MOTOR_ARM_GEAR_RATIO));
         armRotator.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         linear_OpMode.telemetry.addLine("Manipulator Init Completed - Linear");
@@ -86,7 +74,7 @@ public class Manipulator {
         armRotator.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         armRotator.setPower(0);
-        armRotator.setTargetPosition((int)(ARM_FLOOR_ANGLE / MOTOR_ARM_GEAR_RATIO));
+        armRotator.setTargetPosition((int)(180 / MOTOR_ARM_GEAR_RATIO));
         armRotator.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         opMode.telemetry.addLine("Manipulator Init Completed - Iterative");
@@ -139,9 +127,7 @@ public class Manipulator {
     }
      */
 
-
-    // for STAS + ANYA
-    // Complete!
+    // --- Abstracted claw control functions --- //
 
     public void toggleGrabber(){
         if (grabEnabled) {
@@ -171,17 +157,15 @@ public class Manipulator {
             return ;
 
         // Calculate arm circle lower and upper bounds
-        double lower = -Math.sin(toRad(ARM_FLOOR_ANGLE)) * ARM_LENGTH - ARM_LENGTH,
-                upper = lower + ARM_LENGTH * 2;
+        /* double lower = -Math.sin(toRad(ARM_FLOOR_ANGLE)) * ARM_LENGTH - ARM_LENGTH,
+                upper = lower + ARM_LENGTH * 2; */
 
-        double c = (lower + upper) / 2.0;
+        double c = /* (lower + upper) / 2.0 */ ROBOT_HEIGHT;
 
         // find the angle on the circle
-        // FIXME: There's probably a better way to do this calculation
         double new_target = toDeg(Math.asin(Math.abs(level - c) / ARM_LENGTH)) * (level < c ? -1 : 1);
-        if (ARM_FLOOR_ANGLE < 270){
-            new_target = 180 - new_target;
-        }
+        new_target = 180 - new_target;
+
         // Adjust for gear ratios
         armRotator.setTargetPosition((int)(new_target / MOTOR_ARM_GEAR_RATIO));
         armRotator.setPower(ARM_POWER);
