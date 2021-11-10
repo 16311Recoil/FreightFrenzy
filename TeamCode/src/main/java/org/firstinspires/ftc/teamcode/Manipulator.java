@@ -1,5 +1,4 @@
 package org.firstinspires.ftc.teamcode;
-
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -30,8 +29,7 @@ public class Manipulator {
     private final double MAG_OFF = 0;
     // private final double DUCK_POWER = 0;
     // private final int DUCK_TIME = 0;
-    private final double ARM_POWER = 0.5;
-    // TODO: FIND ARM GEAR RATIO
+    private final double ARM_POWER = 0.1;
     private final double MOTOR_ARM_GEAR_RATIO = 14 / 32.0; // 0.25 = The motor rotation is 1/4 of the resulting arm rotation
     private final double ARM_LENGTH = 15;
     private final double ROBOT_HEIGHT = 16;
@@ -185,21 +183,22 @@ public class Manipulator {
     public void goToLevel(double level) {
         // First, make sure we've received a level that can actually be reached
         if (level < HEIGHT_LOWER_BOUND || level > ROBOT_HEIGHT + ARM_LENGTH)
-            return ;
+            return;
 
-        // Calculate arm circle lower and upper bounds
-        /* double lower = -Math.sin(toRad(ARM_FLOOR_ANGLE)) * ARM_LENGTH - ARM_LENGTH,
-                upper = lower + ARM_LENGTH * 2; */
-
-        double c = /* (lower + upper) / 2.0 */ ROBOT_HEIGHT;
-
-        // find the angle on the circle
-        double new_target = toDeg(Math.asin(Math.abs(level - c) / ARM_LENGTH)) * (level < c ? -1 : 1);
-        new_target = 180 - new_target;
-
-        // Adjust for gear ratios
-        armRotator.setTargetPosition((int)(new_target / MOTOR_ARM_GEAR_RATIO * DEGREE_TO_ENCODER_TICK));
+        armRotator.setTargetPosition(calcPosForLevelFrom0(level));
         armRotator.setPower(ARM_POWER);
+    }
+
+    public int calcPosForLevelFrom0(double level){
+        return calcPosForLevel(HEIGHT_LOWER_BOUND) - calcPosForLevel(level);
+    }
+
+    public int calcPosForLevel(double level) {
+        double c = ROBOT_HEIGHT;
+        double new_target = toDeg(Math.asin(Math.abs(level - c) / ARM_LENGTH) * (level < c ? -1 : 1));
+        new_target = 180 - new_target;
+        // Adjust for gear ratios and encoder bullshit
+        return (int) (new_target / MOTOR_ARM_GEAR_RATIO * DEGREE_TO_ENCODER_TICK);
     }
 
     double toRad(double angle){

@@ -58,6 +58,7 @@ public class Crab {
     double x = 0, y = 0;
 
     boolean alliance; // true = blue
+    boolean ALLIANCE_BLUE = true, ALLIANCE_RED = false;
 
     public Crab(LinearOpMode opMode){
 
@@ -146,6 +147,31 @@ public class Crab {
         manip.teleOpControls(-teleOp.gamepad2.left_stick_y, teleOp.gamepad2.a, teleOp.gamepad2.b);
         turret.teleOpControls(-teleOp.gamepad2.right_stick_x);
     }
+
+    /**
+     * Ram the robot into the wall
+     * @param speed direction along the wall to move.
+     *                  >0 = towards warehouse; <0 = towards team parking
+     */
+    public void violentlyRamWall(double speed, long time) throws InterruptedException{
+        if (alliance == ALLIANCE_BLUE){
+            drivetrain.setMotorPowers(speed, 0.1, 0.1, speed);
+        }
+        else {
+            drivetrain.setMotorPowers(-speed, -0.1, -0.1, -speed);
+        }
+        Thread.sleep(time);
+        drivetrain.setMotorPowers(0, 0, 0, 0);
+    }
+
+    public void violentlyRamDucks() throws InterruptedException{
+        violentlyRamWall(-1, 5000);
+        double mult = alliance == ALLIANCE_BLUE ? 1 : -1;
+        drivetrain.setMotorPowers(0, 0.5 * mult, 0, 0.5 * mult);
+        violentlyRamWall(-1, 1000);
+        drivetrain.spinDuck(1, 0.1, (1.5 + 0.25 * mult) * Math.PI, Math.PI * (0.5 - 0.5 * mult), true);
+    }
+
 
     public void teleOpControlsAditya(double init_Heading){
     }
