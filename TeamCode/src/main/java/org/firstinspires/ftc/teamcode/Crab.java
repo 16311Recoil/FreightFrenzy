@@ -10,10 +10,17 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.Drivetrain;
 
 public class Crab {
-    Drivetrain dt;
+
+    Drivetrain drivetrain;
     Manipulator manip;
     Turret turret;
     Sensors sensors;
+
+    private OpMode teleOp;
+    private LinearOpMode auto;
+    private double relativeHeading;
+    private boolean triggerPressRight;
+
     /*
       --------------------
       |                  |
@@ -51,10 +58,12 @@ public class Crab {
     double x = 0, y = 0;
 
     boolean alliance; // true = blue
-    final boolean ALLIANCE_BLUE = true, ALLIANCE_RED = false;
 
     public Crab(LinearOpMode opMode){
-        dt = new Drivetrain(opMode);
+
+        auto = opMode;
+
+        drivetrain = new Drivetrain(opMode);
         manip = new Manipulator(opMode);
         turret = new Turret(opMode);
         sensors = new Sensors(opMode);
@@ -64,7 +73,9 @@ public class Crab {
     }
 
     public Crab(OpMode opMode) {
-        dt = new Drivetrain(opMode);
+        teleOp = opMode;
+
+        drivetrain = new Drivetrain(opMode);
         manip = new Manipulator(opMode);
         turret = new Turret(opMode);
         sensors = new Sensors(opMode);
@@ -78,7 +89,6 @@ public class Crab {
             team_hub = BLUE_HUB;
         else
             team_hub = RED_HUB;
-        alliance = blueSide ? ALLIANCE_BLUE : ALLIANCE_RED;
     }
 
     // --- Auto Functions --- //
@@ -109,33 +119,52 @@ public class Crab {
 
     }
 
-    /**
-     * Ram the robot into the wall
-     * @param speed direction along the wall to move.
-     *                  >0 = towards warehouse; <0 = towards team parking
-     */
-    public void violentlyRamWall(double speed, long time) throws InterruptedException{
-        if (alliance == ALLIANCE_BLUE){
-            dt.setMotorPowers(speed, 0.1, 0.1, speed);
-        }
-        else {
-            dt.setMotorPowers(-speed, -0.1, -0.1, -speed);
-        }
-        Thread.sleep(time);
-        dt.setMotorPowers(0, 0, 0, 0);
-    }
-
-    public void violentlyRamDucks() throws InterruptedException{
-        violentlyRamWall(-1, 5000);
-        double mult = alliance == ALLIANCE_BLUE ? 1 : -1;
-        dt.setMotorPowers(0, 0.5 * mult, 0, 0.5 * mult);
-        violentlyRamWall(-1, 1000);
-        dt.spinDuck(1, 0.1, (1.5 + 0.25 * mult) * Math.PI, Math.PI * (0.5 - 0.5 * mult), true);
-    }
-
     // --- Utility Functions --- //
     public double angleTowards(double x, double y){
         return Math.atan2(y - this.y, x - this.x);
     }
+
+    public void teleOpControlsBrenden(double init_Heading){
+        double currentAngle = sensors.getFirstAngle();
+
+        if (teleOp.gamepad1.right_trigger > 0){
+            drivetrain.moveGyroTeleOp_Plus(teleOp.gamepad1.right_stick_x, teleOp.gamepad1.right_stick_y, drivetrain.lockHeadingAngle(drivetrain.lockNearestX(currentAngle - init_Heading), currentAngle), 1, 1, currentAngle); //lock x-mode
+        }
+        else if (teleOp.gamepad1.left_trigger > 0){
+            if (!triggerPressRight){
+                relativeHeading = currentAngle;
+            }
+            triggerPressRight = true;
+            drivetrain.moveTeleOp_Plus(teleOp.gamepad1.right_stick_x, teleOp.gamepad1.right_stick_y, drivetrain.lockHeadingAngle(relativeHeading - init_Heading, currentAngle), 1, 1); //lock angle
+
+        }
+        else { //regular driving
+            triggerPressRight = false;
+            drivetrain.moveGyroTeleOp_Plus(teleOp.gamepad1.right_stick_x, teleOp.gamepad1.right_stick_y, teleOp.gamepad1.left_stick_x, 1, 1, currentAngle);
+        }
+
+        manip.teleOpControls(-teleOp.gamepad2.left_stick_y, teleOp.gamepad2.a, teleOp.gamepad2.b);
+        turret.teleOpControls(-teleOp.gamepad2.right_stick_x);
+    }
+
+    public void teleOpControlsAditya(double init_Heading){
+    }
+
+    public Drivetrain getDrivetrain() {
+        return drivetrain;
+    }
+
+    public Manipulator getManip() {
+        return manip;
+    }
+
+    public Turret getTurret() {
+        return turret;
+    }
+
+    public Sensors getSensors() {
+        return sensors;
+    }
+
 
 }

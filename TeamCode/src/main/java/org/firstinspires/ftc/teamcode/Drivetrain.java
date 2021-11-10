@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 import com.sun.tools.javac.util.ArrayUtils;
@@ -18,6 +19,7 @@ import java.util.Collections;
 public class Drivetrain{
 
     private DcMotorEx f, r, l, b;
+    private Servo ffOdom, sfOdom;
     private LinearOpMode linear_OpMode;
     private OpMode iterative_OpMode;
     private FtcDashboard dashboard;
@@ -26,10 +28,15 @@ public class Drivetrain{
 
         this.linear_OpMode = opMode;
 
+
         f = this.linear_OpMode.hardwareMap.get(DcMotorEx.class, "f");
         r = this.linear_OpMode.hardwareMap.get(DcMotorEx.class, "r");
         l = this.linear_OpMode.hardwareMap.get(DcMotorEx.class, "l");
         b = this.linear_OpMode.hardwareMap.get(DcMotorEx.class, "b");
+
+        ffOdom = this.linear_OpMode.hardwareMap.servo.get("ffOdom");
+        sfOdom = this.linear_OpMode.hardwareMap.servo.get("sfOdom");
+
 
         f.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         f.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -37,13 +44,19 @@ public class Drivetrain{
         b.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         f.setDirection(DcMotorSimple.Direction.FORWARD);
-        r.setDirection(DcMotorSimple.Direction.FORWARD);
+        r.setDirection(DcMotorSimple.Direction.REVERSE);
         l.setDirection(DcMotorSimple.Direction.REVERSE);
         b.setDirection(DcMotorSimple.Direction.FORWARD);
+
+        ffOdom.setDirection(Servo.Direction.FORWARD);
+        sfOdom.setDirection(Servo.Direction.FORWARD);
 
         for (LynxModule module : this.linear_OpMode.hardwareMap.getAll(LynxModule.class)) {
             module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
+
+        ffOdom.setPosition(0);
+        sfOdom.setPosition(0);
 
         opMode.telemetry.addLine("Drivetrain Init Completed - Linear");
         opMode.telemetry.update();
@@ -59,13 +72,16 @@ public class Drivetrain{
         l = this.iterative_OpMode.hardwareMap.get(DcMotorEx.class, "l");
         b = this.iterative_OpMode.hardwareMap.get(DcMotorEx.class, "b");
 
+        ffOdom = this.iterative_OpMode.hardwareMap.servo.get("ffOdom");
+        sfOdom = this.iterative_OpMode.hardwareMap.servo.get("sfOdom");
+
         f.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         f.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         l.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         b.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         f.setDirection(DcMotorSimple.Direction.FORWARD);
-        r.setDirection(DcMotorSimple.Direction.FORWARD);
+        r.setDirection(DcMotorSimple.Direction.REVERSE);
         l.setDirection(DcMotorSimple.Direction.REVERSE);
         b.setDirection(DcMotorSimple.Direction.FORWARD);
 
@@ -77,9 +93,19 @@ public class Drivetrain{
         opMode.telemetry.addLine("Drivetrain Init Completed - Iterative");
         opMode.telemetry.update();
 
+        ffOdom.setPosition(0);
+        sfOdom.setPosition(0);
     }
 
  //================== Utility Methods ============================================
+
+    public void setFfOdomPos(double pos){
+        ffOdom.setPosition(pos);
+    }
+
+    public void setSfOdomPos(double pos){
+        sfOdom.setPosition(pos);
+    }
 
     public void setMotorBrake(boolean brake){
         if (brake){

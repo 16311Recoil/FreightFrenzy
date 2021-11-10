@@ -1,25 +1,14 @@
-package org.firstinspires.ftc.teamcode.TestClasses;
+package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.acmerobotics.roadrunner.drive.Drive;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.teamcode.Drivetrain;
-import org.firstinspires.ftc.teamcode.Manipulator;
-import org.firstinspires.ftc.teamcode.Sensors;
-import org.firstinspires.ftc.teamcode.Turret;
+@TeleOp(name = "teleOp", group = "teleop")
+public class teleOp extends OpMode{
 
-@TeleOp(name = "testTeleop", group = "teleop")
-public class TestTeleop extends OpMode{
 
-    Drivetrain drivetrain;
-    Manipulator arm;
-    Turret turret;
-    Sensors sensor;
+    Crab robot;
     FtcDashboard dash;
     private boolean regular = false;
     private double init_Heading = 0;
@@ -27,12 +16,9 @@ public class TestTeleop extends OpMode{
     private double relativeHeading = 0;
     @Override
     public void init() {
-        drivetrain = new Drivetrain(this);
-        turret = new Turret(this);
-        turret.setTurretMode(true);
-        sensor = new Sensors(this);
-        arm = new Manipulator(this);
-        init_Heading = sensor.getFirstAngle();
+        robot = new Crab(this);
+
+        init_Heading = robot.getSensors().getFirstAngle();
         dash = FtcDashboard.getInstance();
 
         double armHeight = 0;
@@ -45,17 +31,10 @@ public class TestTeleop extends OpMode{
     @Override
     public void loop() {
 
-        turret.teleOpControls(gamepad2.right_stick_x);
-        drivetrain.moveGyroTeleOp_Plus(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x, 1, 1, sensor.getFirstAngle() - init_Heading);
+        robot.teleOpControlsBrenden(init_Heading);
 
 
-        if (gamepad2.a){
-            arm.magGrab();
-        }
 
-        if (gamepad2.b){
-            arm.magRelease();
-        }
 
 
 
@@ -90,7 +69,7 @@ public class TestTeleop extends OpMode{
 
         }*/
 
-        drivetrain.setDashboard(dash);
+        //drivetrain.setDashboard(dash);
 
         /*
         telemetry.addData("x", gamepad1.left_stick_x);

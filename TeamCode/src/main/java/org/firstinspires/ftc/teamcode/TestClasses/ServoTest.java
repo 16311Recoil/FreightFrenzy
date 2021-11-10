@@ -14,8 +14,8 @@ public class ServoTest extends LinearOpMode {
     private boolean changeDpadUp = false;
     private boolean changeDpadDown = false;
     private boolean changeY;
-    private double pos1 = 0.5;
-    private double pos2 = 0;
+    private double pos1 = 0;
+    private double pos2 = 0.55;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -41,15 +41,20 @@ public class ServoTest extends LinearOpMode {
 
             if (gamepad1.dpad_down && !changeDpadDown){
                 if (statePos2){
-                    pos2 -= .01;
+                    pos2 -= .1;
                 }
-                pos1 -= .01;
+                else {
+                    pos1 -= .1;
+                }
+
             }
             if (gamepad1.dpad_up && !changeDpadUp){
                 if (statePos2){
-                    pos2 += .01;
+                    pos2 += .1;
                 }
-                pos1 += .01;
+                else {
+                    pos1 += .1;
+                }
             }
 
             telemetry.addData("Pos2State", statePos2);
