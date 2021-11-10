@@ -51,6 +51,7 @@ public class Crab {
     double x = 0, y = 0;
 
     boolean alliance; // true = blue
+    final boolean ALLIANCE_BLUE = true, ALLIANCE_RED = false;
 
     public Crab(LinearOpMode opMode){
         dt = new Drivetrain(opMode);
@@ -77,6 +78,7 @@ public class Crab {
             team_hub = BLUE_HUB;
         else
             team_hub = RED_HUB;
+        alliance = blueSide ? ALLIANCE_BLUE : ALLIANCE_RED;
     }
 
     // --- Auto Functions --- //
@@ -105,6 +107,30 @@ public class Crab {
 
     public void grabTeamFreight(){
 
+    }
+
+    /**
+     * Ram the robot into the wall
+     * @param speed direction along the wall to move.
+     *                  >0 = towards warehouse; <0 = towards team parking
+     */
+    public void violentlyRamWall(double speed, long time) throws InterruptedException{
+        if (alliance == ALLIANCE_BLUE){
+            dt.setMotorPowers(speed, 0.1, 0.1, speed);
+        }
+        else {
+            dt.setMotorPowers(-speed, -0.1, -0.1, -speed);
+        }
+        Thread.sleep(time);
+        dt.setMotorPowers(0, 0, 0, 0);
+    }
+
+    public void violentlyRamDucks() throws InterruptedException{
+        violentlyRamWall(-1, 5000);
+        double mult = alliance == ALLIANCE_BLUE ? 1 : -1;
+        dt.setMotorPowers(0, 0.5 * mult, 0, 0.5 * mult);
+        violentlyRamWall(-1, 1000);
+        dt.spinDuck(1, 0.1, (1.5 + 0.25 * mult) * Math.PI, Math.PI * (0.5 - 0.5 * mult), true);
     }
 
     // --- Utility Functions --- //
