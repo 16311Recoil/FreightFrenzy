@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.autos;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Crab;
 
@@ -12,8 +11,11 @@ public class BlueFreight extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException{
+        waitForStart();
         crab = new Crab(this);
-        crab.violentlyRamWall(1, 5000);
+        crab.setAlliance(true);
+        crab.violentlyRamWall(0.5, 1000);
+        crab.violentlyRamWall(0.25, 2500);
     }
 
 

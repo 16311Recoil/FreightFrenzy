@@ -66,6 +66,7 @@ public class TrajectorySequenceRunner {
         clock = NanoClock.system();
 
         dashboard = FtcDashboard.getInstance();
+
         dashboard.setTelemetryTransmissionInterval(25);
     }
 

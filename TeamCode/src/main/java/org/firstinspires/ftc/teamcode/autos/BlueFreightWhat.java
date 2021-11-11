@@ -5,16 +5,18 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.Crab;
 
-@Autonomous(name="BlueFreight", group="Auto")
+@Autonomous(name="BlueFreightWhat", group="Auto")
 public class BlueFreightWhat extends LinearOpMode {
     Crab crab;
 
     @Override
     public void runOpMode() throws InterruptedException{
+        waitForStart();
+
         Thread.sleep(15000);
         crab = new Crab(this);
-        crab.violentlyRamWall(1, 5000);
+        crab.setAlliance(true);
+        crab.violentlyRamWall(0.5, 1000);
+        crab.violentlyRamWall(0.25, 2500);
     }
-
-
 }

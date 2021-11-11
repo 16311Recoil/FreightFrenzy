@@ -6,6 +6,7 @@ import android.util.Pair;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Drivetrain;
 
@@ -165,11 +166,15 @@ public class Crab {
     }
 
     public void violentlyRamDucks() throws InterruptedException{
-        violentlyRamWall(-1, 5000);
+        violentlyRamWall(-0.7, 2000);
         double mult = alliance == ALLIANCE_BLUE ? 1 : -1;
         drivetrain.setMotorPowers(0, 0.5 * mult, 0, 0.5 * mult);
-        violentlyRamWall(-1, 1000);
-        drivetrain.spinDuck(1, 0.1, (1.5 + 0.25 * mult) * Math.PI, Math.PI * (0.5 - 0.5 * mult), true);
+        violentlyRamWall(-0.7, 1000);
+        ElapsedTime timer = new ElapsedTime();
+        timer.reset();
+        while (timer.seconds() < 3){
+            drivetrain.spinDuck(0.5, 0.1, (1.75) * Math.PI, 0, true);
+        }
     }
 
 
