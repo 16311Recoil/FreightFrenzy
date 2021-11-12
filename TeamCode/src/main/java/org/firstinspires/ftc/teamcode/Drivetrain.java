@@ -151,6 +151,15 @@ public class Drivetrain{
         setAllMotors(0);
     }
 
+    public int[] getEncoders(){
+        return new int[]{
+                f.getCurrentPosition(),
+                r.getCurrentPosition(),
+                l.getCurrentPosition(),
+                b.getCurrentPosition()
+        };
+    }
+
     public double getEncodersLR(){
         double left = l.getCurrentPosition();
         double right = r.getCurrentPosition();
