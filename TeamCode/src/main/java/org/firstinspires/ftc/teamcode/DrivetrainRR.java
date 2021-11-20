@@ -113,7 +113,7 @@ public class DrivetrainRR extends TankDrive {
             leftMotors = Arrays.asList(l);
             rightMotors = Arrays.asList(r);
 
-            //Only l needs to ever be reversed
+            r.setDirection(DcMotorSimple.Direction.REVERSE);
             l.setDirection(DcMotorSimple.Direction.REVERSE);
         }
         else {
@@ -318,6 +318,7 @@ public class DrivetrainRR extends TankDrive {
     @Override
     public Double getExternalHeadingVelocity() {
         // TODO: This must be changed to match your configuration
+        //
         //                           | Z axis
         //                           |
         //     (Motor Port Side)     |   / X axis
@@ -329,7 +330,7 @@ public class DrivetrainRR extends TankDrive {
         //
         //                 (Servo Port Side)
         //
-        // The positive x axis points toward the USB port(s)
+        // The positive x axis points toward the USB port(s) 
         //
         // Adjust the axis rotation rate as necessary
         // Rotate about the z axis is the default assuming your REV Hub/Control Hub is laying
