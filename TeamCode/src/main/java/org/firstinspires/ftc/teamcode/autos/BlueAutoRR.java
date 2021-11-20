@@ -36,7 +36,8 @@ public class BlueAutoRR extends LinearOpMode {
                 .splineTo(new Vector2d(-59.75, -65.50), 90)
                 .build();
 
-        Trajectory deliveryTrajectory = drive.trajectoryBuilder(startPose)
+        //TODO: get endangle
+        Trajectory deliveryTrajectory = drive.trajectoryBuilder(duckTrajectory.end())
                 .splineTo(new Vector2d(-36, -36), 90)
                 .build();
 
@@ -57,11 +58,11 @@ public class BlueAutoRR extends LinearOpMode {
         drive.followTrajectory(deliveryTrajectory);
 
         // TODO: Add vision stuff
-        if ()
-        manipulator.placePresetLevel();
+        //if ()
+        //manipulator.placePresetLevel();
 
 
-        drive.followTrajectory(deliveryTrajectory);
+        //drive.followTrajectory(deliveryTrajectory);
 
 
 
