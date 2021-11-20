@@ -23,8 +23,8 @@ public class Turret {
 
     //teleo-op utility
     private ElapsedTime timer = new ElapsedTime();
-    private final int TOP_BOUND = 570;
-    private final int LOW_BOUND = 0;
+    private int TOP_BOUND = 480;
+    private int LOW_BOUND = -100;
     private double goalEncoder = 0;
     private boolean stickPressed = false;
     private double prevTime = 0;
@@ -51,6 +51,7 @@ public class Turret {
 
         turretMotor = opMode.hardwareMap.get(DcMotor.class, "turret_motor");
 
+        turretMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         turretMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         turretMotor.setTargetPosition(0);
         turretMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -105,12 +106,21 @@ public class Turret {
         return ((angle % 360) + 360) % 360;
     }
 
+    public void setPosition(int pos) {turretMotor.setTargetPosition(pos);}
+
     public int getPosition(){
         return turretMotor.getCurrentPosition();
     }
 
-    public void teleOpControls(double gamepad){
-        if (gamepad != 0){
+    public void teleOpControls(double gamepad, boolean x){
+
+        if (x){
+            TOP_BOUND = calibrationMode(gamepad);
+            setLOW_BOUND(TOP_BOUND);
+            goalEncoder = turretMotor.getCurrentPosition();
+        }
+
+        else if (gamepad != 0){
             if (!stickPressed){
                 timer.reset();
                 prevTime = 0;
@@ -121,13 +131,13 @@ public class Turret {
 
                 if (gamepad > 0){
                     if (goalEncoder < TOP_BOUND){
-                        goalEncoder += 5 * gamepad;
+                        goalEncoder += 8 * gamepad;
                     }
                 }
 
                 if (gamepad < 0){
                     if (goalEncoder > LOW_BOUND){
-                        goalEncoder += 5 * gamepad;
+                        goalEncoder += 8 * gamepad;
                     }
                 }
 
@@ -139,11 +149,20 @@ public class Turret {
             stickPressed = false;
         }
         //turretMotor.setTargetPosition((int)goalEncoder);
-        movePID((int)goalEncoder);
+        if (!x){
+            movePID((int)goalEncoder);
+        }
+        /*
         iterative_OpMode.telemetry.addData("timer", timer.seconds());
         iterative_OpMode.telemetry.addData("goal", goalEncoder);
         iterative_OpMode.telemetry.addData("prev Timer", prevTime);
         iterative_OpMode.telemetry.addData("stickPressed", stickPressed);
+         */
+    }
+
+    public int calibrationMode(double gamepad){
+        turretMotor.setPower(gamepad * 0.5);
+        return turretMotor.getCurrentPosition();
     }
 
     public void movePID(int encoderTarget){
@@ -163,5 +182,17 @@ public class Turret {
             turretMotor.setPower(pid.loop(turretMotor.getCurrentPosition(), timer.seconds()));
         }
         turretMotor.setPower(0);
+    }
+
+    public void resetEncoder(){
+        turretMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    }
+
+    public void setTOP_BOUND(int TOP){
+        TOP_BOUND = TOP;
+    }
+
+    public void setLOW_BOUND(int HIGH_BOUND){
+        LOW_BOUND = HIGH_BOUND - 580;
     }
 }

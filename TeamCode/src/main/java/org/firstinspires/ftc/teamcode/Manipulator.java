@@ -20,9 +20,12 @@ public class Manipulator {
     DcMotor armRotator;
     Servo grabber;
     Servo magSwitch;
+    Servo clawRotator;
+
 
     // All measurements in inches or degrees
-
+    private final double UP = 1;
+    private final double DOWN = 0;
     private final double GRAB = 180;
     private final double UNGRAB = 0;
     private final double MAG_ON = 0.55;
@@ -40,6 +43,7 @@ public class Manipulator {
 
     // Tele-Op Utility
     private ElapsedTime timer = new ElapsedTime();
+    private ElapsedTime magTimer = new ElapsedTime();
     private final int TOP_BOUND = 290;
     private final int LOW_BOUND = 0;
     private double goalEncoder = 0;
@@ -55,6 +59,7 @@ public class Manipulator {
         armRotator = opMode.hardwareMap.get(DcMotorEx.class,  "armRotator");
         grabber = opMode.hardwareMap.get(Servo.class,   "grabber");
         magSwitch = opMode.hardwareMap.get(Servo.class, "magSwitch");
+        clawRotator = opMode.hardwareMap.get(Servo.class, "clawRotator");
 
         // flyWheel.setDirection(DcMotorSimple.Direction.FORWARD);
         armRotator.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -64,7 +69,7 @@ public class Manipulator {
         armRotator.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
 
-        armRotator.setPower(0.7);
+        armRotator.setPower(0.5);
         armRotator.setTargetPosition(0);
         armRotator.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
@@ -80,6 +85,7 @@ public class Manipulator {
         armRotator = opMode.hardwareMap.get(DcMotorEx.class,  "armRotator");
         grabber = opMode.hardwareMap.get(Servo.class,   "grabber");
         magSwitch = opMode.hardwareMap.get(Servo.class, "magSwitch");
+        clawRotator = opMode.hardwareMap.get(Servo.class, "clawRotator");
 
         // flyWheel.setDirection(DcMotorSimple.Direction.FORWARD);
         armRotator.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -88,7 +94,7 @@ public class Manipulator {
         armRotator.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         armRotator.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        armRotator.setPower(0.7);
+        armRotator.setPower(0.5);
         armRotator.setTargetPosition(0);
         armRotator.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
@@ -115,6 +121,9 @@ public class Manipulator {
         magSwitch.setPosition(MAG_OFF);
     }
 
+    public void rotateClawDown(){clawRotator.setPosition(DOWN);}
+    
+    public void rotateClawUp(){clawRotator.setPosition(UP);}
     // --- Abstracted Arm Control Functions --- //
 
     /**
@@ -256,7 +265,7 @@ public class Manipulator {
         armRotator.setTargetPosition((int)Math.round(gamepad * (TOP_BOUND - LOW_BOUND)));
     }
 
-    public void teleOpControls(double gamepad, boolean a, boolean b){
+    public void teleOpControls(double gamepad, boolean a, boolean b, boolean down, boolean left, boolean up, boolean right){
         if (gamepad != 0){
             if (!stickPressed){
                 timer.reset();
@@ -288,19 +297,37 @@ public class Manipulator {
 
         magControl(a, b);
 
+        if (down){
+            goalEncoder = 15;
+        }
+        if (up){
+            goalEncoder = 375;
+        }
+        if (right){
+            goalEncoder = 120;
+        }
+        if (left) {
+            goalEncoder = 240;
+        }
+
         armRotator.setTargetPosition((int)goalEncoder);
+
         iterative_OpMode.telemetry.addData("timer", timer.seconds());
         iterative_OpMode.telemetry.addData("goal", goalEncoder);
         iterative_OpMode.telemetry.addData("prev Timer", prevTime);
         iterative_OpMode.telemetry.addData("stickPressed", stickPressed);
+        iterative_OpMode.telemetry.addData("Encoder", armRotator.getCurrentPosition());
+
     }
 
     public void magControl(boolean a, boolean b){
-        if (a){
+
+        if (magTimer.seconds() > 2 || a){
             magGrab();
         }
         if (b){
             magRelease();
+            magTimer.reset();
         }
     }
 }

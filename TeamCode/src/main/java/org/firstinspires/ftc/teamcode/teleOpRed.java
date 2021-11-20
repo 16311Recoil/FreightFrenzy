@@ -18,11 +18,11 @@ public class teleOp extends OpMode{
     public void init() {
         robot = new Crab(this);
 
+
         init_Heading = robot.getSensors().getFirstAngle();
         dash = FtcDashboard.getInstance();
-
-        double armHeight = 0;
-
+        robot.getTurret().setTurretPower(0);
+        robot.getTurret().setTurretMode(true);
     }
 
     //drivetrain.moveTeleOp_Plus(gamepad1.left_stick_x, gamepad1.left_stick_y, drivetrain.lockHeadingAngle(relativeHeading - init_Heading, sensor.getFirstAngle()), 1, 1); //lock angle
@@ -31,9 +31,14 @@ public class teleOp extends OpMode{
     @Override
     public void loop() {
 
+        if (gamepad1.x){
+            init_Heading = robot.getSensors().getFirstAngle();
+        }
+
         robot.teleOpControlsBrenden(init_Heading);
 
-
+        telemetry.addData("angle", robot.getSensors().getFirstAngle());
+        telemetry.addData("init_heading", init_Heading);
 
 
 

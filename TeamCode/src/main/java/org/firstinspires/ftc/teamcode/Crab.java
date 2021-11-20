@@ -20,6 +20,10 @@ public class Crab {
     private LinearOpMode auto;
     private double relativeHeading;
     private boolean triggerPressRight;
+    private double[] multipliers = {0.2, 0.55, 1};
+    private int multiCounter = 1;
+    private double multiplier = 1;
+    private boolean changeDpadDown, changeDpadUp = false;
 
     /*
       --------------------
@@ -125,27 +129,48 @@ public class Crab {
         return Math.atan2(y - this.y, x - this.x);
     }
 
+    public void toggleSpeed() {
+        if ((teleOp.gamepad1.dpad_down && !changeDpadDown) && multiCounter > 0) {
+            multiCounter--;
+        }
+        else if ((teleOp.gamepad1.dpad_up && !changeDpadUp) && multiCounter < 2) {
+            multiCounter++;
+        }
+        multiplier = multipliers[multiCounter];
+
+
+
+        changeDpadDown = teleOp.gamepad1.dpad_down;
+        changeDpadUp = teleOp.gamepad1.dpad_up;
+
+        teleOp.telemetry.addData("power", multiplier);
+    }
+
     public void teleOpControlsBrenden(double init_Heading){
         double currentAngle = sensors.getFirstAngle();
 
+        //drivetrain.moveTeleOp_Plus(gamepad1.left_stick_x, gamepad1.left_stick_y, drivetrain.lockHeadingAngle(relativeHeading - init_Heading, sensor.getFirstAngle()), 1, 1); //lock angle
+        //drivetrain.moveGyroTeleOp_Plus(gamepad1.left_stick_x, gamepad1.left_stick_y, drivetrain.lockHeadingAngle(drivetrain.lockNearestX(currentAngle - init_Heading), currentAngle), 1, 1, currentAngle); //lock x-mode
+
         if (teleOp.gamepad1.right_trigger > 0){
-            drivetrain.moveGyroTeleOp_Plus(teleOp.gamepad1.right_stick_x, teleOp.gamepad1.right_stick_y, drivetrain.lockHeadingAngle(drivetrain.lockNearestX(currentAngle - init_Heading), currentAngle), 1, 1, currentAngle); //lock x-mode
+            drivetrain.moveGyroTeleOp_Plus(teleOp.gamepad1.right_stick_x, teleOp.gamepad1.right_stick_y, drivetrain.lockHeadingAngle(drivetrain.lockNearestX(currentAngle - init_Heading), currentAngle - init_Heading), multiplier, multiplier, currentAngle - init_Heading); //lock x-mode
         }
         else if (teleOp.gamepad1.left_trigger > 0){
             if (!triggerPressRight){
                 relativeHeading = currentAngle;
             }
             triggerPressRight = true;
-            drivetrain.moveTeleOp_Plus(teleOp.gamepad1.right_stick_x, teleOp.gamepad1.right_stick_y, drivetrain.lockHeadingAngle(relativeHeading - init_Heading, currentAngle), 1, 1); //lock angle
+            drivetrain.moveGyroTeleOp_Plus(teleOp.gamepad1.right_stick_x, teleOp.gamepad1.right_stick_y, drivetrain.lockHeadingAngle(relativeHeading - init_Heading, currentAngle - init_Heading), multiplier, multiplier, currentAngle - init_Heading); //lock angle
 
         }
         else { //regular driving
             triggerPressRight = false;
-            drivetrain.moveGyroTeleOp_Plus(teleOp.gamepad1.right_stick_x, teleOp.gamepad1.right_stick_y, teleOp.gamepad1.left_stick_x, 1, 1, currentAngle);
+            drivetrain.moveGyroTeleOp_Plus(teleOp.gamepad1.right_stick_x, teleOp.gamepad1.right_stick_y, teleOp.gamepad1.left_stick_x, multiplier, multiplier, currentAngle - init_Heading);
         }
 
-        manip.teleOpControls(-teleOp.gamepad2.left_stick_y, teleOp.gamepad2.a, teleOp.gamepad2.b);
-        turret.teleOpControls(-teleOp.gamepad2.right_stick_x);
+        manip.teleOpControls(-teleOp.gamepad2.left_stick_y, teleOp.gamepad2.a, teleOp.gamepad2.b, teleOp.gamepad2.dpad_down, teleOp.gamepad2.dpad_left, teleOp.gamepad2.dpad_up, teleOp.gamepad2.dpad_right);
+        turret.teleOpControls(-teleOp.gamepad2.right_stick_x, teleOp.gamepad2.right_bumper);
+        toggleSpeed();
     }
 
     /**

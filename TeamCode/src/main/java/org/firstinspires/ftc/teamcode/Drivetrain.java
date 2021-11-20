@@ -24,6 +24,10 @@ public class Drivetrain{
     private OpMode iterative_OpMode;
     private FtcDashboard dashboard;
 
+    private double FF_LOW = 0.52;
+    private double SF_LOW = 0.54;
+    private double ENCODER_IN_INCHES = 2086.07567;
+
     public Drivetrain(LinearOpMode opMode){
 
         this.linear_OpMode = opMode;
@@ -37,9 +41,14 @@ public class Drivetrain{
         ffOdom = this.linear_OpMode.hardwareMap.servo.get("ffOdom");
         sfOdom = this.linear_OpMode.hardwareMap.servo.get("sfOdom");
 
+        l.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        f.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        l.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        f.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         f.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        f.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        r.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         l.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         b.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
@@ -75,8 +84,9 @@ public class Drivetrain{
         ffOdom = this.iterative_OpMode.hardwareMap.servo.get("ffOdom");
         sfOdom = this.iterative_OpMode.hardwareMap.servo.get("sfOdom");
 
+
         f.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        f.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        r.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         l.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         b.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
@@ -375,6 +385,97 @@ public void spinDuck(double turnPower, double movePower, double moveAngle, doubl
     public double rotateLRY(double x, double y, double angle){
         double output = (-Math.cos(angle + (Math.PI / 4)) * y) - (Math.sin(angle + (Math.PI / 4)) * x);
         return output;
+    }
+
+    public int getForwardEncoder(){
+        return l.getCurrentPosition();
+    }
+
+    public int getSideEncoder(){
+        return f.getCurrentPosition() * -1;
+    }
+
+    public void lowerOdom(){
+        ffOdom.setPosition(FF_LOW);
+        sfOdom.setPosition(SF_LOW);
+    }
+
+    public void raiseOdom(){
+        ffOdom.setPosition(0);
+        sfOdom.setPosition(0);
+    }
+
+
+    public void moveInches(double inches, double power, boolean strafe, boolean opModeActive){
+        double powerF = 0, powerR = 0, powerL = 0, powerB = 0;
+        double multiplier = -1;
+        double initEncoder;
+
+        if (inches < 0){
+            multiplier *= -1;
+        }
+
+        if (strafe){
+            initEncoder = getSideEncoder();
+            powerF = -power * multiplier;
+            powerB = -power * multiplier;
+        }
+        else {
+            initEncoder = getForwardEncoder();
+            powerR = power * multiplier;
+            powerL = power * multiplier;
+        }
+
+        double goalEncoder = (inches * ENCODER_IN_INCHES) + initEncoder;
+
+        if (strafe){
+            if (goalEncoder > initEncoder){
+
+                while (goalEncoder > getSideEncoder() && opModeActive){
+
+
+                    linear_OpMode.telemetry.addData("goalEncoder", goalEncoder);
+                    linear_OpMode.telemetry.addData("initEncoder", initEncoder);
+                    linear_OpMode.telemetry.addData("sideEncoder", getSideEncoder());
+
+                    setMotorPowers(powerF,powerR,powerL,powerB);
+
+
+                }
+            }
+            else {
+                while (goalEncoder < getSideEncoder() && opModeActive){
+
+                    linear_OpMode.telemetry.addData("goalEncoder", goalEncoder);
+                    linear_OpMode.telemetry.addData("initEncoder", initEncoder);
+                    linear_OpMode.telemetry.addData("sideEncoder", getSideEncoder());
+
+                    setMotorPowers(powerF,powerR,powerL,powerB);
+
+
+                }
+            }
+        }
+        else{
+            if (goalEncoder > initEncoder){
+                while (goalEncoder > getForwardEncoder() && opModeActive){
+
+                    linear_OpMode.telemetry.addData("goalEncoder", goalEncoder);
+                    linear_OpMode.telemetry.addData("initEncoder", initEncoder);
+                    setMotorPowers(powerF,powerR,powerL,powerB);
+
+
+                    //linear_OpMode.telemetry.addData("", goalEncoder);
+                }
+            }
+            else {
+                while (goalEncoder < getForwardEncoder() && opModeActive){
+                    setMotorPowers(powerF,powerR,powerL,powerB);
+                }
+            }
+        }
+
+        setMotorPowers(0,0,0,0);
     }
 
     public FtcDashboard getDashboard() {

@@ -14,6 +14,7 @@ import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
@@ -45,6 +46,8 @@ public class Sensors {
     private ElapsedTime readTimer;
     View relativeLayout;
     private FtcDashboard dashboard;
+    private OpenCvCamera webcam;
+    public Encoder forwardOdom, sideOdom;
     public List<Encoder> encoders;
 
     private boolean autoBulkRead = true;
@@ -70,6 +73,10 @@ public class Sensors {
         for (LynxModule module : allHubs) {
             module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
+
+        int cameraMonitorViewId = linear_OpMode.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", linear_OpMode.hardwareMap.appContext.getPackageName());
+        webcam = OpenCvCameraFactory.getInstance().createWebcam(linear_OpMode.hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+
     }
 
     public Sensors(OpMode opMode){
@@ -96,6 +103,10 @@ public class Sensors {
 
         gyro = opMode.hardwareMap.get(BNO055IMU.class, "imu");
         gyro.initialize(parameters);
+
+        int cameraMonitorViewId = iterative_OpMode.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", iterative_OpMode.hardwareMap.appContext.getPackageName());
+        webcam = OpenCvCameraFactory.getInstance().createWebcam(iterative_OpMode.hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+
     }
 
 
@@ -143,5 +154,9 @@ public class Sensors {
 
     public void setDashboard(FtcDashboard dashboard) {
         this.dashboard = dashboard;
+    }
+
+    public OpenCvCamera getWebcam(){
+        return webcam;
     }
 }
