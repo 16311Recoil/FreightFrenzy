@@ -113,8 +113,8 @@ public class DrivetrainRR extends TankDrive {
             leftMotors = Arrays.asList(l);
             rightMotors = Arrays.asList(r);
 
-            //Only l needs to ever be reversed
-            l.setDirection(DcMotorSimple.Direction.FORWARD);
+            r.setDirection(DcMotorSimple.Direction.REVERSE);
+            l.setDirection(DcMotorSimple.Direction.REVERSE);
         }
         else {
 
