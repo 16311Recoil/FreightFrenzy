@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.drive.opmode;
+package org.firstinspires.ftc.teamcode.drive;
 
 import androidx.annotation.NonNull;
 
@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.DrivetrainRR;
+import org.firstinspires.ftc.teamcode.DrivetrainRRMecanum;
 import org.firstinspires.ftc.teamcode.util.Encoder;
 
 import java.util.Arrays;
@@ -33,7 +34,7 @@ import java.util.List;
  *    \--------------/
  *
  */
-public class TwoWheelTrackingLocalizer extends TwoTrackingWheelLocalizer {
+public class TwoWheelTrackingLocalizerMecanum extends TwoTrackingWheelLocalizer {
     public static double TICKS_PER_REV = 8192;
     public static double WHEEL_RADIUS = 0.625; // in
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (encoder) speed
@@ -54,29 +55,22 @@ public class TwoWheelTrackingLocalizer extends TwoTrackingWheelLocalizer {
     // Perpendicular is perpendicular to the forward axis
     private Encoder parallelEncoder, perpendicularEncoder;
 
-    private DrivetrainRR drive;
+    private DrivetrainRRMecanum drive;
 
-    public TwoWheelTrackingLocalizer(HardwareMap hardwareMap, DrivetrainRR drive, boolean forward) {
+    public TwoWheelTrackingLocalizerMecanum(HardwareMap hardwareMap, DrivetrainRRMecanum drive) {
         super(Arrays.asList(
-                new Pose2d(PARALLEL_X, PARALLEL_Y, 0),
-                new Pose2d(PERPENDICULAR_X, PERPENDICULAR_Y, Math.toRadians(90))
+                new Pose2d(PARALLEL_X, PARALLEL_Y, Math.toRadians(45)),
+                new Pose2d(PERPENDICULAR_X, PERPENDICULAR_Y, Math.toRadians(135))
         ));
 
         this.drive = drive;
 
-        if (forward){
-            parallelEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "l"));
-            perpendicularEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "f"));
-            X_MULTIPLIER = 1.1265519381; // Multiplier in the X direction
-            Y_MULTIPLIER = 1.1142742882; // Multiplier in the Y direction
-        }
-        else{
-            parallelEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "f"));
-            perpendicularEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "l"));
 
-            X_MULTIPLIER = 1.1142742882; // Multiplier in the X direction
-            Y_MULTIPLIER = 1.1314687545; // Multiplier in the Y direction
-        }
+        parallelEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "l"));
+        perpendicularEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "f"));
+        X_MULTIPLIER = 1.1265519381; // Multiplier in the X direction
+        Y_MULTIPLIER = 1.1142742882; // Multiplier in the Y direction
+
 
 
 
