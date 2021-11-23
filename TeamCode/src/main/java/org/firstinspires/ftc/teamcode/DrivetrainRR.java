@@ -25,6 +25,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
@@ -58,7 +59,7 @@ public class DrivetrainRR extends TankDrive {
 
     public static PIDCoefficients AXIAL_PID = new PIDCoefficients(0, 0, 0);
     public static PIDCoefficients CROSS_TRACK_PID = new PIDCoefficients(0, 0, 0);
-    public static PIDCoefficients HEADING_PID = new PIDCoefficients(0, 0, 0);
+    public static PIDCoefficients HEADING_PID = new PIDCoefficients(27.5, 3.5, 1    );
 
     public static double VX_WEIGHT = 1;
     public static double OMEGA_WEIGHT = 1;
@@ -74,6 +75,11 @@ public class DrivetrainRR extends TankDrive {
     private BNO055IMU imu;
 
     private VoltageSensor batteryVoltageSensor;
+
+    private Servo ffOdom, sfOdom;
+    private double FF_LOW = 0.505;
+    private double SF_LOW = 0.55;
+
 
     public DrivetrainRR(HardwareMap hardwareMap, boolean forward) {
         // Copy Paste Set-Up
@@ -104,6 +110,12 @@ public class DrivetrainRR extends TankDrive {
         //depending on whether its the forward dt or the sideways dt, we change which motors are initialized / hardware mapped
         //(we pass forward in as a parameter in the constructor to choose)
 
+        ffOdom = hardwareMap.servo.get("ffOdom");
+        sfOdom = hardwareMap.servo.get("sfOdom");
+
+        lowerOdom();
+
+
         if (forward){
             l = hardwareMap.get(DcMotorEx.class, "l");
             r = hardwareMap.get(DcMotorEx.class, "r");
@@ -113,8 +125,8 @@ public class DrivetrainRR extends TankDrive {
             leftMotors = Arrays.asList(l);
             rightMotors = Arrays.asList(r);
 
-            r.setDirection(DcMotorSimple.Direction.REVERSE);
-            l.setDirection(DcMotorSimple.Direction.REVERSE);
+            r.setDirection(DcMotorSimple.Direction.FORWARD);
+            l.setDirection(DcMotorSimple.Direction.FORWARD);
         }
         else {
 
@@ -126,6 +138,7 @@ public class DrivetrainRR extends TankDrive {
             motors = Arrays.asList(f, b);
             leftMotors = Arrays.asList(f);
             rightMotors = Arrays.asList(b);
+
         }
 
 
@@ -356,5 +369,15 @@ public class DrivetrainRR extends TankDrive {
 
     public void setDashboard(FtcDashboard dashboard) {
         this.dashboard = dashboard;
+    }
+
+    public void lowerOdom(){
+        ffOdom.setPosition(FF_LOW);
+        sfOdom.setPosition(SF_LOW);
+    }
+
+    public void raiseOdom(){
+        ffOdom.setPosition(0);
+        sfOdom.setPosition(0);
     }
 }

@@ -16,46 +16,51 @@ import org.firstinspires.ftc.teamcode.Drivetrain;
 import org.firstinspires.ftc.teamcode.DrivetrainRR;
 import org.firstinspires.ftc.teamcode.Manipulator;
 import org.firstinspires.ftc.teamcode.VisionTest;
+import org.firstinspires.ftc.teamcode.drive.DriveConstants;
+import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
 @Autonomous(name="BlueAutoRR", group="Auto")
 public class BlueAutoRR extends LinearOpMode {
     @Override
     public void runOpMode() {
-        Pose2d startPose = new Pose2d(-65.75, -39.25, 90);
+        Pose2d startPose = new Pose2d(-39.25, -65.75, Math.toRadians(180));
 
-        DrivetrainRR drive = new DrivetrainRR(hardwareMap, true);
+
         Drivetrain duckBoi = new Drivetrain(this); // Used ONLY for getting the ducks. THANKS ADITYA
         Manipulator manipulator = new Manipulator(this); // TODO: Test manipulator class
+        DrivetrainRR drive = new DrivetrainRR(hardwareMap, true);
         // FIXME: Test manipulator class
         // FIXME: Test manipulator class
         // FIXME: Test manipulator class
         // FIXME: Test manipulator class
 
 
-        Trajectory duckTrajectory = drive.trajectoryBuilder(startPose)
-                .splineTo(new Vector2d(-59.75, -65.50), 90)
-                .build();
+        drive.setPoseEstimate(startPose);
+        /*Trajectory traj1 = drive.trajectoryBuilder(startPose)
+                .splineTo(new Vector2d(-59.75, -65.50), Math.toRadians(225))
+                .build();*/
 
-        //TODO: get endangle
-        Trajectory deliveryTrajectory = drive.trajectoryBuilder(duckTrajectory.end())
-                .splineTo(new Vector2d(-36, -36), 90)
-                .build();
+        TrajectorySequence traj = drive.trajectorySequenceBuilder(new Pose2d(-39.25, -65.75, Math.toRadians(90)))
+                .splineTo(new Vector2d(-59.75, -65.50), Math.toRadians(225))
+                .back(40)
+                .forward(2)
+                .splineTo(new Vector2d(-60, -36), Math.toRadians(180))
 
-        Trajectory parkingTrajectory = drive.trajectoryBuilder(startPose)
-                .splineTo(new Vector2d(-36, -60), 90)
                 .build();
 
         waitForStart();
 
         if(isStopRequested()) return;
 
-        drive.followTrajectory(duckTrajectory);
-        ElapsedTime timer = new ElapsedTime();
-        timer.reset();
-        while (timer.seconds() < 1.5){
-            duckBoi.spinDuck(0.7, 0.1, Math.PI * 1.75, 0, false);
-        }
-        drive.followTrajectory(deliveryTrajectory);
+        drive.followTrajectorySequence(traj);
+        //drive.followTrajectory(traj1);
+
+//        ElapsedTime timer = new ElapsedTime();
+//        timer.reset();
+//        while (timer.seconds() < 1.5){
+//            duckBoi.spinDuck(0.7, 0.1, Math.PI * 1.75, 0, false);
+//        }
+//        drive.followTrajectory(deliveryTrajectory);
 
         // TODO: Add vision stuff
         //if ()

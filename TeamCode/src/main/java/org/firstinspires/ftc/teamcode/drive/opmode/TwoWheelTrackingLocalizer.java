@@ -39,15 +39,15 @@ public class TwoWheelTrackingLocalizer extends TwoTrackingWheelLocalizer {
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (encoder) speed
 
     public static double PARALLEL_X = 3.673; // X is the up and down direction
-    public static double PARALLEL_Y = 2.921; // Y is the strafe direction
+    public static double PARALLEL_Y = -2.921; // Y is the strafe direction
 
     public static double PERPENDICULAR_X = 2.921;
     public static double PERPENDICULAR_Y = 3.673;
 
 
     //TODO: Double check whether we need to care about the flip in directions for dual drivetrains
-    public static double X_MULTIPLIER = 1; // Multiplier in the X direction
-    public static double Y_MULTIPLIER = 1; // Multiplier in the Y direction
+    public static double X_MULTIPLIER = 1.1314687545; // Multiplier in the X direction
+    public static double Y_MULTIPLIER = 1.1142742882; // Multiplier in the Y direction
 
     // Parallel/Perpendicular to the forward axis
     // Parallel wheel is parallel to the forward axis
@@ -65,17 +65,24 @@ public class TwoWheelTrackingLocalizer extends TwoTrackingWheelLocalizer {
         this.drive = drive;
 
         if (forward){
-            parallelEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "r"));
-            perpendicularEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "b"));
+            parallelEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "l"));
+            perpendicularEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "f"));
+            X_MULTIPLIER = 1.1265519381; // Multiplier in the X direction
+            Y_MULTIPLIER = 1.1142742882; // Multiplier in the Y direction
         }
         else{
-            parallelEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "b"));
-            perpendicularEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "r"));
+            parallelEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "f"));
+            perpendicularEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "l"));
+
+            X_MULTIPLIER = 1.1142742882; // Multiplier in the X direction
+            Y_MULTIPLIER = 1.1314687545; // Multiplier in the Y direction
         }
 
 
 
         // TODO: reverse any encoders using Encoder.setDirection(Encoder.Direction.REVERSE)
+        perpendicularEncoder.setDirection(Encoder.Direction.REVERSE);
+        parallelEncoder.setDirection(Encoder.Direction.REVERSE);
     }
 
     public static double encoderTicksToInches(double ticks) {
