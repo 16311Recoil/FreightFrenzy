@@ -39,12 +39,29 @@ public class TwoWheelTrackingLocalizerMecanum extends TwoTrackingWheelLocalizer 
     public static double WHEEL_RADIUS = 0.625; // in
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (encoder) speed
 
+    public static double PARALLEL_X = -4; // X is the up and down direction
+    public static double PARALLEL_Y = -.5; // Y is the strafe direction
+
+    public static double PERPENDICULAR_X = 0.5;
+    public static double PERPENDICULAR_Y = -4;
+
+    /*ORIGINAL VALUES
+
     public static double PARALLEL_X = 3.673; // X is the up and down direction
     public static double PARALLEL_Y = -2.921; // Y is the strafe direction
 
+
     public static double PERPENDICULAR_X = 2.921;
     public static double PERPENDICULAR_Y = 3.673;
+    */
 
+    /*TEST VALUES 2
+    public static double PARALLEL_X = 0.53174429945228; // X is the up and down direction
+    public static double PARALLEL_Y = -4.6626621151441; // Y is the strafe direction
+
+    public static double PERPENDICULAR_X = 4.6626621151441;
+    public static double PERPENDICULAR_Y = 0.53174429945228;
+    */
 
     //TODO: Double check whether we need to care about the flip in directions for dual drivetrains
     public static double X_MULTIPLIER = 1.1314687545; // Multiplier in the X direction
@@ -59,15 +76,15 @@ public class TwoWheelTrackingLocalizerMecanum extends TwoTrackingWheelLocalizer 
 
     public TwoWheelTrackingLocalizerMecanum(HardwareMap hardwareMap, DrivetrainRRMecanum drive) {
         super(Arrays.asList(
-                new Pose2d(PARALLEL_X, PARALLEL_Y, Math.toRadians(45)),
-                new Pose2d(PERPENDICULAR_X, PERPENDICULAR_Y, Math.toRadians(135))
+                new Pose2d(PARALLEL_X, PARALLEL_Y, Math.toRadians(-45)),//Back
+                new Pose2d(PERPENDICULAR_X, PERPENDICULAR_Y, Math.toRadians(45))//Right
         ));
 
         this.drive = drive;
 
 
-        parallelEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "l"));
-        perpendicularEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "f"));
+        parallelEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "f"));
+        perpendicularEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "l"));
         X_MULTIPLIER = 1.1265519381; // Multiplier in the X direction
         Y_MULTIPLIER = 1.1142742882; // Multiplier in the Y direction
 
