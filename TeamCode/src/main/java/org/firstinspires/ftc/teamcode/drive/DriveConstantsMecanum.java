@@ -45,7 +45,7 @@ public class DriveConstantsMecanum {
      */
     public static double WHEEL_RADIUS = 3; // in
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (motor) speed
-    public static double TRACK_WIDTH = 11; // in
+    public static double TRACK_WIDTH = 8; // in
 
     /*
      * These are the feedforward parameters used to model the drive motor behavior. If you are using
@@ -53,9 +53,11 @@ public class DriveConstantsMecanum {
      * motor encoders or have elected not to use them for velocity control, these values should be
      * empirically tuned.
      */
-    public static double kV = 0.0195;
-    public static double kA = 0.0065;
-    public static double kStatic = 0.021;
+
+    // In the ManualFeedForwardTuning:
+    public static double kV = 0.013; // Keeps the plateau close to the target
+    public static double kA = 0.0055; // Adjusts the slope, the higher it is the steeper the slope
+    public static double kStatic = 0.0075; // Sets a baseline amount, I haven't seen it have any effect
 
     /*
      * These values are used to generate the trajectories for you robot. To ensure proper operation,
@@ -66,8 +68,11 @@ public class DriveConstantsMecanum {
      */
     public static double MAX_VEL = 45;
     public static double MAX_ACCEL = 30;
-    public static double MAX_ANG_VEL = 14;
+    public static double MAX_ANG_VEL = 9;
     public static double MAX_ANG_ACCEL = 4;
+
+    public static double ROTATION_TIMEOUT = 3.0;
+    public static double ROTATION_ERROR_TOLERANCE = 2;
 
 
     public static double encoderTicksToInches(double ticks) {

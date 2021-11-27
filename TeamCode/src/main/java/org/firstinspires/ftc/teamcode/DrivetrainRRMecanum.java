@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import androidx.annotation.NonNull;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.control.PIDCoefficients;
 import com.acmerobotics.roadrunner.drive.DriveSignal;
@@ -43,6 +44,8 @@ import static org.firstinspires.ftc.teamcode.drive.DriveConstantsMecanum.MAX_ANG
 import static org.firstinspires.ftc.teamcode.drive.DriveConstantsMecanum.MAX_ANG_VEL;
 import static org.firstinspires.ftc.teamcode.drive.DriveConstantsMecanum.MAX_VEL;
 import static org.firstinspires.ftc.teamcode.drive.DriveConstantsMecanum.MOTOR_VELO_PID;
+import static org.firstinspires.ftc.teamcode.drive.DriveConstantsMecanum.ROTATION_ERROR_TOLERANCE;
+import static org.firstinspires.ftc.teamcode.drive.DriveConstantsMecanum.ROTATION_TIMEOUT;
 import static org.firstinspires.ftc.teamcode.drive.DriveConstantsMecanum.RUN_USING_ENCODER;
 import static org.firstinspires.ftc.teamcode.drive.DriveConstantsMecanum.TRACK_WIDTH;
 import static org.firstinspires.ftc.teamcode.drive.DriveConstantsMecanum.encoderTicksToInches;
@@ -55,8 +58,8 @@ import static org.firstinspires.ftc.teamcode.drive.DriveConstantsMecanum.kV;
  */
 @Config
 public class DrivetrainRRMecanum extends MecanumDrive {
-    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(0, 0, 0);
-    public static PIDCoefficients HEADING_PID = new PIDCoefficients(0, 0, 0);
+    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(1.2, 0, 0);
+    public static PIDCoefficients HEADING_PID = new PIDCoefficients(1.2, 0.05, 0);
 
     public static double LATERAL_MULTIPLIER = 1;
 
@@ -81,11 +84,13 @@ public class DrivetrainRRMecanum extends MecanumDrive {
     private double FF_LOW = 0.505;
     private double SF_LOW = 0.55;
 
+    FtcDashboard dashboard;
+
     public DrivetrainRRMecanum(HardwareMap hardwareMap) {
         super(kV, kA, kStatic, TRACK_WIDTH, TRACK_WIDTH, LATERAL_MULTIPLIER);
 
         follower = new HolonomicPIDVAFollower(TRANSLATIONAL_PID, TRANSLATIONAL_PID, HEADING_PID,
-                new Pose2d(0.5, 0.5, Math.toRadians(5.0)), 0.5);
+                new Pose2d(0.5, 0.5, Math.toRadians(ROTATION_ERROR_TOLERANCE)), ROTATION_TIMEOUT);
 
         LynxModuleUtil.ensureMinimumFirmwareVersion(hardwareMap);
 
@@ -332,5 +337,12 @@ public class DrivetrainRRMecanum extends MecanumDrive {
     public void raiseOdom(){
         ffOdom.setPosition(0);
         sfOdom.setPosition(0);
+    }
+
+    public FtcDashboard getDashboard() {
+        return dashboard;
+    }
+    public void setDashboard(FtcDashboard dashboard) {
+        this.dashboard = dashboard;
     }
 }
