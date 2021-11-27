@@ -31,7 +31,7 @@ public class ManipTeleop extends OpMode {
 
 
 
-        turret.teleOpControls(gamepad1.left_stick_x);
+        turret.teleOpControls(gamepad1.left_stick_x, gamepad1.x);
 
 
         telemetry.addData("left stick y", gamepad1.left_stick_y);
