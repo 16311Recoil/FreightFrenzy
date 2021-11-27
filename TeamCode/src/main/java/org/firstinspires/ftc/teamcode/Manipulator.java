@@ -32,7 +32,7 @@ public class Manipulator {
     private final double MAG_OFF = 0;
     // private final double DUCK_POWER = 0;
     // private final int DUCK_TIME = 0;
-    private final double ARM_POWER = 0.1;
+    private final double ARM_POWER = 0.5;
     private final double MOTOR_ARM_GEAR_RATIO = 14 / 32.0; // 0.25 = The motor rotation is 1/4 of the resulting arm rotation
     private final double ARM_LENGTH = 15;
     private final double ROBOT_HEIGHT = 16;
@@ -50,7 +50,7 @@ public class Manipulator {
     private boolean stickPressed = false;
     private double prevTime = 0;
 
-    private final double[] LEVELS = {0, 3 + 2 + 0.5, 8.5 + 2 + 0.5, 14.75 + 2 + 0.5};
+    private final double[] LEVELS = {6, 3 + 2 + 0.5, 8.5 + 2 + 0.5, 14.75 + 2 + 0.5};
 
     public Manipulator(LinearOpMode opMode) {
         linear_OpMode = opMode;
@@ -69,7 +69,7 @@ public class Manipulator {
         armRotator.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
 
-        armRotator.setPower(0.5);
+        armRotator.setPower(ARM_POWER);
         armRotator.setTargetPosition(0);
         armRotator.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
@@ -94,7 +94,7 @@ public class Manipulator {
         armRotator.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         armRotator.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        armRotator.setPower(0.5);
+        armRotator.setPower(ARM_POWER);
         armRotator.setTargetPosition(0);
         armRotator.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
