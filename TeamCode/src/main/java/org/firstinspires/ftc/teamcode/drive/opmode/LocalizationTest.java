@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.DrivetrainRR;
+import org.firstinspires.ftc.teamcode.DrivetrainRRMecanum;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
 /**
@@ -20,11 +21,11 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 public class LocalizationTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-        DrivetrainRR drive = new DrivetrainRR(hardwareMap, true);
+        DrivetrainRRMecanum drive = new DrivetrainRRMecanum(hardwareMap);
 
         drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         FtcDashboard dashboard = FtcDashboard.getInstance();
-        drive.setDashboard(dashboard);
+        //drive.setDashboard(dashboard);
 
         waitForStart();
 
@@ -32,7 +33,7 @@ public class LocalizationTest extends LinearOpMode {
             drive.setWeightedDrivePower(
                     new Pose2d(
                             -gamepad1.left_stick_y,
-                            0,
+                            -gamepad1.left_stick_x,
                             -gamepad1.right_stick_x
                     )
             );

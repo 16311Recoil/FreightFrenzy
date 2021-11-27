@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.DrivetrainRR;
+import org.firstinspires.ftc.teamcode.DrivetrainRRMecanum;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
 /*
@@ -17,7 +18,7 @@ public class TurnTest extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        DrivetrainRR drive = new DrivetrainRR(hardwareMap, true);
+        DrivetrainRRMecanum drive = new DrivetrainRRMecanum(hardwareMap);
 
         waitForStart();
 
