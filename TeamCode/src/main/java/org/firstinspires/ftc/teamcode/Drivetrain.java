@@ -223,8 +223,8 @@ public class Drivetrain{
 public void spinDuck(double turnPower, double movePower, double moveAngle, double angle, boolean turnRight){
     double powerF, powerR, powerL, powerB, newX, newY;
 
-    moveAngle -= Math.PI; //correcting opposite thing
-    moveAngle -= (Math.PI / 6); //correcting spin angle change
+    moveAngle *= -1; //correcting opposite thing
+    moveAngle += (Math.PI / 6); //correcting spin angle change
 
     int turnDirection = -1;
     if (turnRight) {
