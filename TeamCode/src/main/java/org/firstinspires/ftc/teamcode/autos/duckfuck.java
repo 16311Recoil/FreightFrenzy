@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.autos;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.drive.Drive;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -11,19 +12,24 @@ import org.firstinspires.ftc.teamcode.Drivetrain;
 
 import java.util.Timer;
 
+@Config
 @Autonomous(name="Duck", group="Auto")
 public class duckfuck extends LinearOpMode {
-    Drivetrain dt;
+    Crab robot;
+    public static double turnPower = 0.3, movePower = 0.1, turnTimeMs = 3000, moveAngle = 5/4;
 
     @Override
     public void runOpMode() throws InterruptedException{
         waitForStart();
-        dt = new Drivetrain(this);
+        // dt = new Drivetrain(this);
+        robot = new Crab(this);
+        double initHeading = robot.getSensors().getFirstAngle();
+
 
         ElapsedTime timer = new ElapsedTime();
         timer.reset();
-        while (timer.milliseconds() < 3000){
-            dt.spinDuck(0.5, 0.1, (1.75) * Math.PI, 0, true);
+        while (timer.milliseconds() < turnTimeMs){
+            robot.getDrivetrain().spinDuck(turnPower, movePower, moveAngle * Math.PI, robot.getSensors().getFirstAngle() - initHeading, false);
         }
 
     }
