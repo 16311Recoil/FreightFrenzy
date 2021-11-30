@@ -24,8 +24,8 @@ public class Drivetrain{
     private OpMode iterative_OpMode;
     private FtcDashboard dashboard;
 
-    private double FF_LOW = 0.52;
-    private double SF_LOW = 0.54;
+    private double FF_LOW = 0.64;
+    private double SF_LOW = 0.68;
     private double ENCODER_IN_INCHES = 2086.07567;
 
     public Drivetrain(LinearOpMode opMode){
@@ -67,6 +67,7 @@ public class Drivetrain{
         ffOdom.setPosition(0);
         sfOdom.setPosition(0);
 
+        // OH FUCKING HELL I WAS PUTTING IN THE FINIT/LINIT IN THE LINEAR ONE
         opMode.telemetry.addLine("Drivetrain Init Completed - Linear");
         opMode.telemetry.update();
 
@@ -167,6 +168,13 @@ public class Drivetrain{
                 r.getCurrentPosition(),
                 l.getCurrentPosition(),
                 b.getCurrentPosition()
+        };
+    }
+
+    public int[] getOdom(){
+        return new int[]{
+                f.getCurrentPosition(),
+                l.getCurrentPosition()
         };
     }
 
@@ -476,6 +484,77 @@ public void spinDuck(double turnPower, double movePower, double moveAngle, doubl
         }
 
         setMotorPowers(0,0,0,0);
+    }
+
+    public void runToEncoderPositions(int f, int r, int l, int b){
+        PID
+                pidf = new PID(0.3, 0, 0, f),
+                pidr = new PID(0.3, 0, 0, r),
+                pidl = new PID(0.3, 0, 0, l),
+                pidb = new PID(0.3, 0, 0, b);
+
+        ElapsedTime timer = new ElapsedTime();
+
+        int[] encoders = getEncoders();
+        while (Math.abs(f - encoders[0]) +
+                Math.abs(r - encoders[1]) +
+                Math.abs(l - encoders[2]) +
+                Math.abs(b - encoders[3])
+                > 5
+        ){
+            setMotorPowers(
+                    pidf.loop(encoders[0], timer.seconds()),
+                    pidl.loop(encoders[1], timer.seconds()),
+                    pidr.loop(encoders[2], timer.seconds()),
+                    pidb.loop(encoders[3], timer.seconds())
+            );
+
+            encoders = getEncoders();
+        }
+    }
+
+    public void runToEncoderPositionsOdom(int f, int l){
+        PID
+                pidf = new PID(0.1, 0, 0, f),
+                pidr = new PID(0.1, 0, 0, l),
+                pidl = new PID(0.1, 0, 0, l),
+                pidb = new PID(0.1, 0, 0, f);
+
+        ElapsedTime timer = new ElapsedTime();
+
+        int[] encoders = getOdom();
+        while (Math.abs(f - encoders[0]) +
+                Math.abs(l - encoders[1]) +
+                Math.abs(l - encoders[1]) +
+                Math.abs(f - encoders[0])
+                > 5
+        ){
+            setMotorPowers(
+                    pidf.loop(encoders[0], timer.seconds()),
+                    pidl.loop(encoders[1], timer.seconds()),
+                    pidr.loop(encoders[1], timer.seconds()),
+                    pidb.loop(encoders[0], timer.seconds())
+            );
+
+            linear_OpMode.telemetry.addData("ff", encoders[0]);
+            linear_OpMode.telemetry.addData("sf", encoders[1]);
+            linear_OpMode.telemetry.update();
+
+            encoders = getEncoders();
+        }
+    }
+
+    public void turnPID(double newAngle){
+        Sensors sensor = new Sensors(linear_OpMode);
+        double initHeading = sensor.getFirstAngle();
+
+        PID pid = new PID(0.3, 0, 0, newAngle);
+        ElapsedTime timer = new ElapsedTime();
+        timer.reset();
+
+        while (Math.abs(newAngle - sensor.getFirstAngle()) > 5){
+            setAllMotors(pid.loop(sensor.getFirstAngle(), timer.seconds()));
+        }
     }
 
     public FtcDashboard getDashboard() {
