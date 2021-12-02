@@ -6,8 +6,12 @@ import android.util.Pair;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.State;
 import org.firstinspires.ftc.teamcode.Drivetrain;
+
+import java.util.Timer;
 
 public class Crab {
 
@@ -23,7 +27,15 @@ public class Crab {
     private double[] multipliers = {0.2, 0.55, 1};
     private int multiCounter = 1;
     private double multiplier = 1;
-    private boolean changeDpadDown, changeDpadUp = false;
+    private boolean changeDpadDown, changeDpadUp, changeY = false;
+    private State teleOpState;
+
+    private ElapsedTime duckTimer = new ElapsedTime();
+
+    private enum State {
+        NOT_DUCK,
+        DUCK;
+    }
 
     /*
       --------------------
@@ -62,7 +74,6 @@ public class Crab {
     double x = 0, y = 0;
 
     boolean alliance; // true = blue
-    boolean ALLIANCE_BLUE = true, ALLIANCE_RED = false;
 
     public Crab(LinearOpMode opMode){
 
@@ -85,16 +96,12 @@ public class Crab {
         turret = new Turret(opMode);
         sensors = new Sensors(opMode);
 
+        teleOpState = State.NOT_DUCK;
+
         opMode.telemetry.addLine("Crabtrain Init Completed - Iterative");
         opMode.telemetry.update();
     }
 
-    public void setAlliance(boolean blueSide){
-        if (blueSide)
-            team_hub = BLUE_HUB;
-        else
-            team_hub = RED_HUB;
-    }
 
     // --- Auto Functions --- //
 
@@ -151,26 +158,43 @@ public class Crab {
 
         //drivetrain.moveTeleOp_Plus(gamepad1.left_stick_x, gamepad1.left_stick_y, drivetrain.lockHeadingAngle(relativeHeading - init_Heading, sensor.getFirstAngle()), 1, 1); //lock angle
         //drivetrain.moveGyroTeleOp_Plus(gamepad1.left_stick_x, gamepad1.left_stick_y, drivetrain.lockHeadingAngle(drivetrain.lockNearestX(currentAngle - init_Heading), currentAngle), 1, 1, currentAngle); //lock x-mode
-
-        if (teleOp.gamepad1.right_trigger > 0){
-            drivetrain.moveGyroTeleOp_Plus(teleOp.gamepad1.right_stick_x, teleOp.gamepad1.right_stick_y, drivetrain.lockHeadingAngle(drivetrain.lockNearestX(currentAngle - init_Heading), currentAngle - init_Heading), multiplier, multiplier, currentAngle - init_Heading); //lock x-mode
+        if (teleOp.gamepad1.y && !changeY){
+            teleOpState = State.DUCK;
+            duckTimer.reset();
         }
-        else if (teleOp.gamepad1.left_trigger > 0){
-            if (!triggerPressRight){
-                relativeHeading = currentAngle;
+
+        if (teleOpState.equals(State.NOT_DUCK)){
+            if (teleOp.gamepad1.right_trigger > 0){
+                drivetrain.moveGyroTeleOp_Plus(teleOp.gamepad1.right_stick_x, teleOp.gamepad1.right_stick_y, drivetrain.lockHeadingAngle(drivetrain.lockNearestX(currentAngle - init_Heading), currentAngle - init_Heading), multiplier, multiplier, currentAngle - init_Heading); //lock x-mode
             }
-            triggerPressRight = true;
-            drivetrain.moveGyroTeleOp_Plus(teleOp.gamepad1.right_stick_x, teleOp.gamepad1.right_stick_y, drivetrain.lockHeadingAngle(relativeHeading - init_Heading, currentAngle - init_Heading), multiplier, multiplier, currentAngle - init_Heading); //lock angle
+            else if (teleOp.gamepad1.left_trigger > 0){
+                if (!triggerPressRight){
+                    relativeHeading = currentAngle;
+                }
+                triggerPressRight = true;
+                drivetrain.moveGyroTeleOp_Plus(teleOp.gamepad1.right_stick_x, teleOp.gamepad1.right_stick_y, drivetrain.lockHeadingAngle(relativeHeading - init_Heading, currentAngle - init_Heading), multiplier, multiplier, currentAngle - init_Heading); //lock angle
 
-        }
-        else { //regular driving
-            triggerPressRight = false;
-            drivetrain.moveGyroTeleOp_Plus(teleOp.gamepad1.right_stick_x, teleOp.gamepad1.right_stick_y, teleOp.gamepad1.left_stick_x, multiplier, multiplier, currentAngle - init_Heading);
+            }
+            else { //regular driving
+                triggerPressRight = false;
+                drivetrain.moveGyroTeleOp_Plus(teleOp.gamepad1.right_stick_x, teleOp.gamepad1.right_stick_y, teleOp.gamepad1.left_stick_x, multiplier, multiplier, currentAngle - init_Heading);
+            }
+
+            manip.teleOpControls(-teleOp.gamepad2.left_stick_y, teleOp.gamepad2.a, teleOp.gamepad2.b, teleOp.gamepad2.dpad_down, teleOp.gamepad2.dpad_left, teleOp.gamepad2.dpad_up, teleOp.gamepad2.dpad_right);
+            turret.teleOpControls(-teleOp.gamepad2.right_stick_x, teleOp.gamepad2.right_bumper);
+            toggleSpeed();
         }
 
-        manip.teleOpControls(-teleOp.gamepad2.left_stick_y, teleOp.gamepad2.a, teleOp.gamepad2.b, teleOp.gamepad2.dpad_down, teleOp.gamepad2.dpad_left, teleOp.gamepad2.dpad_up, teleOp.gamepad2.dpad_right);
-        turret.teleOpControls(-teleOp.gamepad2.right_stick_x, teleOp.gamepad2.right_bumper);
-        toggleSpeed();
+        else{
+            doDuck(init_Heading, duckTimer.seconds());
+        }
+    }
+
+    public void doDuck(double init_Heading, double time){
+        manip.goToPosition(240);
+        while (time < 1.6){
+            drivetrain.spinDuck(0.6, 0.2, 1.35 * Math.PI, sensors.getFirstAngle() - init_Heading, time, alliance);
+        }
     }
 
     /**
@@ -179,7 +203,7 @@ public class Crab {
      *                  >0 = towards warehouse; <0 = towards team parking
      */
     public void violentlyRamWall(double speed, long time) throws InterruptedException{
-        if (alliance == ALLIANCE_BLUE){
+        if (alliance){
             drivetrain.setMotorPowers(speed, 0.1, 0.1, speed);
         }
         else {
@@ -191,10 +215,10 @@ public class Crab {
 
     public void violentlyRamDucks() throws InterruptedException{
         violentlyRamWall(-1, 5000);
-        double mult = alliance == ALLIANCE_BLUE ? 1 : -1;
+        double mult = alliance ? 1 : -1;
         drivetrain.setMotorPowers(0, 0.5 * mult, 0, 0.5 * mult);
         violentlyRamWall(-1, 1000);
-        drivetrain.spinDuck(1, 0.1, (1.5 + 0.25 * mult) * Math.PI, Math.PI * (0.5 - 0.5 * mult), true);
+        //drivetrain.spinDuck(1, 0.1, (1.5 + 0.25 * mult) * Math.PI, Math.PI * (0.5 - 0.5 * mult), true);
     }
 
 
@@ -215,6 +239,14 @@ public class Crab {
 
     public Sensors getSensors() {
         return sensors;
+    }
+
+    public void setAlliance(boolean blueSide){
+        if (blueSide)
+            team_hub = BLUE_HUB;
+        else
+            team_hub = RED_HUB;
+        alliance = blueSide;
     }
 
 

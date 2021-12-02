@@ -24,7 +24,7 @@ import org.openftc.easyopencv.OpenCvPipeline;
  * detecting the team marker when lined up with
  * the sample regions over the first 3 stones.
  */
-@TeleOp(name = "visionTest", group = "test")
+//@TeleOp(name = "visionTest", group = "test")
 public class VisionTest extends LinearOpMode
 {
     OpenCvInternalCamera phoneCam;
@@ -122,11 +122,11 @@ public class VisionTest extends LinearOpMode
         /*
          * The core values which define the location and size of the sample regions
          */
-        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(109,98);
-        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(181,98);
-        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(253,98);
-        static final int REGION_WIDTH =  10;
-        static final int REGION_HEIGHT = 20;
+        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(30,40);
+        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(130,48);
+        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(253,48);
+        static final int REGION_WIDTH =  50;
+        static final int REGION_HEIGHT = 60;
 
         /*
          * Points which actually define the sample region rectangles, derived from above values
@@ -300,8 +300,8 @@ public class VisionTest extends LinearOpMode
             /*
              * Find the max of the 3 averages
              */
-            int maxOneTwo = Math.max(avg1, avg2);// may need to change to min depending on color
-            int max = Math.max(maxOneTwo, avg3);
+            int maxOneTwo = Math.min(avg1, avg2);// may need to change to min depending on color
+            int max = Math.min(maxOneTwo, avg3);
 
             /*
              * Now that we found the max, we actually need to go and
@@ -428,8 +428,6 @@ public class VisionTest extends LinearOpMode
             //targetBearing = Math.toDegrees(Math.asin(targetX / targetRange));
             return targetBearing;
         }
-
-
 
 
 

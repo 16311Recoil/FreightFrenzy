@@ -228,11 +228,12 @@ public class Drivetrain{
 
 
 //============================ Auto ===============================================
-public void spinDuck(double turnPower, double movePower, double moveAngle, double angle, boolean turnRight){
+public void spinDuck(double turnPower, double movePower, double moveAngle, double angle, double time, boolean turnRight){
     double powerF, powerR, powerL, powerB, newX, newY;
 
     moveAngle *= -1; //correcting opposite thing
     moveAngle += (Math.PI / 6); //correcting spin angle change
+    moveAngle += 0.25 * Math.cos((0.6 * Math.PI) * time);
 
     int turnDirection = -1;
     if (turnRight) {
@@ -414,7 +415,7 @@ public void spinDuck(double turnPower, double movePower, double moveAngle, doubl
     }
 
 
-    public void moveInches(double inches, double power, boolean strafe, boolean opModeActive){
+    public void moveInches(double inches, double power, boolean strafe){
         double powerF = 0, powerR = 0, powerL = 0, powerB = 0;
         double multiplier = -1;
         double initEncoder;
@@ -439,12 +440,13 @@ public void spinDuck(double turnPower, double movePower, double moveAngle, doubl
         if (strafe){
             if (goalEncoder > initEncoder){
 
-                while (goalEncoder > getSideEncoder() && opModeActive){
+                while (goalEncoder > getSideEncoder() && linear_OpMode.opModeIsActive()){
 
 
                     linear_OpMode.telemetry.addData("goalEncoder", goalEncoder);
                     linear_OpMode.telemetry.addData("initEncoder", initEncoder);
                     linear_OpMode.telemetry.addData("sideEncoder", getSideEncoder());
+                    linear_OpMode.telemetry.update();
 
                     setMotorPowers(powerF,powerR,powerL,powerB);
 
@@ -452,11 +454,12 @@ public void spinDuck(double turnPower, double movePower, double moveAngle, doubl
                 }
             }
             else {
-                while (goalEncoder < getSideEncoder() && opModeActive){
+                while (goalEncoder < getSideEncoder() && linear_OpMode.opModeIsActive()){
 
                     linear_OpMode.telemetry.addData("goalEncoder", goalEncoder);
                     linear_OpMode.telemetry.addData("initEncoder", initEncoder);
                     linear_OpMode.telemetry.addData("sideEncoder", getSideEncoder());
+                    linear_OpMode.telemetry.update();
 
                     setMotorPowers(powerF,powerR,powerL,powerB);
 
@@ -466,10 +469,12 @@ public void spinDuck(double turnPower, double movePower, double moveAngle, doubl
         }
         else{
             if (goalEncoder > initEncoder){
-                while (goalEncoder > getForwardEncoder() && opModeActive){
+                while (goalEncoder > getForwardEncoder() && linear_OpMode.opModeIsActive()){
 
                     linear_OpMode.telemetry.addData("goalEncoder", goalEncoder);
                     linear_OpMode.telemetry.addData("initEncoder", initEncoder);
+                    linear_OpMode.telemetry.addData("forwardEncoder", getForwardEncoder());
+                    linear_OpMode.telemetry.update();
                     setMotorPowers(powerF,powerR,powerL,powerB);
 
 
@@ -477,8 +482,13 @@ public void spinDuck(double turnPower, double movePower, double moveAngle, doubl
                 }
             }
             else {
-                while (goalEncoder < getForwardEncoder() && opModeActive){
+                while (goalEncoder < getForwardEncoder() && linear_OpMode.opModeIsActive()){
+                    linear_OpMode.telemetry.addData("goalEncoder", goalEncoder);
+                    linear_OpMode.telemetry.addData("initEncoder", initEncoder);
+                    linear_OpMode.telemetry.addData("forwardEncoder", getForwardEncoder());
+                    linear_OpMode.telemetry.update();
                     setMotorPowers(powerF,powerR,powerL,powerB);
+
                 }
             }
         }
@@ -528,6 +538,7 @@ public void spinDuck(double turnPower, double movePower, double moveAngle, doubl
                 Math.abs(l - encoders[1]) +
                 Math.abs(f - encoders[0])
                 > 5
+                && linear_OpMode.opModeIsActive()
         ){
             setMotorPowers(
                     pidf.loop(encoders[0], timer.seconds()),
