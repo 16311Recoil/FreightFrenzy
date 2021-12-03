@@ -180,7 +180,7 @@ public class Crab {
                 drivetrain.moveGyroTeleOp_Plus(teleOp.gamepad1.right_stick_x, teleOp.gamepad1.right_stick_y, teleOp.gamepad1.left_stick_x, multiplier, multiplier, currentAngle - init_Heading);
             }
 
-            manip.teleOpControls(-teleOp.gamepad2.left_stick_y, teleOp.gamepad2.a, teleOp.gamepad2.b, teleOp.gamepad2.dpad_down, teleOp.gamepad2.dpad_left, teleOp.gamepad2.dpad_up, teleOp.gamepad2.dpad_right);
+            manip.teleOpControls(-teleOp.gamepad2.left_stick_y, teleOp.gamepad2.a, teleOp.gamepad2.b, teleOp.gamepad2.x, teleOp.gamepad2.y, teleOp.gamepad2.dpad_down, teleOp.gamepad2.dpad_left, teleOp.gamepad2.dpad_up, teleOp.gamepad2.dpad_right);
             turret.teleOpControls(-teleOp.gamepad2.right_stick_x, teleOp.gamepad2.right_bumper);
             toggleSpeed();
         }
@@ -188,6 +188,7 @@ public class Crab {
         else{
             doDuck(init_Heading, duckTimer.seconds());
         }
+        changeY = teleOp.gamepad1.y;
     }
 
     public void doDuck(double init_Heading, double time){

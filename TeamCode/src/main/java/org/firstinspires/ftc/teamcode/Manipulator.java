@@ -16,6 +16,7 @@ public class Manipulator {
 
     private boolean grabEnabled = false;
     private boolean magEnabled = false;
+    private boolean upEnabled = false;
 
     DcMotor armRotator;
     Servo grabber;
@@ -26,8 +27,8 @@ public class Manipulator {
     // All measurements in inches or degrees
     private final double UP = 1;
     private final double DOWN = 0;
-    private final double GRAB = 180;
-    private final double UNGRAB = 0;
+    private final double GRAB = .73;
+    private final double UNGRAB = 0.18;
     private final double MAG_ON = 0.55;
     private final double MAG_OFF = 0;
     // private final double DUCK_POWER = 0;
@@ -44,11 +45,14 @@ public class Manipulator {
     // Tele-Op Utility
     private ElapsedTime timer = new ElapsedTime();
     private ElapsedTime magTimer = new ElapsedTime();
+    private ElapsedTime clawTimer = new ElapsedTime();
     private final int TOP_BOUND = 290;
     private final int LOW_BOUND = 0;
     private double goalEncoder = 0;
     private boolean stickPressed = false;
     private double prevTime = 0;
+
+    private boolean changeX = false;
 
     private final double[] LEVELS = {6, 3 + 2 + 0.5, 8.5 + 2 + 0.5, 14.75 + 2 + 0.5};
 
@@ -172,6 +176,15 @@ public class Manipulator {
         magEnabled = !magEnabled;
     }
 
+    public void toggleClawRotate(){
+        if (upEnabled) {
+            rotateClawDown();
+        } else {
+            rotateClawUp();
+        }
+        magEnabled = !magEnabled;
+    }
+
     public void setArmMode(boolean powerMode){
         if (powerMode){
             armRotator.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -265,7 +278,7 @@ public class Manipulator {
         armRotator.setTargetPosition((int)Math.round(gamepad * (TOP_BOUND - LOW_BOUND)));
     }
 
-    public void teleOpControls(double gamepad, boolean a, boolean b, boolean down, boolean left, boolean up, boolean right){
+    public void teleOpControls(double gamepad, boolean a, boolean b, boolean x, boolean y, boolean down, boolean left, boolean up, boolean right){
         if (gamepad != 0){
             if (!stickPressed){
                 timer.reset();
@@ -296,6 +309,8 @@ public class Manipulator {
         }
 
         magControl(a, b);
+        clawControl(y);
+        clawRotateControl(x);
 
         if (down){
             goalEncoder = 15;
@@ -330,4 +345,20 @@ public class Manipulator {
             magTimer.reset();
         }
     }
+
+    public void clawControl(boolean y){
+        if(clawTimer.seconds() > 1 && y){
+            toggleGrabber();
+            clawTimer.reset();
+        }
+
+    }
+
+    public void clawRotateControl(boolean x){
+        if (x && !changeX){
+            toggleClawRotate();
+        }
+        changeX = x;
+    }
+
 }
