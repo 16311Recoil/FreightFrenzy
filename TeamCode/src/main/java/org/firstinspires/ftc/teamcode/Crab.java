@@ -192,9 +192,15 @@ public class Crab {
     }
 
     public void doDuck(double init_Heading, double time){
-        manip.goToPosition(240);
-        while (time < 1.6){
-            drivetrain.spinDuck(0.6, 0.2, 1.35 * Math.PI, sensors.getFirstAngle() - init_Heading, time, alliance);
+        double movAng = 1.275 * Math.PI;
+        manip.goToPosition(375);
+        if (alliance){
+            movAng += Math.PI / 2;
+        }
+        drivetrain.spinDuck(0.535, 0.2, movAng, sensors.getFirstAngle() - init_Heading, time, alliance);
+        if (time > 1.9){
+            manip.setGoalEncoder(375);
+            teleOpState = State.NOT_DUCK;
         }
     }
 

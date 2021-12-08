@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -16,6 +17,7 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collections;
 
+@Config
 public class Drivetrain{
 
     private DcMotorEx f, r, l, b;
@@ -25,7 +27,7 @@ public class Drivetrain{
     private FtcDashboard dashboard;
 
     private double FF_LOW = 0.64;
-    private double SF_LOW = 0.68;
+    private double SF_LOW = 0.45;
     private double ENCODER_IN_INCHES = 2086.07567;
 
     public Drivetrain(LinearOpMode opMode){
@@ -233,9 +235,9 @@ public void spinDuck(double turnPower, double movePower, double moveAngle, doubl
 
     moveAngle *= -1; //correcting opposite thing
     moveAngle += (Math.PI / 6); //correcting spin angle change
-    moveAngle += 0.25 * Math.cos((0.6 * Math.PI) * time);
+    moveAngle += 0.25 * Math.cos((0.7 * Math.PI) * time);
 
-    int turnDirection = -1;
+    int turnDirection = -1; //cock
     if (turnRight) {
         turnDirection = 1;
     }
@@ -415,10 +417,11 @@ public void spinDuck(double turnPower, double movePower, double moveAngle, doubl
     }
 
 
-    public void moveInches(double inches, double power, boolean strafe){
+    public void moveInches(double inches, double power, boolean strafe, double timeout){
         double powerF = 0, powerR = 0, powerL = 0, powerB = 0;
         double multiplier = -1;
         double initEncoder;
+        ElapsedTime timer = new ElapsedTime();
 
         if (inches < 0){
             multiplier *= -1;
@@ -437,10 +440,11 @@ public void spinDuck(double turnPower, double movePower, double moveAngle, doubl
 
         double goalEncoder = (inches * ENCODER_IN_INCHES) + initEncoder;
 
+        timer.reset();
         if (strafe){
             if (goalEncoder > initEncoder){
 
-                while (goalEncoder > getSideEncoder() && linear_OpMode.opModeIsActive()){
+                while (goalEncoder > getSideEncoder() && timer.seconds() < timeout && linear_OpMode.opModeIsActive()){
 
 
                     linear_OpMode.telemetry.addData("goalEncoder", goalEncoder);
@@ -454,7 +458,7 @@ public void spinDuck(double turnPower, double movePower, double moveAngle, doubl
                 }
             }
             else {
-                while (goalEncoder < getSideEncoder() && linear_OpMode.opModeIsActive()){
+                while (goalEncoder < getSideEncoder() && timer.seconds() < timeout && linear_OpMode.opModeIsActive()){
 
                     linear_OpMode.telemetry.addData("goalEncoder", goalEncoder);
                     linear_OpMode.telemetry.addData("initEncoder", initEncoder);
@@ -469,7 +473,7 @@ public void spinDuck(double turnPower, double movePower, double moveAngle, doubl
         }
         else{
             if (goalEncoder > initEncoder){
-                while (goalEncoder > getForwardEncoder() && linear_OpMode.opModeIsActive()){
+                while (goalEncoder > getForwardEncoder() && timer.seconds() < timeout && linear_OpMode.opModeIsActive()){
 
                     linear_OpMode.telemetry.addData("goalEncoder", goalEncoder);
                     linear_OpMode.telemetry.addData("initEncoder", initEncoder);
@@ -482,7 +486,7 @@ public void spinDuck(double turnPower, double movePower, double moveAngle, doubl
                 }
             }
             else {
-                while (goalEncoder < getForwardEncoder() && linear_OpMode.opModeIsActive()){
+                while (goalEncoder < getForwardEncoder() && timer.seconds() < timeout && linear_OpMode.opModeIsActive()){
                     linear_OpMode.telemetry.addData("goalEncoder", goalEncoder);
                     linear_OpMode.telemetry.addData("initEncoder", initEncoder);
                     linear_OpMode.telemetry.addData("forwardEncoder", getForwardEncoder());

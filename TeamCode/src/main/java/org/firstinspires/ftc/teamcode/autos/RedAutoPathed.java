@@ -1,70 +1,115 @@
 package org.firstinspires.ftc.teamcode.autos;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.Crab;
 import org.firstinspires.ftc.teamcode.Drivetrain;
+import org.firstinspires.ftc.teamcode.Manipulator;
+import org.firstinspires.ftc.teamcode.PID;
+import org.firstinspires.ftc.teamcode.VisionTest;
+import org.firstinspires.ftc.teamcode.VisionTestRed;
+import org.openftc.easyopencv.OpenCvCamera;
+import org.openftc.easyopencv.OpenCvCameraRotation;
 
 @Autonomous(name="RedAutoPathed", group="Auto")
 public class RedAutoPathed extends LinearOpMode {
-    // Target encoder values at each step, format: F, R, L, B
-    // TODO: Measure pathing for Red side
-    int[][][] paths = {
-            {
-                    {0, 0, 0, 0},
-                    {0, 0, 0, 0},
-                    {0, 0, 0, 0}
-            },
-            {
-                    {0, 0, 0, 0},
-                    {0, 0, 0, 0},
-                    {0, 0, 0, 0}
-            }
-    };
-    // TODO: Find spin time
-    int spinTime = 1500; // ms
-    int spinPath = 0; // Path after which the spinning happens
-
-    double power = 0.3, spinPower = 0.5;
-    Drivetrain drivetrain;
+    Crab robot;
+    VisionTestRed.DeterminationPipeline pipeline;
+    FtcDashboard dashboard;
+    VisionTestRed.DeterminationPipeline.MarkerPosition pos;
+    int extra = 0;
 
     @Override
-    public void runOpMode(){
-        drivetrain = new Drivetrain(this);
+    public void runOpMode() throws InterruptedException{
+        robot = new Crab(this);
+
+        robot.getDrivetrain().lowerOdom();
+        robot.getManip().rotateClawUp();
+        robot.getManip().mechGrab();
+        dashboard = FtcDashboard.getInstance();
+
+        pipeline = new VisionTestRed.DeterminationPipeline();
+        robot.getSensors().getWebcam().setPipeline(pipeline);
+        robot.getSensors().getWebcam().openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
+            @Override
+            public void onOpened() {
+                robot.getSensors().getWebcam().startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
+            }
+
+            @Override
+            public void onError(int errorCode) {
+
+            }
+        });
+
+        while (!isStarted()) {
+            TelemetryPacket p = new TelemetryPacket();
+            dashboard.startCameraStream(robot.getSensors().getWebcam(), 30);
+
+            telemetry.addData("pos", pipeline.getAnalysis());
+            p.put("pos", pipeline.getAnalysis());
+            dashboard.sendTelemetryPacket(p);
+
+            pos = pipeline.getAnalysis();
+        }
+
 
         waitForStart();
 
-        for (int i = 0; i < paths.length; i ++) {
-            for (int[] seq: paths[i]
-            ) {
+        robot.getTurret().setPosition(-83);
 
-                int[] encoders = drivetrain.getEncoders();
-                int sumError = 0;
-                for (int j = 0; j < 4; j ++)
-                    sumError += Math.abs(seq[i] - encoders[i]);
 
-                while (sumError > 10)
-                {
-                    encoders = drivetrain.getEncoders();
-                    drivetrain.setMotorPowers(
-                            Math.signum(seq[0] - encoders[0]) * power,
-                            Math.signum(seq[1] - encoders[1]) * power,
-                            Math.signum(seq[2] - encoders[2]) * power,
-                            Math.signum(seq[3] - encoders[3]) * power
-                    );
+        // robot.getManip().mechGrab();
 
-                    for (int j = 0; j < 4; j ++)
-                        sumError += Math.abs(seq[i] - encoders[i]);
-                }
-            }
-            if (i == spinPath){
-                ElapsedTime timer =  new ElapsedTime();
-                timer.reset();
-                while (timer.milliseconds() < spinTime);
-                drivetrain.spinDuck(spinPower, 0.2, Math.PI * 0.25, Math.PI * 1.5, true);
-            }
+        int hub_pos;
+
+        if (pos == VisionTestRed.DeterminationPipeline.MarkerPosition.LEFT)
+            hub_pos = 50;
+        else if (pos == VisionTestRed.DeterminationPipeline.MarkerPosition.CENTER)
+            hub_pos = 105;
+        else{
+            hub_pos = 220;
+            extra++;
         }
 
+
+
+        // TODO: Uncomment manip code after adjusting values in manip class (check manip TODOs)
+
+        // raise arm BEFORE we move forward
+        //robot.getManip().placePresetLevel(hub_pos);
+        robot.getManip().goToPosition(hub_pos);
+        // manipulator.rotateClawUp();
+
+        // move towards the hub
+        robot.getDrivetrain().moveInches(13.5 + extra, 0.3, false, 4);
+        Thread.sleep(2000);
+
+        // drop block
+        robot.getManip().mechRelease();
+        Thread.sleep(2000);
+        // drop block
+        // manipulator.mechRelease();
+
+        // go back
+
+        robot.getDrivetrain().moveInches(-13.5 - extra, 0.3, false, 4);
+
+        Thread.sleep(2000);
+        robot.getManip().goToPosition(80);
+        // TODO: Go to duck
+        // TODO: Get duck
+
+        // park in freight area
+        robot.getDrivetrain().moveInches(46, 0.4, true, 5);
+        Thread.sleep(2000);
+
+        robot.getManip().rotateClawDown();
+        robot.getManip().mechRelease();
+        Thread.sleep(2000);
     }
 }

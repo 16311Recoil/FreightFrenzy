@@ -23,6 +23,7 @@ public class teleOpBlue extends OpMode{
         dash = FtcDashboard.getInstance();
         robot.getTurret().setTurretPower(0);
         robot.getTurret().setTurretMode(true);
+        robot.setAlliance(true);
     }
 
     //drivetrain.moveTeleOp_Plus(gamepad1.left_stick_x, gamepad1.left_stick_y, drivetrain.lockHeadingAngle(relativeHeading - init_Heading, sensor.getFirstAngle()), 1, 1); //lock angle
@@ -32,7 +33,7 @@ public class teleOpBlue extends OpMode{
     public void loop() {
 
         if (gamepad1.x){
-            init_Heading = robot.getSensors().getFirstAngle() + (Math.PI / 2);
+            init_Heading = robot.getSensors().getFirstAngle() - (Math.PI / 2);
         }
 
         robot.teleOpControlsBrenden(init_Heading);

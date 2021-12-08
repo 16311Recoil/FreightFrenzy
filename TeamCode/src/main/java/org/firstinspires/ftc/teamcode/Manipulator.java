@@ -25,10 +25,10 @@ public class Manipulator {
 
 
     // All measurements in inches or degrees
-    private final double UP = 1;
+    private final double UP = 0.47;
     private final double DOWN = 0;
     private final double GRAB = .73;
-    private final double UNGRAB = 0.18;
+    private final double UNGRAB = 0;
     private final double MAG_ON = 0.55;
     private final double MAG_OFF = 0;
     // private final double DUCK_POWER = 0;
@@ -101,6 +101,9 @@ public class Manipulator {
         armRotator.setPower(ARM_POWER);
         armRotator.setTargetPosition(0);
         armRotator.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        clawRotator.setPosition(0);
+
 
 
         opMode.telemetry.addLine("Manipulator Init Completed - Iterative");
@@ -179,10 +182,11 @@ public class Manipulator {
     public void toggleClawRotate(){
         if (upEnabled) {
             rotateClawDown();
-        } else {
+        }
+        else {
             rotateClawUp();
         }
-        magEnabled = !magEnabled;
+        upEnabled = !upEnabled;
     }
 
     public void setArmMode(boolean powerMode){
@@ -258,7 +262,7 @@ public class Manipulator {
      */
     public void placePresetLevel(int level_index){
         goToLevel(LEVELS[level_index]);
-        release();
+        //release();
     }
 
     public void grabFloor(){
@@ -359,6 +363,10 @@ public class Manipulator {
             toggleClawRotate();
         }
         changeX = x;
+    }
+
+    public void setGoalEncoder(int val){
+        goalEncoder = val;
     }
 
 }
