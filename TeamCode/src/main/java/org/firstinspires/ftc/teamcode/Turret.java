@@ -112,7 +112,7 @@ public class Turret {
         return turretMotor.getCurrentPosition();
     }
 
-    public void teleOpControls(double gamepad, boolean x){
+    public void teleOpControls(double gamepad, boolean x, boolean a, boolean dpadRight, boolean dpadDown){
 
         if (x){
             TOP_BOUND = calibrationMode(gamepad);
@@ -150,7 +150,17 @@ public class Turret {
         }
         //turretMotor.setTargetPosition((int)goalEncoder);
         if (!x){
-            movePID((int)goalEncoder);
+            if(a){
+                if(dpadDown){
+                    moveTurretPID(LOW_BOUND + 120);
+                }
+                else if(dpadRight){
+                    moveTurretPID(LOW_BOUND + 240);
+                }
+            }
+            else {
+                moveTurretPID((int) goalEncoder);
+            }
         }
         /*
         iterative_OpMode.telemetry.addData("timer", timer.seconds());
@@ -172,6 +182,18 @@ public class Turret {
         if (Math.abs(encoderTarget - getPosition()) > 5){
             turretMotor.setPower(pid.loop(turretMotor.getCurrentPosition(), timer.seconds()));
         }
+    }
+    public void moveTurretPID(int encoderTarget){
+        PID pid = new PID();
+        ElapsedTime timer = new ElapsedTime();
+        pid.setConstants(0.0075, 0,0.00008, encoderTarget);
+        if (Math.abs(encoderTarget - getPosition()) > 2){
+            turretMotor.setPower(pid.loop(turretMotor.getCurrentPosition(), timer.seconds()));
+        }
+        else{
+            turretMotor.setPower(0);
+        }
+
     }
 
     public void movePIDLoop(int encoderTarget){
