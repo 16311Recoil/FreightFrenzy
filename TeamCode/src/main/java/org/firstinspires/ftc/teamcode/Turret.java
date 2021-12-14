@@ -22,6 +22,7 @@ public class Turret {
     double ENCODER_TO_ANGLE_RATIO = 0.4643;
 
     //teleo-op utility
+    ElapsedTime ATimer = new ElapsedTime();
     private ElapsedTime timer = new ElapsedTime();
     private int TOP_BOUND = 480;
     private int LOW_BOUND = -100;
@@ -152,10 +153,10 @@ public class Turret {
         if (!x){
             if(a){
                 if(dpadDown){
-                    moveTurretPID(LOW_BOUND + 120);
+                    moveTurretPID(LOW_BOUND + 30);
                 }
                 else if(dpadRight){
-                    moveTurretPID(LOW_BOUND + 240);
+                    moveTurretPID(LOW_BOUND + 40);
                 }
             }
             else {
