@@ -26,6 +26,17 @@ public class Turret {
     private ElapsedTime timer = new ElapsedTime();
     private int TOP_BOUND = 480;
     private int LOW_BOUND = -100;
+    private int RED_LEFT_TOP;
+    private int RED_LEFT_BOTTOM;
+
+    private int RED_MIDDLE_BOTTOM;
+    private int RED_RIGHT_BOTTOM;
+    private int BLUE_LEFT_TOP = 480;
+    private int BLUE_LEFT_BOTTOM = 480;
+    private int BLUE_MIDDLE_BOTTOM = 440;
+    private int BLUE_RIGHT_BOTTOM = 420;
+
+    private boolean blueSide;
     private double goalEncoder = 0;
     private boolean stickPressed = false;
     private double prevTime = 0;
@@ -113,7 +124,7 @@ public class Turret {
         return turretMotor.getCurrentPosition();
     }
 
-    public void teleOpControls(double gamepad, boolean x, boolean a, boolean dpadRight, boolean dpadDown){
+    public void teleOpControls(double gamepad, boolean x, boolean a, boolean dpadRight, boolean dpadDown, boolean dpadLeft, boolean dpadUp){
 
         if (x){
             TOP_BOUND = calibrationMode(gamepad);
@@ -152,16 +163,42 @@ public class Turret {
         //turretMotor.setTargetPosition((int)goalEncoder);
         if (!x){
             if(a){
-                if(dpadDown){
-                    moveTurretPID(LOW_BOUND + 30);
+                if(blueSide){
+                    if(dpadDown){
+                        goalEncoder = LOW_BOUND + BLUE_MIDDLE_BOTTOM;
+                    }
+                    else if(dpadRight){
+                        goalEncoder = LOW_BOUND + BLUE_RIGHT_BOTTOM;
+
+                    }
+                    else if(dpadLeft){
+                        goalEncoder = LOW_BOUND + BLUE_LEFT_BOTTOM;
+                    }
+                    else if(dpadUp){
+                        goalEncoder = LOW_BOUND + BLUE_LEFT_TOP;
+                    }
                 }
-                else if(dpadRight){
-                    moveTurretPID(LOW_BOUND + 40);
+                else{
+                    if(dpadDown){
+                        goalEncoder = LOW_BOUND + RED_MIDDLE_BOTTOM;
+                    }
+                    else if(dpadRight){
+                        goalEncoder = LOW_BOUND + RED_RIGHT_BOTTOM;
+
+                    }
+                    else if(dpadLeft){
+                        goalEncoder = LOW_BOUND + RED_LEFT_BOTTOM;
+                    }
+                    else if(dpadUp){
+                        goalEncoder = LOW_BOUND + RED_LEFT_TOP;
+                    }
                 }
+
+
             }
-            else {
-                moveTurretPID((int) goalEncoder);
-            }
+
+            moveTurretPID((int) goalEncoder);
+
         }
         /*
         iterative_OpMode.telemetry.addData("timer", timer.seconds());
@@ -217,5 +254,8 @@ public class Turret {
 
     public void setLOW_BOUND(int HIGH_BOUND){
         LOW_BOUND = HIGH_BOUND - 580;
+    }
+    public void setAlliance(boolean alliance){
+        blueSide = alliance;
     }
 }

@@ -181,7 +181,7 @@ public class Crab {
             }
 
             manip.teleOpControls(-teleOp.gamepad2.left_stick_y, teleOp.gamepad2.a, teleOp.gamepad2.b, teleOp.gamepad2.x, teleOp.gamepad2.y, teleOp.gamepad2.dpad_down, teleOp.gamepad2.dpad_left, teleOp.gamepad2.dpad_up, teleOp.gamepad2.dpad_right);
-            turret.teleOpControls(-teleOp.gamepad2.right_stick_x, teleOp.gamepad2.right_bumper);
+            turret.teleOpControls(-teleOp.gamepad2.right_stick_x, teleOp.gamepad2.right_bumper, teleOp.gamepad2.a, teleOp.gamepad2.dpad_right, teleOp.gamepad2.dpad_down, teleOp.gamepad2.dpad_left, teleOp.gamepad2.dpad_up);
             toggleSpeed();
         }
 
@@ -254,6 +254,7 @@ public class Crab {
         else
             team_hub = RED_HUB;
         alliance = blueSide;
+        turret.setAlliance(blueSide);
     }
 
 
