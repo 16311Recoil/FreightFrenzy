@@ -18,7 +18,7 @@ public class Manipulator {
     private boolean magEnabled = false;
     private boolean upEnabled = false;
 
-    DcMotor armRotator;
+    DcMotorEx armRotator;
     Servo grabber;
     Servo magSwitch;
     Servo clawRotator;
@@ -312,21 +312,22 @@ public class Manipulator {
             stickPressed = false;
         }
 
-        magControl(a, b);
+        magControl(b);
         clawControl(y);
         clawRotateControl(x);
-
-        if (down){
-            goalEncoder = 15;
-        }
-        if (up){
-            goalEncoder = 375;
-        }
-        if (right){
-            goalEncoder = 120;
-        }
-        if (left) {
-            goalEncoder = 240;
+        if(!a) {
+            if (down) {
+                goalEncoder = 15;
+            }
+            if (up) {
+                goalEncoder = 375;
+            }
+            if (right) {
+                goalEncoder = 120;
+            }
+            if (left) {
+                goalEncoder = 240;
+            }
         }
 
         armRotator.setTargetPosition((int)goalEncoder);
@@ -339,9 +340,9 @@ public class Manipulator {
 
     }
 
-    public void magControl(boolean a, boolean b){
+    public void magControl( boolean b){
 
-        if (magTimer.seconds() > 2 || a){
+        if (magTimer.seconds() > 1.5){
             magGrab();
         }
         if (b){

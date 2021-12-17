@@ -26,11 +26,10 @@ public class Turret {
     private ElapsedTime timer = new ElapsedTime();
     private int TOP_BOUND = 480;
     private int LOW_BOUND = -100;
-    private int RED_LEFT_TOP;
-    private int RED_LEFT_BOTTOM;
-
-    private int RED_MIDDLE_BOTTOM;
-    private int RED_RIGHT_BOTTOM;
+    private int RED_LEFT_TOP = 105;
+    private int RED_LEFT_BOTTOM = 105;
+    private int RED_MIDDLE_BOTTOM = 120;
+    private int RED_RIGHT_BOTTOM = 80;
     private int BLUE_LEFT_TOP = 480;
     private int BLUE_LEFT_BOTTOM = 480;
     private int BLUE_MIDDLE_BOTTOM = 440;
