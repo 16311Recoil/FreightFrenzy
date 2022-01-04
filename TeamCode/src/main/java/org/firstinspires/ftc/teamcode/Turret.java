@@ -26,11 +26,10 @@ public class Turret {
     private ElapsedTime timer = new ElapsedTime();
     private int TOP_BOUND = 480;
     private int LOW_BOUND = -100;
-    private int RED_LEFT_TOP;
-    private int RED_LEFT_BOTTOM;
-
-    private int RED_MIDDLE_BOTTOM;
-    private int RED_RIGHT_BOTTOM;
+    private int RED_LEFT_TOP = 105;
+    private int RED_LEFT_BOTTOM = 105;
+    private int RED_MIDDLE_BOTTOM = 120;
+    private int RED_RIGHT_BOTTOM = 80;
     private int BLUE_LEFT_TOP = 480;
     private int BLUE_LEFT_BOTTOM = 480;
     private int BLUE_MIDDLE_BOTTOM = 440;
@@ -40,6 +39,12 @@ public class Turret {
     private double goalEncoder = 0;
     private boolean stickPressed = false;
     private double prevTime = 0;
+
+    private double K_P = 0.0075;
+    private double K_I = 0;
+    private double K_D = 0.00008;
+
+    private int ENCODER_TOLERANCE = 2;
 
     public Turret(LinearOpMode opMode){
         linear_OpMode = opMode;
@@ -213,20 +218,13 @@ public class Turret {
         return turretMotor.getCurrentPosition();
     }
 
-    public void movePID(int encoderTarget){
-        PID pid = new PID();
-        ElapsedTime timer = new ElapsedTime();
-        pid.setConstants(0.0065, 0,0.00002, encoderTarget);
-        if (Math.abs(encoderTarget - getPosition()) > 5){
-            turretMotor.setPower(pid.loop(turretMotor.getCurrentPosition(), timer.seconds()));
-        }
-    }
     public void moveTurretPID(int encoderTarget){
         PID pid = new PID();
         ElapsedTime timer = new ElapsedTime();
-        pid.setConstants(0.0075, 0,0.00008, encoderTarget);
-        if (Math.abs(encoderTarget - getPosition()) > 2){
-            turretMotor.setPower(pid.loop(turretMotor.getCurrentPosition(), timer.seconds()));
+        int currentPos = getPosition();
+        pid.setConstants(K_P, K_I,K_D, encoderTarget);
+        if (Math.abs(encoderTarget - currentPos) > ENCODER_TOLERANCE){
+            turretMotor.setPower(pid.loop(currentPos, timer.seconds()));
         }
         else{
             turretMotor.setPower(0);
@@ -234,15 +232,6 @@ public class Turret {
 
     }
 
-    public void movePIDLoop(int encoderTarget){
-        PID pid = new PID();
-        ElapsedTime timer = new ElapsedTime();
-        pid.setConstants(0.3, 0,0, encoderTarget);
-        while (Math.abs(encoderTarget - getPosition()) > 5){
-            turretMotor.setPower(pid.loop(turretMotor.getCurrentPosition(), timer.seconds()));
-        }
-        turretMotor.setPower(0);
-    }
 
     public void resetEncoder(){
         turretMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
