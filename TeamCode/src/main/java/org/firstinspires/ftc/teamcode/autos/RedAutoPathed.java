@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.autos;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -15,13 +16,15 @@ import org.firstinspires.ftc.teamcode.VisionTestRed;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
+@Config
 @Autonomous(name="RedAutoPathed", group="Auto")
 public class RedAutoPathed extends LinearOpMode {
     Crab robot;
     VisionTestRed.DeterminationPipeline pipeline;
     FtcDashboard dashboard;
     VisionTestRed.DeterminationPipeline.MarkerPosition pos;
-    int extra = 0;
+    public static int extra = -4;
+    public static double power = 0.3;
 
     @Override
     public void runOpMode() throws InterruptedException{
@@ -77,7 +80,7 @@ public class RedAutoPathed extends LinearOpMode {
         }
 
 
-
+/*
         // TODO: Uncomment manip code after adjusting values in manip class (check manip TODOs)
 
         // raise arm BEFORE we move forward
@@ -86,7 +89,7 @@ public class RedAutoPathed extends LinearOpMode {
         // manipulator.rotateClawUp();
 
         // move towards the hub
-        robot.getDrivetrain().moveInches(13.5 + extra, 0.3, false, 4);
+        robot.getDrivetrain().moveInches(13.5 + extra, power, false, 4);
         Thread.sleep(2000);
 
         // drop block
@@ -97,15 +100,51 @@ public class RedAutoPathed extends LinearOpMode {
 
         // go back
 
-        robot.getDrivetrain().moveInches(-13.5 - extra, 0.3, false, 4);
+        robot.getDrivetrain().moveInches(-13.5 - extra, power, false, 4);
 
         Thread.sleep(2000);
         robot.getManip().goToPosition(80);
+*/
         // TODO: Go to duck
+        robot.getDrivetrain().moveInches(4 + extra, power, false, 5);
+        robot.getDrivetrain().moveInches(-36 - extra, power, true, 7);
+        Thread.sleep(1000);
+
         // TODO: Get duck
 
+        robot.getManip().goToPosition(350);
+        double init_heading = robot.getSensors().getFirstAngle();
+        ElapsedTime timer = new ElapsedTime();
+        telemetry.addData("init heading", init_heading);
+        telemetry.update();
+        timer.reset();
+        while (timer.milliseconds() < 3000){
+            robot.getDrivetrain().spinDuck(0.3, 0.1, 1.25 * Math.PI, robot.getSensors().getFirstAngle() - init_heading, 4, false);
+        }
+        Thread.sleep(6000);
+
+        // TODO: Adjust back
+
+        telemetry.addData("starting at position", robot.getSensors().getFirstAngle());
+        while (Math.abs(robot.getSensors().getFirstAngle()) > 0.02){
+            if (robot.getSensors().getFirstAngle() > 0){
+                robot.getDrivetrain().setAllMotors(-0.3);
+            }
+            else {
+                robot.getDrivetrain().setAllMotors(0.3);
+            }
+        }
+
+        telemetry.addData("ended at position", robot.getSensors().getFirstAngle());
+        telemetry.update();
+        Thread.sleep(2000);
+
+        robot.getDrivetrain().moveInches(10 + extra, power, true, 4);
+        robot.getDrivetrain().moveInches(-10 - extra, power, false, 4);
+        Thread.sleep(2000);
+
         // park in freight area
-        robot.getDrivetrain().moveInches(46, 0.4, true, 5);
+        robot.getDrivetrain().moveInches(76, power, true, 5);
         Thread.sleep(2000);
 
         robot.getManip().rotateClawDown();
