@@ -571,6 +571,18 @@ public void spinDuck(double turnPower, double movePower, double moveAngle, doubl
             setAllMotors(pid.loop(sensor.getFirstAngle(), timer.seconds()));
         }
     }
+    public void turnToPID(double newAngle, double startHeading){
+        Sensors sensor = new Sensors(linear_OpMode);
+        double initHeading = startHeading;
+
+        PID pid = new PID(0.3, 0, 0, newAngle);
+        ElapsedTime timer = new ElapsedTime();
+        timer.reset();
+
+        while (Math.abs(newAngle - (startHeading - sensor.getFirstAngle())) > 5){
+            setAllMotors(pid.loop(startHeading - sensor.getFirstAngle(), timer.seconds()));
+        }
+    }
 
     public FtcDashboard getDashboard() {
         return dashboard;
