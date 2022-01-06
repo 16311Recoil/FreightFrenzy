@@ -137,7 +137,7 @@ public class RedAutoPathed extends LinearOpMode {
 
         telemetry.addData("ended at position", robot.getSensors().getFirstAngle());
         telemetry.update();
-        robot.getDrivetrain().turnToPID(0, robot.getSensors().getFirstAngle());
+        robot.getDrivetrain().turnToPID(0, init_heading);
         Thread.sleep(2000);
 
         robot.getDrivetrain().moveInches(10 + extra, power, true, 4);
