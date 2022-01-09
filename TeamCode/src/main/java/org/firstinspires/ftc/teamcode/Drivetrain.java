@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.control.PIDCoefficients;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -26,14 +28,16 @@ public class Drivetrain{
     private OpMode iterative_OpMode;
     private FtcDashboard dashboard;
 
+    public static PIDCoefficients mPID = new PIDCoefficients(0.005, 0, 0.005);
+    public static PIDCoefficients spinPID = new PIDCoefficients(0.08, 0.08, 0.08);
+    public static double turnError = 0.02;
+
     private double FF_LOW = 0.64;
     private double SF_LOW = 0.45;
-    private double ENCODER_IN_INCHES = 2086.07567;
+    private double ENCODER_IN_INCHES = 39.88422; // 2086.07567 for odom, 39.88422 for wheel encoders
 
     public Drivetrain(LinearOpMode opMode){
-
         this.linear_OpMode = opMode;
-
 
         f = this.linear_OpMode.hardwareMap.get(DcMotorEx.class, "f");
         r = this.linear_OpMode.hardwareMap.get(DcMotorEx.class, "r");
@@ -45,9 +49,13 @@ public class Drivetrain{
 
         l.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         f.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        r.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        b.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         l.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         f.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        r.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        b.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         f.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         r.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -145,7 +153,7 @@ public class Drivetrain{
         f.setPower(power);
         r.setPower(power);
         l.setPower(power);
-        r.setPower(power);
+        b.setPower(power);
     }
 
     public void turn(double power, boolean turnRight) {
@@ -168,7 +176,7 @@ public class Drivetrain{
         return new int[]{
                 f.getCurrentPosition(),
                 r.getCurrentPosition(),
-                l.getCurrentPosition(),
+                -l.getCurrentPosition(), // TODO: FIGURE OUT WHY ITS REPORTING INCORRECTLY
                 b.getCurrentPosition()
         };
     }
@@ -238,6 +246,7 @@ public void spinDuck(double turnPower, double movePower, double moveAngle, doubl
     moveAngle += 0.25 * Math.cos((0.7 * Math.PI) * time);
 
     int turnDirection = -1; //cock
+                            // what
     if (turnRight) {
         turnDirection = 1;
     }
@@ -501,11 +510,10 @@ public void spinDuck(double turnPower, double movePower, double moveAngle, doubl
     }
 
     public void runToEncoderPositions(int f, int r, int l, int b){
-        PID
-                pidf = new PID(0.3, 0, 0, f),
-                pidr = new PID(0.3, 0, 0, r),
-                pidl = new PID(0.3, 0, 0, l),
-                pidb = new PID(0.3, 0, 0, b);
+        PID pidf = new PID(mPID.kP, mPID.kI, mPID.kD, f),
+            pidr = new PID(mPID.kP, mPID.kI, mPID.kD, r),
+            pidl = new PID(mPID.kP, mPID.kI, mPID.kD, l),
+            pidb = new PID(mPID.kP, mPID.kI, mPID.kD, b);
 
         ElapsedTime timer = new ElapsedTime();
 
@@ -518,12 +526,22 @@ public void spinDuck(double turnPower, double movePower, double moveAngle, doubl
         ){
             setMotorPowers(
                     pidf.loop(encoders[0], timer.seconds()),
-                    pidl.loop(encoders[1], timer.seconds()),
-                    pidr.loop(encoders[2], timer.seconds()),
+                    pidr.loop(encoders[1], timer.seconds()),
+                    pidl.loop(encoders[2], timer.seconds()),
                     pidb.loop(encoders[3], timer.seconds())
             );
 
+            TelemetryPacket p = new TelemetryPacket();
             encoders = getEncoders();
+            linear_OpMode.telemetry.addData("f", encoders[0]);
+            linear_OpMode.telemetry.addData("r", encoders[1]);
+            linear_OpMode.telemetry.addData("l", encoders[2]);
+            linear_OpMode.telemetry.addData("b", encoders[3]);
+            p.put("f", encoders[0]);
+            p.put("r", encoders[1]);
+            p.put("l", encoders[2]);
+            p.put("b", encoders[3]);
+            dashboard.sendTelemetryPacket(p);
         }
     }
 
@@ -571,16 +589,23 @@ public void spinDuck(double turnPower, double movePower, double moveAngle, doubl
             setAllMotors(pid.loop(sensor.getFirstAngle(), timer.seconds()));
         }
     }
-    public void turnToPID(double newAngle, double startHeading){
-        Sensors sensor = new Sensors(linear_OpMode);
-        double initHeading = startHeading;
+    public void turnToPID(double newAngle, Sensors sensor, double timeout){
+        // Sensors sensor = new Sensors(linear_OpMode);
+        // double initHeading = startHeading;
 
-        PID pid = new PID(0.3, 0, 0, newAngle);
+        PID pid = new PID(spinPID.kP, spinPID.kI, spinPID.kD, newAngle);
         ElapsedTime timer = new ElapsedTime();
         timer.reset();
 
-        while (Math.abs(newAngle - (startHeading - sensor.getFirstAngle())) > 5){
-            setAllMotors(pid.loop(startHeading - sensor.getFirstAngle(), timer.seconds()));
+        while (Math.abs(sensor.getFirstAngle() - newAngle) > turnError * Math.PI){
+            double newPower = pid.loop(sensor.getFirstAngle(), timer.seconds());
+            setMotorPowers(-newPower, -newPower, newPower, newPower);
+            linear_OpMode.telemetry.addData("motor powers", newPower);
+            linear_OpMode.telemetry.addData("current rotation", sensor.getFirstAngle() / Math.PI * 180);
+            linear_OpMode.telemetry.update();
+
+            if (timer.seconds() >= timeout)
+                break;
         }
     }
 
