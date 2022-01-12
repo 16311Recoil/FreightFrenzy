@@ -29,7 +29,7 @@ public class Drivetrain{
     private FtcDashboard dashboard;
 
     public static PIDCoefficients mPID = new PIDCoefficients(0.005, 0, 0.005);
-    public static PIDCoefficients spinPID = new PIDCoefficients(0.08, 0.08, 0.08);
+    public static PIDCoefficients spinPID = new PIDCoefficients(0.2, 0.08, 0.1);
     public static double turnError = 0.02;
 
     private double FF_LOW = 0.64;
@@ -597,7 +597,7 @@ public void spinDuck(double turnPower, double movePower, double moveAngle, doubl
         ElapsedTime timer = new ElapsedTime();
         timer.reset();
 
-        while (Math.abs(sensor.getFirstAngle() - newAngle) > turnError * Math.PI){
+        while (Math.abs(((int)((sensor.getFirstAngle() - newAngle) * 180 / Math.PI) % 360) / 180.0 * Math.PI) > turnError * Math.PI){
             double newPower = pid.loop(sensor.getFirstAngle(), timer.seconds());
             setMotorPowers(-newPower, -newPower, newPower, newPower);
             linear_OpMode.telemetry.addData("motor powers", newPower);
