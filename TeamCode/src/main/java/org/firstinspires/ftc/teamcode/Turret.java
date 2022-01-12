@@ -22,7 +22,8 @@ public class Turret {
     double ENCODER_TO_ANGLE_RATIO = 0.4643;
 
     //teleo-op utility
-    ElapsedTime ATimer = new ElapsedTime();
+    private PID pid = new PID();
+
     private ElapsedTime timer = new ElapsedTime();
     private int TOP_BOUND = 480;
     private int LOW_BOUND = -100;
@@ -40,11 +41,11 @@ public class Turret {
     private boolean stickPressed = false;
     private double prevTime = 0;
 
-    private double K_P = 0.0075;
+    private double K_P = 0.03;
     private double K_I = 0;
-    private double K_D = 0.00008;
+    private double K_D = 0.0;
 
-    private int ENCODER_TOLERANCE = 2;
+    private int ENCODER_TOLERANCE = 3;
 
     public Turret(LinearOpMode opMode){
         linear_OpMode = opMode;
@@ -205,12 +206,11 @@ public class Turret {
             moveTurretPID((int) goalEncoder);
 
         }
-        /*
         iterative_OpMode.telemetry.addData("timer", timer.seconds());
         iterative_OpMode.telemetry.addData("goal", goalEncoder);
         iterative_OpMode.telemetry.addData("prev Timer", prevTime);
         iterative_OpMode.telemetry.addData("stickPressed", stickPressed);
-         */
+        iterative_OpMode.telemetry.update();
     }
 
     public int calibrationMode(double gamepad){
@@ -219,12 +219,11 @@ public class Turret {
     }
 
     public void moveTurretPID(int encoderTarget){
-        PID pid = new PID();
-        ElapsedTime timer = new ElapsedTime();
         int currentPos = getPosition();
+        iterative_OpMode.telemetry.addData("curPos", currentPos);
         pid.setConstants(K_P, K_I,K_D, encoderTarget);
         if (Math.abs(encoderTarget - currentPos) > ENCODER_TOLERANCE){
-            turretMotor.setPower(pid.loop(currentPos, timer.seconds()));
+            turretMotor.setPower(pid.loop(currentPos, timer.milliseconds()));
         }
         else{
             turretMotor.setPower(0);
