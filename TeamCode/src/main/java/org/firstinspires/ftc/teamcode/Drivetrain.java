@@ -29,7 +29,7 @@ public class Drivetrain{
     private FtcDashboard dashboard;
 
     public static PIDCoefficients mPID = new PIDCoefficients(0.005, 0, 0.005);
-    public static PIDCoefficients spinPID = new PIDCoefficients(0.2, 0.08, 0.1);
+    public static PIDCoefficients spinPID = new PIDCoefficients(0.3, 0.05, 0.05);
     public static double turnError = 0.02;
 
     private double FF_LOW = 0.64;
