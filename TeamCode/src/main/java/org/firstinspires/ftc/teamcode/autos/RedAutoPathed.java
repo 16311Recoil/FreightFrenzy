@@ -71,6 +71,7 @@ public class RedAutoPathed extends LinearOpMode {
 
         int hub_pos;
 
+        // TODO: Fix vision
         if (pos == VisionTestRed.DeterminationPipeline.MarkerPosition.LEFT)
             hub_pos = 50;
         else if (pos == VisionTestRed.DeterminationPipeline.MarkerPosition.CENTER)
@@ -80,109 +81,81 @@ public class RedAutoPathed extends LinearOpMode {
             extra++;
         }
 
-        // TODO: Uncomment manip code after adjusting values in manip class (check manip TODOs)
-
         // raise arm BEFORE we move forward
-        //robot.getManip().placePresetLevel(hub_pos);
         robot.getManip().goToPosition(hub_pos);
-        // manipulator.rotateClawUp();
+        robot.getManip().rotateClawUp();
 
         // move towards the hub
+        // TODO: Move correct distance
         robot.getDrivetrain().moveInches(13.5 + extra, power, false, 4);
         Thread.sleep(2000);
 
         // drop block
         robot.getManip().mechRelease();
         Thread.sleep(2000);
-        // drop block
-        // manipulator.mechRelease();
 
-        // go back
-
+        // Go back
         robot.getDrivetrain().moveInches(-13.5 - extra, power, false, 4);
+        robot.getManip().rotateClawDown();
 
         Thread.sleep(2000);
         robot.getManip().goToPosition(80);
 
-        // TODO: Go to duck
+        // Move to duck
         robot.getDrivetrain().moveInches(4 + extra, power, false, 5);
         robot.getDrivetrain().moveInches(-36 - extra, power, true, 7);
         Thread.sleep(1000);
 
-        // TODO: Get duck
-
-        robot.getManip().goToPosition(100);
-        robot.getManip().goToPosition(200);
-        robot.getManip().goToPosition(350);
+        // Put arm into excalibur mode
+        robot.getManip().setArmRotatorPower(0.5);
+        for (int i = 160; i <= 360; i += 100)
+            robot.getManip().goToPosition(i);
+        Thread.sleep(2000);
 
         double init_heading = robot.getSensors().getFirstAngle();
 
         ElapsedTime timer = new ElapsedTime();
-        telemetry.addData("init heading", init_heading);
-        telemetry.update();
         timer.reset();
-        while (timer.milliseconds() < 3000){
-            telemetry.addData("current timer", timer.milliseconds());
-            telemetry.update();
-            robot.getDrivetrain().spinDuck(0.3, 0.1, 1.25 * Math.PI, robot.getSensors().getFirstAngle() - init_heading, 4, true);
+        while (timer.milliseconds() < 7000){
+            robot.getDrivetrain().spinDuck(0.3, 0.1, 1.25 * Math.PI, robot.getSensors().getFirstAngle() - init_heading, 4, false);
         }
         robot.getDrivetrain().setAllMotors(0);
 
-        /*
-        // TODO: Adjust back
+        // move away from wall to allow for spin
+        double curAngle = robot.getSensors().getFirstAngle();
+        double range = Math.sin(Math.PI * 3 / 4) - Math.cos(Math.PI * 3 / 4);
 
-        telemetry.addData("starting at position", robot.getSensors().getFirstAngle());
-        while (Math.abs(robot.getSensors().getFirstAngle()) > 0.02){
-            if (robot.getSensors().getFirstAngle() > 0){
-                robot.getDrivetrain().setAllMotors(-0.3);
-            }
-            else {
-                robot.getDrivetrain().setAllMotors(0.3);
-            }
-        }
+        // TODO: Test that this math is correct
 
-        telemetry.addData("ended at position", robot.getSensors().getFirstAngle());
-        telemetry.update();
+        double moveForward = (Math.cos(curAngle) - Math.sin(curAngle)) / range * 10,
+        moveSide = (Math.sin(curAngle) + Math.cos(curAngle)) / range * 10;
 
-         */
+        TelemetryPacket p = new TelemetryPacket();
+        p.put("moveForward", moveForward);
+        p.put("moveSide", moveSide);
+        p.put("currentAngle", curAngle / Math.PI * 180);
+        dashboard.sendTelemetryPacket(p);
 
-        int curAngle = (int)(robot.getSensors().getFirstAngle() * 180 / Math.PI);
-        curAngle %= 360;
-        if (315 <= curAngle && curAngle < 360 || 0 <= curAngle && curAngle < 45){
-            robot.getDrivetrain().moveInches(20, power, true, 2);
-            robot.getDrivetrain().moveInches(20, power, false, 2);
-        }
-        else if (45 <= curAngle && curAngle < 135){
-            robot.getDrivetrain().moveInches(20, power, true, 2);
-            robot.getDrivetrain().moveInches(-20, power, false, 2);
-        }
-        else if (135 <= curAngle && curAngle < 225){
-            robot.getDrivetrain().moveInches(-20, power, true, 2);
-            robot.getDrivetrain().moveInches(-20, power, false, 2);
-        }
-        else {
-            robot.getDrivetrain().moveInches(-20, power, true, 2);
-            robot.getDrivetrain().moveInches(20, power, false, 2);
-        }
+        robot.getDrivetrain().moveInches(moveForward, power, false, 2);
+        robot.getDrivetrain().moveInches(moveSide, power, true, 2);
 
-        int angle_in_deg = (int)(robot.getSensors().getFirstAngle() / Math.PI * 180);
-        angle_in_deg %= 360;
-        double cur_angle = angle_in_deg / 180.0 * Math.PI;
-        cur_angle = 2 * Math.PI - cur_angle;
+        Thread.sleep(1000);
 
-        telemetry.addData("starting at angle", cur_angle);
-        telemetry.update();
-        Thread.sleep(2000);
-        robot.getDrivetrain().turnToPID(Math.PI, robot.getSensors(), 4);
-        Thread.sleep(2000);
+        // Adjust rotation back to properly use moveInches
+        robot.getDrivetrain().turnToPID(0, robot.getSensors(), 4);
 
+        // Back into the wall to correct any rotation imperfections
         robot.getDrivetrain().moveInches(-30 - extra, power, false, 4);
         Thread.sleep(2000);
 
-        // park in freight area
-        robot.getDrivetrain().moveInches(76 + extra, power, true, 5);
+        robot.getManip().setArmRotatorPower(0.1);
+        for (int i = 350; i >= 50; i -= 100)
+            robot.getManip().goToPosition(i);
+        // Park in freight area
+        robot.getDrivetrain().moveInches(150 + extra, power, true, 7);
         Thread.sleep(2000);
 
+        // Setup for teleop
         robot.getManip().rotateClawDown();
         robot.getManip().mechRelease();
         Thread.sleep(2000);
