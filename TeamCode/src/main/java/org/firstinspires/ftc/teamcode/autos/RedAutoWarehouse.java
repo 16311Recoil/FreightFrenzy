@@ -17,12 +17,13 @@ import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
 @Config
-@Autonomous(name="RedAutoPathed", group="Auto")
-public class RedAutoPathed extends LinearOpMode {
+@Autonomous(name="RedAutoWarehouse", group="Auto")
+public class RedAutoWarehouse extends LinearOpMode {
     Crab robot;
     VisionTestRed.DeterminationPipeline pipeline;
     FtcDashboard dashboard;
     VisionTestRed.DeterminationPipeline.MarkerPosition pos;
+    private double startAngle = 0;
     public static int extra = -4;
     public static double power = 0.3;
 
@@ -30,10 +31,11 @@ public class RedAutoPathed extends LinearOpMode {
     public void runOpMode() throws InterruptedException{
         robot = new Crab(this);
 
-        robot.getManip().setArmRotatorPower(0.3);
-        robot.getDrivetrain().lowerOdom();
-        robot.getManip().rotateClawUp();
         robot.getManip().mechGrab();
+        robot.getManip().setArmRotatorPower(0.3);
+        robot.getTurret().setTurretPower(0.2);
+        robot.getDrivetrain().lowerOdom();
+        startAngle = robot.getSensors().getFirstAngle();
         dashboard = FtcDashboard.getInstance();
 
         pipeline = new VisionTestRed.DeterminationPipeline();
@@ -55,6 +57,7 @@ public class RedAutoPathed extends LinearOpMode {
             dashboard.startCameraStream(robot.getSensors().getWebcam(), 30);
 
             telemetry.addData("pos", pipeline.getAnalysis());
+            telemetry.update();
             p.put("pos", pipeline.getAnalysis());
             dashboard.sendTelemetryPacket(p);
 
@@ -64,7 +67,11 @@ public class RedAutoPathed extends LinearOpMode {
 
         waitForStart();
 
-        robot.getTurret().setPosition(-83);
+        robot.getManip().goToPosition(38);
+        Thread.sleep(1000);
+        robot.getManip().rotateClawUp();
+        Thread.sleep(300);
+        robot.getTurret().setPosition(-80);
 
 
         // robot.getManip().mechGrab();
@@ -73,56 +80,78 @@ public class RedAutoPathed extends LinearOpMode {
 
         // TODO: Fix vision
         if (pos == VisionTestRed.DeterminationPipeline.MarkerPosition.LEFT)
-            hub_pos = 50;
+            hub_pos = 57;
         else if (pos == VisionTestRed.DeterminationPipeline.MarkerPosition.CENTER)
-            hub_pos = 105;
+            hub_pos = 120;
         else{
             hub_pos = 220;
-            extra++;
+            extra += 1.25;
         }
 
         // raise arm BEFORE we move forward
-        robot.getManip().goToPosition(hub_pos);
+        if (pos == VisionTestRed.DeterminationPipeline.MarkerPosition.RIGHT){
+            robot.getTurret().setPosition(-69);
+            robot.getManip().setArmRotatorPower(0.3);
+            for (int i = 60; i <= 220; i += 5){
+                robot.getManip().goToPosition(i);
+                Thread.sleep(30);
+            }
+        }
+        else {
+            robot.getManip().goToPosition(hub_pos);
+        }
         robot.getManip().rotateClawUp();
 
         // move towards the hub
         // TODO: Move correct distance
-        robot.getDrivetrain().moveInches(13.5 + extra, power, false, 4);
-        Thread.sleep(2000);
+        robot.getDrivetrain().moveInches(14 + extra, power, false, 4);
+        Thread.sleep(1700);
 
         // drop block
         robot.getManip().mechRelease();
-        Thread.sleep(2000);
+        Thread.sleep(1200);
 
         // Go back
-        robot.getDrivetrain().moveInches(-13.5 - extra, power, false, 4);
+        robot.getDrivetrain().moveInches(-14 - extra, power + 0.15, false, 3);
         robot.getManip().rotateClawDown();
 
-        Thread.sleep(2000);
+        Thread.sleep(400);
         robot.getManip().goToPosition(80);
 
         // Move to duck
-        robot.getDrivetrain().moveInches(4 + extra, power, false, 5);
-        robot.getDrivetrain().moveInches(-36 - extra, power, true, 7);
-        Thread.sleep(1000);
+        robot.getDrivetrain().moveInches(-39 - extra, power + 0.1, true, 7);
+        Thread.sleep(600);
 
         // Put arm into excalibur mode
         robot.getManip().setArmRotatorPower(0.5);
-        for (int i = 160; i <= 360; i += 100)
+        for (int i = 160; i <= 360; i += 10){
             robot.getManip().goToPosition(i);
-        Thread.sleep(2000);
+            Thread.sleep(25);
+        }
+
+        Thread.sleep(1000);
 
         double init_heading = robot.getSensors().getFirstAngle();
 
         ElapsedTime timer = new ElapsedTime();
         timer.reset();
-        while (timer.milliseconds() < 7000){
-            robot.getDrivetrain().spinDuck(0.3, 0.1, 1.25 * Math.PI, robot.getSensors().getFirstAngle() - init_heading, 4, false);
+        while (timer.milliseconds() < 6000){
+            robot.getDrivetrain().spinDuck(0.3, 0.1, 1.35 * Math.PI, robot.getSensors().getFirstAngle() - init_heading, 4, false);
         }
         robot.getDrivetrain().setAllMotors(0);
 
         // move away from wall to allow for spin
-        double curAngle = robot.getSensors().getFirstAngle();
+
+        timer.reset();
+        while (timer.milliseconds() < 1000){
+            TelemetryPacket p = new TelemetryPacket();
+            p.put("timer", timer.milliseconds());
+            dashboard.sendTelemetryPacket(p);
+            robot.getDrivetrain().spinDuck(0, 0.3, 0, robot.getSensors().getFirstAngle() - init_heading, 2, false);
+        }
+
+
+       /* double curAngle = robot.getSensors().getFirstAngle();
         double range = Math.sin(Math.PI * 3 / 4) - Math.cos(Math.PI * 3 / 4);
 
         // TODO: Test that this math is correct
@@ -137,22 +166,41 @@ public class RedAutoPathed extends LinearOpMode {
         dashboard.sendTelemetryPacket(p);
 
         robot.getDrivetrain().moveInches(moveForward, power, false, 2);
-        robot.getDrivetrain().moveInches(moveSide, power, true, 2);
+        robot.getDrivetrain().moveInches(moveSide, power, true, 2);*/
 
-        Thread.sleep(1000);
+        Thread.sleep(700);
+
+
 
         // Adjust rotation back to properly use moveInches
-        robot.getDrivetrain().turnToPID(0, robot.getSensors(), 4);
+        robot.getDrivetrain().turnToPID(0, robot.getSensors(), 0.4, 2);
 
-        // Back into the wall to correct any rotation imperfections
-        robot.getDrivetrain().moveInches(-30 - extra, power, false, 4);
-        Thread.sleep(2000);
+        /*Thread.sleep(1000);
+        timer.reset();
+        while (timer.milliseconds() < 2000){
+            TelemetryPacket p = new TelemetryPacket();
+            p.put("timer2", timer.milliseconds());
+            dashboard.sendTelemetryPacket(p);
+            robot.getDrivetrain().moveTeleOp_Plus(0,0, robot.getDrivetrain().lockHeadingAngle(startAngle, robot.getSensors().getFirstAngle()), 0, 0.5);
+        }*/
+
+        Thread.sleep(600);
+
+        TelemetryPacket p = new TelemetryPacket();
+        p.put("here", "here");
+        dashboard.sendTelemetryPacket(p);
+
+        robot.getDrivetrain().setMotorPowers(0,0.35,0.35,0);
+
+        Thread.sleep(800);
 
         robot.getManip().setArmRotatorPower(0.1);
         for (int i = 350; i >= 50; i -= 100)
             robot.getManip().goToPosition(i);
         // Park in freight area
-        robot.getDrivetrain().moveInches(150 + extra, power, true, 7);
+
+
+        robot.getDrivetrain().moveInchesAngleLock(63.5, power + 0.25, true, robot.getSensors().getFirstAngle(), 5);
         Thread.sleep(2000);
 
         // Setup for teleop

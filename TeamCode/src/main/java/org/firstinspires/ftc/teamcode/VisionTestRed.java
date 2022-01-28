@@ -119,9 +119,9 @@ public class VisionTestRed extends LinearOpMode
         /*
          * The core values which define the location and size of the sample regions
          */
-        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(45,87);
-        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(165,75);
-        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(240,51);
+        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(1,84);
+        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(100,60);
+        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(183,48);
         static final int REGION_WIDTH =  50;
         static final int REGION_HEIGHT = 60;
 

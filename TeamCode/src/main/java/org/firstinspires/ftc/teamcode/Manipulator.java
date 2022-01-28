@@ -19,16 +19,33 @@ public class Manipulator {
     private boolean upEnabled = false;
 
     DcMotorEx armRotator;
+
     Servo grabber;
     Servo magSwitch;
     Servo clawRotator;
 
+    private enum ArmState{
+        PICK_UP,
+        HUB_DROP,
+        ALLIANCE_DROP,
+        DUCK,
+        MOVE_DOWN,
+        MOVE_UP,
+        CUSTOM;
+    }
+
+    ArmState goalArmState;
+    ArmState armState;
+    ArmState prevArmState;
+
+    private int STATE_TOLERANCE = 3;
 
     // All measurements in inches or degrees
-    private final double UP = 0.47;
+    private final double UP = 0.36;
+    private final double HALF_UP = 0.25;
     private final double DOWN = 0;
-    private final double GRAB = .73;
-    private final double UNGRAB = 0;
+    private final double GRAB = .75;
+    private final double UNGRAB = 0.04;
     private final double MAG_ON = 0.55;
     private final double MAG_OFF = 0;
     // private final double DUCK_POWER = 0;
@@ -53,6 +70,7 @@ public class Manipulator {
     private double prevTime = 0;
 
     private boolean changeX = false;
+    private boolean changeY = false;
 
     private final double[] LEVELS = {6, 3 + 2 + 0.5, 8.5 + 2 + 0.5, 14.75 + 2 + 0.5};
 
@@ -104,6 +122,7 @@ public class Manipulator {
 
         clawRotator.setPosition(0);
 
+        armState = ArmState.CUSTOM;
 
 
         opMode.telemetry.addLine("Manipulator Init Completed - Iterative");
@@ -317,7 +336,7 @@ public class Manipulator {
         clawRotateControl(x);
         if(!a) {
             if (down) {
-                goalEncoder = 15;
+                goalEncoder = 40;
             }
             if (up) {
                 goalEncoder = 375;
@@ -332,13 +351,157 @@ public class Manipulator {
 
         armRotator.setTargetPosition((int)goalEncoder);
 
-        iterative_OpMode.telemetry.addData("timer", timer.seconds());
+        /*iterative_OpMode.telemetry.addData("timer", timer.seconds());
         iterative_OpMode.telemetry.addData("goal", goalEncoder);
         iterative_OpMode.telemetry.addData("prev Timer", prevTime);
         iterative_OpMode.telemetry.addData("stickPressed", stickPressed);
         iterative_OpMode.telemetry.addData("Encoder", armRotator.getCurrentPosition());
+*/
+    }
+
+    public void teleOpControlsStateMachine (double gamepad, boolean a, boolean b, boolean x, boolean y, boolean down, boolean left, boolean up, boolean right){
+
+        int curPos = armRotator.getCurrentPosition();
+
+        if (gamepad != 0){
+            if (!stickPressed){
+                timer.reset();
+                prevTime = 0;
+            }
+            stickPressed = true;
+
+            if ((timer.seconds() - prevTime) > 0.01){
+
+                if (gamepad > 0){
+                    if (goalEncoder < TOP_BOUND){
+                        goalEncoder += 5 * gamepad;
+                    }
+                }
+
+                if (gamepad < 0){
+                    if (goalEncoder > LOW_BOUND){
+                        goalEncoder += 5 * gamepad;
+                    }
+                }
+                goalArmState = ArmState.CUSTOM;
+                prevTime = timer.seconds();
+            }
+        }
+        else {
+            timer.reset();
+            stickPressed = false;
+        }
+
+        magControl(b);
+        clawControl(y);
+        clawRotateControl(x);
+
+        if (goalArmState.equals(ArmState.CUSTOM)){
+            setMoveDirectionConstants(goalEncoder, curPos);
+        }
+
+        if (down){
+            goalArmState = ArmState.PICK_UP;
+            goalEncoder = 15;
+
+            switch (armState){
+                case DUCK:
+                    armRotator.setVelocityPIDFCoefficients(0,0,0,0);
+                    armRotator.setPositionPIDFCoefficients(0);
+                case ALLIANCE_DROP:
+                    armRotator.setVelocityPIDFCoefficients(0,0,0,0);
+                    armRotator.setPositionPIDFCoefficients(0);
+                case HUB_DROP:
+                    armRotator.setVelocityPIDFCoefficients(0,0,0,0);
+                    armRotator.setPositionPIDFCoefficients(0);
+                case CUSTOM:
+                    setMoveDirectionConstants(goalEncoder, curPos);
+                    break;
+            }
+
+        }
+        if (up){
+            goalArmState = ArmState.DUCK;
+            goalEncoder = 375;
+
+            switch (armState){
+                case ALLIANCE_DROP:
+                    armRotator.setVelocityPIDFCoefficients(0,0,0,0);
+                    armRotator.setPositionPIDFCoefficients(0);
+                case HUB_DROP:
+                    armRotator.setVelocityPIDFCoefficients(0,0,0,0);
+                    armRotator.setPositionPIDFCoefficients(0);
+                case PICK_UP:
+                    armRotator.setVelocityPIDFCoefficients(0,0,0,0);
+                    armRotator.setPositionPIDFCoefficients(0);
+                case CUSTOM:
+                    setMoveDirectionConstants(goalEncoder, curPos);
+                    break;
+            }
+
+        }
+        if (right){
+            goalArmState = ArmState.HUB_DROP;
+            goalEncoder = 120;
+
+            switch (armState){
+                case DUCK:
+                    armRotator.setVelocityPIDFCoefficients(0,0,0,0);
+                    armRotator.setPositionPIDFCoefficients(0);
+                case ALLIANCE_DROP:
+                    armRotator.setVelocityPIDFCoefficients(0,0,0,0);
+                    armRotator.setPositionPIDFCoefficients(0);
+                case PICK_UP:
+                    armRotator.setVelocityPIDFCoefficients(0,0,0,0);
+                    armRotator.setPositionPIDFCoefficients(0);
+                case MOVE_DOWN:
+                    armRotator.setVelocityPIDFCoefficients(0,0,0,0);
+                    armRotator.setPositionPIDFCoefficients(0);
+                case CUSTOM:
+                    setMoveDirectionConstants(goalEncoder, curPos);
+                    break;
+            }
+
+        }
+        if (left) {
+            goalArmState = ArmState.ALLIANCE_DROP;
+            goalEncoder = 240;
+
+            switch (armState){
+                case DUCK:
+                    armRotator.setVelocityPIDFCoefficients(0,0,0,0);
+                    armRotator.setPositionPIDFCoefficients(0);
+                case HUB_DROP:
+                    armRotator.setVelocityPIDFCoefficients(0,0,0,0);
+                    armRotator.setPositionPIDFCoefficients(0);
+                case PICK_UP:
+                    armRotator.setVelocityPIDFCoefficients(0,0,0,0);
+                    armRotator.setPositionPIDFCoefficients(0);
+                case CUSTOM:
+                    setMoveDirectionConstants(goalEncoder, curPos);
+                    break;
+            }
+        }
+
+        if (Math.abs(goalEncoder - curPos) < STATE_TOLERANCE){
+            armState = goalArmState;
+        }
+
+        armRotator.setTargetPosition((int)goalEncoder);
+
+
+        iterative_OpMode.telemetry.addData("timer", timer.seconds());
+        iterative_OpMode.telemetry.addData("goal", goalEncoder);
+        iterative_OpMode.telemetry.addData("prev Timer", prevTime);
+        iterative_OpMode.telemetry.addData("stickPressed", stickPressed);
+        iterative_OpMode.telemetry.addData("Encoder", curPos);
+        iterative_OpMode.telemetry.addData("State", armState);
+        iterative_OpMode.telemetry.addData("goalState", goalArmState);
+        iterative_OpMode.telemetry.addData("prevState", prevArmState);
+
 
     }
+
 
     public void magControl( boolean b){
 
@@ -352,18 +515,31 @@ public class Manipulator {
     }
 
     public void clawControl(boolean y){
-        if(clawTimer.seconds() > 1 && y){
+        if(y && !changeY){
             toggleGrabber();
-            clawTimer.reset();
         }
-
+        changeY = y;
     }
 
     public void clawRotateControl(boolean x){
         if (x && !changeX){
             toggleClawRotate();
         }
+        if (iterative_OpMode.gamepad2.left_bumper){
+            clawRotator.setPosition(HALF_UP);
+        }
         changeX = x;
+    }
+
+    public void setMoveDirectionConstants(double goalEncoder, int curPos){
+        if ((goalEncoder - curPos) > 0){
+            armRotator.setVelocityPIDFCoefficients(0,0,0,0);
+            armRotator.setPositionPIDFCoefficients(1);
+        }
+        else if ((goalEncoder - curPos) < 0){
+            armRotator.setVelocityPIDFCoefficients(0,0,0,0);
+            armRotator.setPositionPIDFCoefficients(0);
+        }
     }
 
     public void setGoalEncoder(int val){

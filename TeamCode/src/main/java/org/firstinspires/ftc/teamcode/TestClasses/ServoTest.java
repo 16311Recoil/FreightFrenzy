@@ -15,11 +15,11 @@ public class ServoTest extends LinearOpMode {
     private boolean changeDpadDown = false;
     private boolean changeY;
     private double pos1 = 0;
-    private double pos2 = 0.55;
+    private double pos2 = 0.5;
 
     @Override
     public void runOpMode() throws InterruptedException {
-        armRotater = hardwareMap.servo.get("servo");
+        armRotater = hardwareMap.servo.get("clawRotator");
         armRotater.setDirection(Servo.Direction.FORWARD);
         //armRotater.setDirection(Servo.Direction.REVERSE);
         armRotater.setPosition(pos1);
@@ -41,19 +41,19 @@ public class ServoTest extends LinearOpMode {
 
             if (gamepad1.dpad_down && !changeDpadDown){
                 if (statePos2){
-                    pos2 -= .1;
+                    pos2 -= .01;
                 }
                 else {
-                    pos1 -= .1;
+                    pos1 -= .01;
                 }
 
             }
             if (gamepad1.dpad_up && !changeDpadUp){
                 if (statePos2){
-                    pos2 += .1;
+                    pos2 += .01;
                 }
                 else {
-                    pos1 += .1;
+                    pos1 += .01;
                 }
             }
 

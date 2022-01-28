@@ -29,7 +29,7 @@ public class Drivetrain{
     private FtcDashboard dashboard;
 
     public static PIDCoefficients mPID = new PIDCoefficients(0.005, 0, 0.005);
-    public static PIDCoefficients spinPID = new PIDCoefficients(0.3, 0.05, 0.05);
+    public static PIDCoefficients spinPID = new PIDCoefficients(0.25, 0.1, 0);
     public static double turnError = 0.02;
 
     private double FF_LOW = 0.64;
@@ -426,6 +426,7 @@ public void spinDuck(double turnPower, double movePower, double moveAngle, doubl
     }
 
 
+
     public void moveInches(double inches, double power, boolean strafe, double timeout){
         double powerF = 0, powerR = 0, powerL = 0, powerB = 0;
         double multiplier = -1;
@@ -445,6 +446,100 @@ public void spinDuck(double turnPower, double movePower, double moveAngle, doubl
             initEncoder = getForwardEncoder();
             powerR = power * multiplier;
             powerL = power * multiplier;
+        }
+
+        double goalEncoder = (inches * ENCODER_IN_INCHES) + initEncoder;
+
+        timer.reset();
+        if (strafe){
+            if (goalEncoder > initEncoder){
+
+                while (goalEncoder > getSideEncoder() && timer.seconds() < timeout && linear_OpMode.opModeIsActive()){
+
+
+                    linear_OpMode.telemetry.addData("goalEncoder", goalEncoder);
+                    linear_OpMode.telemetry.addData("initEncoder", initEncoder);
+                    linear_OpMode.telemetry.addData("sideEncoder", getSideEncoder());
+                    linear_OpMode.telemetry.update();
+
+                    setMotorPowers(powerF,powerR,powerL,powerB);
+
+
+                }
+            }
+            else {
+                while (goalEncoder < getSideEncoder() && timer.seconds() < timeout && linear_OpMode.opModeIsActive()){
+
+                    linear_OpMode.telemetry.addData("goalEncoder", goalEncoder);
+                    linear_OpMode.telemetry.addData("initEncoder", initEncoder);
+                    linear_OpMode.telemetry.addData("sideEncoder", getSideEncoder());
+                    linear_OpMode.telemetry.update();
+
+                    setMotorPowers(powerF,powerR,powerL,powerB);
+
+
+                }
+            }
+        }
+        else{
+            if (goalEncoder > initEncoder){
+                while (goalEncoder > getForwardEncoder() && timer.seconds() < timeout && linear_OpMode.opModeIsActive()){
+
+                    linear_OpMode.telemetry.addData("goalEncoder", goalEncoder);
+                    linear_OpMode.telemetry.addData("initEncoder", initEncoder);
+                    linear_OpMode.telemetry.addData("forwardEncoder", getForwardEncoder());
+                    linear_OpMode.telemetry.update();
+                    setMotorPowers(powerF,powerR,powerL,powerB);
+
+
+                    //linear_OpMode.telemetry.addData("", goalEncoder);
+                }
+            }
+            else {
+                while (goalEncoder < getForwardEncoder() && timer.seconds() < timeout && linear_OpMode.opModeIsActive()){
+                    linear_OpMode.telemetry.addData("goalEncoder", goalEncoder);
+                    linear_OpMode.telemetry.addData("initEncoder", initEncoder);
+                    linear_OpMode.telemetry.addData("forwardEncoder", getForwardEncoder());
+                    linear_OpMode.telemetry.update();
+                    setMotorPowers(powerF,powerR,powerL,powerB);
+
+                }
+            }
+        }
+
+        setMotorPowers(0,0,0,0);
+    }
+
+    public void moveInchesAngleLock(double inches, double power, boolean strafe, double angle, double timeout){
+        double initAngle = angle;
+        double powerF = 0, powerR = 0, powerL = 0, powerB = 0;
+        double multiplier = -1;
+        double initEncoder;
+        ElapsedTime timer = new ElapsedTime();
+
+        if (inches < 0){
+            multiplier *= -1;
+        }
+
+        double adjust = lockHeadingAngle(initAngle, angle) * 0.75;
+
+        if (strafe){
+            initEncoder = getSideEncoder();
+            powerF = (-power * multiplier) - adjust;
+            powerB = (-power * multiplier) + adjust;
+        }
+        else {
+            initEncoder = getForwardEncoder();
+            powerR = (power * multiplier) - adjust;
+            powerL = (power * multiplier) + adjust;
+        }
+
+        double m = Math.abs(max(powerF, powerR, powerL, powerB));
+        if (m > 1){
+            powerF /= m;
+            powerR /= m;
+            powerL /= m;
+            powerB /= m;
         }
 
         double goalEncoder = (inches * ENCODER_IN_INCHES) + initEncoder;
@@ -577,6 +672,26 @@ public void spinDuck(double turnPower, double movePower, double moveAngle, doubl
         }
     }
 
+    public void turnTo(double power, double desiredAngle, double timeout, double initAngle) {
+        ElapsedTime timer = new ElapsedTime();
+        double currentAngle =  initAngle; //radians
+        if (Math.abs(desiredAngle - currentAngle) > Math.PI) {
+            desiredAngle += Math.PI * 2;
+        }
+        boolean turnRight = ((currentAngle - desiredAngle) < (desiredAngle - currentAngle));
+        if (turnRight) {
+            while ((currentAngle > desiredAngle) && (timer.seconds() < timeout) && linear_OpMode.opModeIsActive()) {
+                turn(power, true);
+            }
+        } else {
+            turn(power, false);
+            while ((desiredAngle > currentAngle) && (timer.seconds() < timeout) && linear_OpMode.opModeIsActive()) {
+                turn(power, true);
+            }
+        }
+        setAllMotors(0);
+    }
+
     public void turnPID(double newAngle){
         Sensors sensor = new Sensors(linear_OpMode);
         double initHeading = sensor.getFirstAngle();
@@ -589,7 +704,7 @@ public void spinDuck(double turnPower, double movePower, double moveAngle, doubl
             setAllMotors(pid.loop(sensor.getFirstAngle(), timer.seconds()));
         }
     }
-    public void turnToPID(double newAngle, Sensors sensor, double timeout){
+    public void turnToPID(double newAngle, Sensors sensor, double max, double timeout){
         // Sensors sensor = new Sensors(linear_OpMode);
         // double initHeading = startHeading;
 
@@ -599,6 +714,9 @@ public void spinDuck(double turnPower, double movePower, double moveAngle, doubl
 
         while (Math.abs(((int)((sensor.getFirstAngle() - newAngle) * 180 / Math.PI) % 360) / 180.0 * Math.PI) > turnError * Math.PI){
             double newPower = pid.loop(sensor.getFirstAngle(), timer.seconds());
+            if (newPower > max){
+                newPower = max;
+            }
             setMotorPowers(-newPower, -newPower, newPower, newPower);
             linear_OpMode.telemetry.addData("motor powers", newPower);
             linear_OpMode.telemetry.addData("current rotation", sensor.getFirstAngle() / Math.PI * 180);
@@ -607,6 +725,8 @@ public void spinDuck(double turnPower, double movePower, double moveAngle, doubl
             if (timer.seconds() >= timeout)
                 break;
         }
+
+        setAllMotors(0);
     }
 
     public FtcDashboard getDashboard() {

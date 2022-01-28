@@ -7,6 +7,7 @@ import android.view.View;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.drive.Drive;
+import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.hardware.lynx.LynxModule;
@@ -26,6 +27,7 @@ import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+import org.firstinspires.ftc.teamcode.drive.TwoWheelTrackingLocalizerRegular;
 import org.firstinspires.ftc.teamcode.util.Encoder;
 import org.firstinspires.ftc.teamcode.util.LynxModuleUtil;
 import org.openftc.easyopencv.OpenCvCamera;
@@ -49,6 +51,7 @@ public class Sensors {
     private OpenCvCamera webcam;
     public Encoder forwardOdom, sideOdom;
     public List<Encoder> encoders;
+    TwoWheelTrackingLocalizerRegular odom;
 
     private boolean autoBulkRead = true;
 
@@ -77,6 +80,7 @@ public class Sensors {
         int cameraMonitorViewId = linear_OpMode.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", linear_OpMode.hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(linear_OpMode.hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
 
+        odom = new TwoWheelTrackingLocalizerRegular(linear_OpMode.hardwareMap, gyro);
     }
 
     public Sensors(OpMode opMode){
@@ -107,6 +111,7 @@ public class Sensors {
         int cameraMonitorViewId = iterative_OpMode.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", iterative_OpMode.hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(iterative_OpMode.hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
 
+        odom = new TwoWheelTrackingLocalizerRegular(opMode.hardwareMap, gyro);
     }
 
 
@@ -145,6 +150,16 @@ public class Sensors {
     {
         updateGyro();
         return angles.thirdAngle;
+    }
+
+    public Pose2d getCurrentPose(){
+        odom.update();
+        return odom.getPoseEstimate();
+    }
+
+    public Pose2d getCurrentVelocity(){
+        odom.update();
+        return odom.getPoseVelocity();
     }
 
 

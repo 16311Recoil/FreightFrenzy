@@ -122,10 +122,10 @@ public class VisionTest extends LinearOpMode
         /*
          * The core values which define the location and size of the sample regions
          */
-        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(65,40);
-        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(171,38);
-        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(242,43);
-        static final int REGION_WIDTH =  25;
+        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(145,70);
+        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(217,58);
+        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(278,48);
+        static final int REGION_WIDTH =  30;
         static final int REGION_HEIGHT = 40;
 
         /*

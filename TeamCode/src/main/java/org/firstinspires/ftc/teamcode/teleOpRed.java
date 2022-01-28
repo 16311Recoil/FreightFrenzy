@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 @TeleOp(name = "teleOp", group = "teleop")
-public class teleOp extends OpMode{
+public class teleOpRed extends OpMode{
 
 
     Crab robot;

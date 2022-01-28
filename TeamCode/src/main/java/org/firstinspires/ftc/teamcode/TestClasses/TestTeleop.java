@@ -45,7 +45,7 @@ public class TestTeleop extends OpMode{
     @Override
     public void loop() {
 
-        turret.teleOpControls(gamepad2.right_stick_x, gamepad2.x);
+        turret.teleOpControls(gamepad2.right_stick_x, gamepad2.x, gamepad2.a, gamepad2.dpad_right,  gamepad2.dpad_down,  gamepad2.dpad_left,  gamepad2.dpad_up);
         drivetrain.moveGyroTeleOp_Plus(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x, 1, 1, sensor.getFirstAngle() - init_Heading);
 
 

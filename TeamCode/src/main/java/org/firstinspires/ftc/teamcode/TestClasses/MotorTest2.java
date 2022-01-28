@@ -24,7 +24,14 @@ public class MotorTest2 extends LinearOpMode {
 
         while (opModeIsActive()) {
 
-            turret.setAngle(20);
+            if (gamepad1.a){
+                turret.setAngle(90);
+            }
+
+            if (gamepad1.b){
+                turret.setAngle(0);
+            }
+
 
         }
 

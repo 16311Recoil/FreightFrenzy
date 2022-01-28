@@ -41,6 +41,7 @@ import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
  * is explained below.
  */
 
+@Disabled
 @TeleOp(name="Drive To Target", group = "Concept")
 public class ObjectDistanceAndDirection extends LinearOpMode
 {

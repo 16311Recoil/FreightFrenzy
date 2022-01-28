@@ -207,7 +207,7 @@ public class Turret {
 
         }
         iterative_OpMode.telemetry.addData("timer", timer.seconds());
-        iterative_OpMode.telemetry.addData("goal", goalEncoder);
+        iterative_OpMode.telemetry.addData("Turret goal", goalEncoder);
         iterative_OpMode.telemetry.addData("prev Timer", prevTime);
         iterative_OpMode.telemetry.addData("stickPressed", stickPressed);
         iterative_OpMode.telemetry.update();

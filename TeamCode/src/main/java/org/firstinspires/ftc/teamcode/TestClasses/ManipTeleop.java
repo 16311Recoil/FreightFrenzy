@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.TestClasses;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -7,6 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import org.firstinspires.ftc.teamcode.Manipulator;
 import org.firstinspires.ftc.teamcode.Turret;
 
+@Disabled
 @TeleOp(name="ManipTeleop", group="teleop")
 public class ManipTeleop extends OpMode {
     Manipulator manip;
@@ -31,7 +33,7 @@ public class ManipTeleop extends OpMode {
 
 
 
-        turret.teleOpControls(gamepad1.left_stick_x, gamepad1.x);
+        //turret.teleOpControls(gamepad1.left_stick_x, gamepad1.x);
 
 
         telemetry.addData("left stick y", gamepad1.left_stick_y);

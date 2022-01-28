@@ -44,7 +44,7 @@ public class PID {
         target = 0.0;
         i_sum = 0.0;
         previousTime = 0;
-        previousError = 0; //previous error should start as error right, how do you properly reset it?
+        previousError = 0;
     }
 
     public double loop(double pos, double curTime) {

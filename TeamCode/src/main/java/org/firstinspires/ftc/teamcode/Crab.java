@@ -24,7 +24,7 @@ public class Crab {
     private LinearOpMode auto;
     private double relativeHeading;
     private boolean triggerPressRight;
-    private double[] multipliers = {0.2, 0.55, 1};
+    private double[] multipliers = {0.35, 0.55, 1};
     private int multiCounter = 1;
     private double multiplier = 1;
     private boolean changeDpadDown, changeDpadUp, changeY = false;
@@ -191,11 +191,12 @@ public class Crab {
         changeY = teleOp.gamepad1.y;
     }
 
+
     public void doDuck(double init_Heading, double time){
         double movAng = 1.275 * Math.PI;
         manip.goToPosition(375);
         if (alliance){
-            movAng += Math.PI / 2;
+            movAng -= (5 * Math.PI) / 4;
         }
         drivetrain.spinDuck(0.535, 0.2, movAng, sensors.getFirstAngle() - init_Heading, time, alliance);
         if (time > 1.9){

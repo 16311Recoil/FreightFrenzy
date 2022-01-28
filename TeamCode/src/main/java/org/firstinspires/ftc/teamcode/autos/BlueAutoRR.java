@@ -9,6 +9,7 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -17,6 +18,7 @@ import org.firstinspires.ftc.teamcode.DrivetrainRR;
 import org.firstinspires.ftc.teamcode.Manipulator;
 import org.firstinspires.ftc.teamcode.VisionTest;
 
+@Disabled
 @Autonomous(name="BlueAutoRR", group="Auto")
 public class BlueAutoRR extends LinearOpMode {
     @Override
@@ -53,7 +55,7 @@ public class BlueAutoRR extends LinearOpMode {
         ElapsedTime timer = new ElapsedTime();
         timer.reset();
         while (timer.seconds() < 1.5){
-            duckBoi.spinDuck(0.7, 0.1, Math.PI * 1.75, 0, false);
+           // duckBoi.spinDuck(0.7, 0.1, Math.PI * 1.75, 0, false);
         }
         drive.followTrajectory(deliveryTrajectory);
 
