@@ -65,7 +65,7 @@ public class BlueAutoSmallPark extends LinearOpMode {
         Thread.sleep(1000);
         robot.getManip().rotateClawUp();
         Thread.sleep(300);
-        robot.getTurret().setPosition(-105);
+        //robot.getTurret().setPosition(-105);
 
 
         // robot.getManip().mechGrab();
@@ -84,7 +84,7 @@ public class BlueAutoSmallPark extends LinearOpMode {
 
         // raise arm BEFORE we move forward
         if (pos == VisionTest.DeterminationPipeline.MarkerPosition.RIGHT){
-            robot.getTurret().setPosition(-96);
+            //robot.getTurret().setPosition(-96);
             robot.getManip().setArmRotatorPower(0.3);
             for (int i = 60; i <= 220; i += 5){
                 robot.getManip().goToPosition(i);
@@ -98,7 +98,7 @@ public class BlueAutoSmallPark extends LinearOpMode {
 
         // move towards the hub
         // TODO: Move correct distance
-        robot.getDrivetrain().moveInches(14 + extra, power, false, 4);
+        robot.getDrivetrain().moveInches(21 + extra, power, false, 4);
         Thread.sleep(1700);
 
         // drop block
@@ -106,21 +106,21 @@ public class BlueAutoSmallPark extends LinearOpMode {
         Thread.sleep(1200);
 
         // Go back
-        robot.getDrivetrain().moveInches(-7 - extra, power + 0.15, false, 3);
+        robot.getDrivetrain().moveInches(-20 - extra, power + 0.15, false, 3);
         robot.getManip().rotateClawDown();
 
         Thread.sleep(400);
         robot.getManip().goToPosition(80);
 
         // Move to duck
-        robot.getDrivetrain().moveInchesAngleLock(38 + extra, power + 0.1, true, robot.getSensors().getFirstAngle(), 7);
+        robot.getDrivetrain().moveInchesAngleLock(20 + extra, power + 0.1, true, robot.getSensors().getFirstAngle(), 7);
         Thread.sleep(600);
 
         // Put arm into excalibur mode
         robot.getManip().setArmRotatorPower(0.5);
         for (int i = 160; i <= 360; i += 10){
             robot.getManip().goToPosition(i);
-            Thread.sleep(25);
+            Thread.sleep(32);
         }
 
         Thread.sleep(1000);
@@ -144,47 +144,11 @@ public class BlueAutoSmallPark extends LinearOpMode {
             robot.getDrivetrain().spinDuck(0, 0.3, Math.PI, robot.getSensors().getFirstAngle() - init_heading, 2, false);
         }
 
-
-       /* double curAngle = robot.getSensors().getFirstAngle();
-        double range = Math.sin(Math.PI * 3 / 4) - Math.cos(Math.PI * 3 / 4);
-
-        // TODO: Test that this math is correct
-
-        double moveForward = (Math.cos(curAngle) - Math.sin(curAngle)) / range * 10,
-        moveSide = (Math.sin(curAngle) + Math.cos(curAngle)) / range * 10;
-
-        TelemetryPacket p = new TelemetryPacket();
-        p.put("moveForward", moveForward);
-        p.put("moveSide", moveSide);
-        p.put("currentAngle", curAngle / Math.PI * 180);
-        dashboard.sendTelemetryPacket(p);
-
-        robot.getDrivetrain().moveInches(moveForward, power, false, 2);
-        robot.getDrivetrain().moveInches(moveSide, power, true, 2);*/
-
-        Thread.sleep(700);
-
-
-
-        // Adjust rotation back to properly use moveInches
-        robot.getDrivetrain().turnToPID(0, robot.getSensors(), 0.35,2.5);
-
-        /*Thread.sleep(1000);
-        timer.reset();
-        while (timer.milliseconds() < 2000){
-            TelemetryPacket p = new TelemetryPacket();
-            p.put("timer2", timer.milliseconds());
-            dashboard.sendTelemetryPacket(p);
-            robot.getDrivetrain().moveTeleOp_Plus(0,0, robot.getDrivetrain().lockHeadingAngle(startAngle, robot.getSensors().getFirstAngle()), 0, 0.5);
-        }*/
-
         Thread.sleep(600);
 
         TelemetryPacket p = new TelemetryPacket();
         p.put("here", "here");
         dashboard.sendTelemetryPacket(p);
-
-        robot.getDrivetrain().setMotorPowers(0,0.35,0.35,0);
 
         Thread.sleep(1200);
 
@@ -196,8 +160,13 @@ public class BlueAutoSmallPark extends LinearOpMode {
         robot.getDrivetrain().setAllMotors(0);
         Thread.sleep(1000);
 
+        robot.getDrivetrain().turnToPID(0, robot.getSensors(), 0.3, 4);
+
+        robot.getDrivetrain().setMotorPowers(0,-0.35,-0.35,0);
+        Thread.sleep(800);
+
         // Park in storage unit
-        robot.getDrivetrain().moveInches(12.5, power, false,  2);
+        robot.getDrivetrain().moveInchesAngleLock(12.5, 0.4, false,  robot.getSensors().getFirstAngle(), 3);
         Thread.sleep(800);
 
         robot.getDrivetrain().turnToPID(Math.PI / 2, robot.getSensors(), 0.4, 2.25);

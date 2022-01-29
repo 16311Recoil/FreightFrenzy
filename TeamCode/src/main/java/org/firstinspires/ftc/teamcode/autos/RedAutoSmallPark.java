@@ -67,7 +67,7 @@ public class RedAutoSmallPark extends LinearOpMode {
         Thread.sleep(1000);
         robot.getManip().rotateClawUp();
         Thread.sleep(300);
-        robot.getTurret().setPosition(-80);
+        robot.getTurret().setPosition(-90);
 
 
         // robot.getManip().mechGrab();
@@ -86,7 +86,7 @@ public class RedAutoSmallPark extends LinearOpMode {
 
         // raise arm BEFORE we move forward
         if (pos == VisionTestRed.DeterminationPipeline.MarkerPosition.RIGHT){
-            robot.getTurret().setPosition(-69);
+            robot.getTurret().setPosition(-90);
             robot.getManip().setArmRotatorPower(0.3);
             for (int i = 60; i <= 220; i += 5){
                 robot.getManip().goToPosition(i);
@@ -103,10 +103,14 @@ public class RedAutoSmallPark extends LinearOpMode {
         robot.getDrivetrain().moveInches(14 + extra, power, false, 4);
         Thread.sleep(1700);
 
+        robot.getDrivetrain().turnToPID(-45, robot.getSensors(), 0.15, 2);
+        Thread.sleep(1750);
         // drop block
         robot.getManip().mechRelease();
-        Thread.sleep(1200);
+        Thread.sleep(1000);
 
+        robot.getDrivetrain().turnToPID(0, robot.getSensors(), 0.15, 2);
+        Thread.sleep(1500);
         // Go back
         robot.getDrivetrain().moveInches(-14 - extra, power + 0.15, false, 3);
         robot.getManip().rotateClawDown();
@@ -122,7 +126,7 @@ public class RedAutoSmallPark extends LinearOpMode {
         robot.getManip().setArmRotatorPower(0.5);
         for (int i = 160; i <= 360; i += 10){
             robot.getManip().goToPosition(i);
-            Thread.sleep(25);
+            Thread.sleep(32);
         }
 
         Thread.sleep(1000);

@@ -103,11 +103,12 @@ public class RedAutoWarehouse extends LinearOpMode {
         robot.getManip().rotateClawUp();
 
         // move towards the hub
-        // TODO: Move correct distance
+        // TODO: Move correct distance and turret
         robot.getDrivetrain().moveInches(14 + extra, power, false, 4);
         Thread.sleep(1700);
+        //TODO: turret issue
 
-        // drop block
+        //drop block
         robot.getManip().mechRelease();
         Thread.sleep(1200);
 

@@ -98,22 +98,22 @@ public class BlueAutoDeliverPark extends LinearOpMode {
 
         // move towards the hub
         // TODO: Move correct distance
-        robot.getDrivetrain().moveInches(14 + extra, power, false, 4);
+        robot.getDrivetrain().moveInches(21 + extra, power, false, 4);
         Thread.sleep(1700);
-
+        robot.getDrivetrain().turnToPID(45, robot.getSensors(), 0.4, 2);
         // drop block
         robot.getManip().mechRelease();
         Thread.sleep(1200);
 
         // Go back
-        robot.getDrivetrain().moveInches(-14 - extra, power + 0.15, false, 3);
+        robot.getDrivetrain().moveInches(-22 - extra, power + 0.15, false, 3);
         robot.getManip().rotateClawDown();
 
         Thread.sleep(400);
         robot.getManip().goToPosition(80);
 
-        // Move to duck
-        robot.getDrivetrain().moveInchesAngleLock(-10, power + 0.1, true, robot.getSensors().getFirstAngle(), 7);
+        // Move to park
+        robot.getDrivetrain().moveInchesAngleLock(-5, power + 0.1, true, robot.getSensors().getFirstAngle(), 7);
         Thread.sleep(600);
 
         // Adjust rotation back to properly use moveInches

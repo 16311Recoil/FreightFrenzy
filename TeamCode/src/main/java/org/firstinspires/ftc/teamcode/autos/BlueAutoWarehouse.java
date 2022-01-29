@@ -69,7 +69,7 @@ public class BlueAutoWarehouse extends LinearOpMode {
         Thread.sleep(1000);
         robot.getManip().rotateClawUp();
         Thread.sleep(300);
-        robot.getTurret().setPosition(-96);
+        //robot.getTurret().setPosition(-96);
 
 
         // robot.getManip().mechGrab();
@@ -88,7 +88,7 @@ public class BlueAutoWarehouse extends LinearOpMode {
 
         // raise arm BEFORE we move forward
         if (pos == VisionTest.DeterminationPipeline.MarkerPosition.RIGHT){
-            robot.getTurret().setPosition(-96);
+            //robot.getTurret().setPosition(-96);
             robot.getManip().setArmRotatorPower(0.3);
             for (int i = 60; i <= 220; i += 5){
                 robot.getManip().goToPosition(i);

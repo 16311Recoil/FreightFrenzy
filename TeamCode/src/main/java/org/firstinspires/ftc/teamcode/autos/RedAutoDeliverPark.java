@@ -67,7 +67,7 @@ public class RedAutoDeliverPark extends LinearOpMode {
         Thread.sleep(1000);
         robot.getManip().rotateClawUp();
         Thread.sleep(300);
-        robot.getTurret().setPosition(-80);
+        //robot.getTurret().setPosition(-80);
 
 
         // robot.getManip().mechGrab();
@@ -100,7 +100,7 @@ public class RedAutoDeliverPark extends LinearOpMode {
 
         // move towards the hub
         // TODO: Move correct distance
-        robot.getDrivetrain().moveInches(14 + extra, power, false, 4);
+        robot.getDrivetrain().moveInches(21 + extra, power, false, 4);
         Thread.sleep(1700);
 
         // drop block
@@ -108,14 +108,14 @@ public class RedAutoDeliverPark extends LinearOpMode {
         Thread.sleep(1200);
 
         // Go back
-        robot.getDrivetrain().moveInches(-14 - extra, power + 0.15, false, 3);
+        robot.getDrivetrain().moveInches(-22 - extra, power + 0.15, false, 3);
         robot.getManip().rotateClawDown();
 
         Thread.sleep(400);
         robot.getManip().goToPosition(80);
 
-        // Move to duck
-        robot.getDrivetrain().moveInches(10, power + 0.1, true, 7);
+        // Move to park
+        robot.getDrivetrain().moveInches(5, power + 0.1, true, 7);
         Thread.sleep(600);
 
 
