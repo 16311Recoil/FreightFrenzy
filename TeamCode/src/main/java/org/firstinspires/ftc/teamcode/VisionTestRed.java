@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
@@ -21,7 +22,7 @@ import org.openftc.easyopencv.OpenCvPipeline;
  * detecting the team marker when lined up with
  * the sample regions over the first 3 stones.
  */
-//@TeleOp(name = "visionTest", group = "test")
+@TeleOp(name = "visionTest", group = "test")
 public class VisionTestRed extends LinearOpMode
 {
     OpenCvInternalCamera phoneCam;
@@ -87,6 +88,12 @@ public class VisionTestRed extends LinearOpMode
         {
 
             telemetry.addData("Analysis", pipeline.getAnalysis());
+            telemetry.addData("avg1", pipeline.avg1);
+            telemetry.addData("avg2", pipeline.avg2);
+            telemetry.addData("avg3", pipeline.avg3);
+            telemetry.addData("diff1", pipeline.diffOne);
+            telemetry.addData("diff2", pipeline.diffTwo);
+
 
             telemetry.addData("Range",  "%5.1f inches", pipeline.targetDistance(pipeline.getAnalysis()));
             //telemetry.addData("Bearing","%3.0f degrees", pipeline.targetBearing(pipeline.getAnalysis()));
@@ -116,14 +123,16 @@ public class VisionTestRed extends LinearOpMode
         static final Scalar BLUE = new Scalar(0, 0, 255);
         static final Scalar GREEN = new Scalar(0, 255, 0);
 
+        static final int TOLERANCE = 10;
+
         /*
          * The core values which define the location and size of the sample regions
          */
-        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(1,84);
-        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(100,60);
-        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(183,48);
+        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(50,90);
+        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(190,90);
+        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(125,160);
         static final int REGION_WIDTH =  50;
-        static final int REGION_HEIGHT = 60;
+        static final int REGION_HEIGHT = 65;
 
         /*
          * Points which actually define the sample region rectangles, derived from above values
@@ -167,7 +176,7 @@ public class VisionTestRed extends LinearOpMode
         Mat region1_Cb, region2_Cb, region3_Cb;
         Mat YCrCb = new Mat();
         Mat Cb = new Mat();
-        int avg1, avg2, avg3;
+        int avg1, avg2, avg3, diffOne, diffTwo;
 
         // Volatile since accessed by OpMode thread w/o synchronization
         private volatile MarkerPosition position = MarkerPosition.LEFT;
@@ -297,16 +306,16 @@ public class VisionTestRed extends LinearOpMode
             /*
              * Find the max of the 3 averages
              */
-            int maxOneTwo = Math.min(avg1, avg2);// may need to change to min depending on color
-            int max = Math.min(maxOneTwo, avg3);
+            diffOne = Math.abs(avg1 - avg3);// may need to change to min depending on color
+            diffTwo = Math.abs(avg2 - avg3);
 
             /*
              * Now that we found the max, we actually need to go and
              * figure out which sample region that value was from
              */
-            if(max == avg1) // Was it from region 1?
+            if(diffOne > TOLERANCE) // Was it from region 1?
             {
-                position = MarkerPosition.LEFT; // Record our analysis
+                position = MarkerPosition.CENTER; // Record our analysis
 
                 /*
                  * Draw a solid rectangle on top of the chosen region.
@@ -319,9 +328,9 @@ public class VisionTestRed extends LinearOpMode
                         GREEN, // The color the rectangle is drawn in
                         -1); // Negative thickness means solid fill
             }
-            else if(max == avg2) // Was it from region 2?
+            else if(diffTwo > TOLERANCE) // Was it from region 2?
             {
-                position = MarkerPosition.CENTER; // Record our analysis
+                position = MarkerPosition.RIGHT; // Record our analysis
 
                 /*
                  * Draw a solid rectangle on top of the chosen region.
@@ -334,9 +343,9 @@ public class VisionTestRed extends LinearOpMode
                         GREEN, // The color the rectangle is drawn in
                         -1); // Negative thickness means solid fill
             }
-            else if(max == avg3) // Was it from region 3?
+            else if(diffOne < TOLERANCE && diffTwo < TOLERANCE) // Was it from region 3?
             {
-                position = MarkerPosition.RIGHT; // Record our analysis
+                position = MarkerPosition.LEFT; // Record our analysis
 
                 /*
                  * Draw a solid rectangle on top of the chosen region.
@@ -365,6 +374,26 @@ public class VisionTestRed extends LinearOpMode
         public MarkerPosition getAnalysis()
         {
             return position;
+        }
+
+        public int getAvg1() {
+            return avg1;
+        }
+
+        public int getAvg2() {
+            return avg2;
+        }
+
+        public int getAvg3() {
+            return avg3;
+        }
+
+        public int getDiffOne() {
+            return diffOne;
+        }
+
+        public int getDiffTwo() {
+            return diffTwo;
         }
 
         public double targetDistance(Enum direction){

@@ -1,22 +1,23 @@
 package org.firstinspires.ftc.teamcode.autos;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Crab;
-import org.firstinspires.ftc.teamcode.VisionTest;
+import org.firstinspires.ftc.teamcode.VisionTestRed;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
-@Autonomous(name="BlueAutoDeliverPark", group="Auto")
-public class BlueAutoDeliverPark extends LinearOpMode {
+@Config
+@Autonomous(name="RedAutoDeliverCycle", group="Auto")
+public class RedAutoDeliverCycle extends LinearOpMode {
     Crab robot;
-    VisionTest.DeterminationPipeline pipeline;
+    VisionTestRed.DeterminationPipeline pipeline;
     FtcDashboard dashboard;
-    VisionTest.DeterminationPipeline.MarkerPosition pos;
+    VisionTestRed.DeterminationPipeline.MarkerPosition pos;
     private double startAngle = 0;
     public static int extra = -4;
     public static double power = 0.3;
@@ -27,12 +28,12 @@ public class BlueAutoDeliverPark extends LinearOpMode {
 
         robot.getManip().mechGrab();
         robot.getManip().setArmRotatorPower(0.3);
-        robot.getTurret().setTurretPower(0.2);
+        robot.getTurret().setTurretPower(0.35);
         robot.getDrivetrain().lowerOdom();
         startAngle = robot.getSensors().getFirstAngle();
         dashboard = FtcDashboard.getInstance();
 
-        pipeline = new VisionTest.DeterminationPipeline();
+        pipeline = new VisionTestRed.DeterminationPipeline();
         robot.getSensors().getWebcam().setPipeline(pipeline);
         robot.getSensors().getWebcam().openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
@@ -65,7 +66,7 @@ public class BlueAutoDeliverPark extends LinearOpMode {
         Thread.sleep(1000);
         robot.getManip().rotateClawUp();
         Thread.sleep(300);
-        robot.getTurret().setPosition(-96);
+        //robot.getTurret().setPosition(-80);
 
 
         // robot.getManip().mechGrab();
@@ -73,9 +74,9 @@ public class BlueAutoDeliverPark extends LinearOpMode {
         int hub_pos;
 
         // TODO: Fix vision
-        if (pos == VisionTest.DeterminationPipeline.MarkerPosition.LEFT)
+        if (pos == VisionTestRed.DeterminationPipeline.MarkerPosition.LEFT)
             hub_pos = 57;
-        else if (pos == VisionTest.DeterminationPipeline.MarkerPosition.CENTER)
+        else if (pos == VisionTestRed.DeterminationPipeline.MarkerPosition.CENTER)
             hub_pos = 120;
         else{
             hub_pos = 220;
@@ -83,8 +84,8 @@ public class BlueAutoDeliverPark extends LinearOpMode {
         }
 
         // raise arm BEFORE we move forward
-        if (pos == VisionTest.DeterminationPipeline.MarkerPosition.RIGHT){
-            robot.getTurret().setPosition(-96);
+        if (pos == VisionTestRed.DeterminationPipeline.MarkerPosition.RIGHT){
+            robot.getTurret().setPosition(-69);
             robot.getManip().setArmRotatorPower(0.3);
             for (int i = 60; i <= 220; i += 5){
                 robot.getManip().goToPosition(i);
@@ -98,25 +99,26 @@ public class BlueAutoDeliverPark extends LinearOpMode {
 
         // move towards the hub
         // TODO: Move correct distance
-        robot.getDrivetrain().moveInches(21 + extra, power, false, 4);
+        robot.getDrivetrain().moveInches(21 + extra, power + 0.2, false, 4);
         Thread.sleep(1700);
-        robot.getDrivetrain().turnToPID(-Math.PI / 4, robot.getSensors(), 0.4, 2);
+
         // drop block
         robot.getManip().mechRelease();
         Thread.sleep(1200);
-        robot.getDrivetrain().turnToPID(0, robot.getSensors(), 0.4, 2);
 
         // Go back
-        robot.getDrivetrain().moveInches(-22 - extra, power + 0.15, false, 3);
-        robot.getManip().rotateClawDown();
+        robot.getDrivetrain().moveInches(-22 - extra, power + 0.2, false, 3);
 
         Thread.sleep(400);
         robot.getManip().goToPosition(80);
 
         // Move to park
-        robot.getDrivetrain().moveInchesAngleLock(-5, power + 0.1, true, robot.getSensors().getFirstAngle(), 7);
+        robot.getDrivetrain().moveInches(5, power + 0.15, true, 7);
         Thread.sleep(600);
 
+
+        // Turn to Grab
+        robot.getDrivetrain().turnToPID(-Math.PI / 2, robot.getSensors(), 0.4, 2);
 
         Thread.sleep(600);
 
@@ -124,13 +126,39 @@ public class BlueAutoDeliverPark extends LinearOpMode {
         p.put("here", "here");
         dashboard.sendTelemetryPacket(p);
 
-        robot.getDrivetrain().setMotorPowers(0,0.35,0.35,0);
+        robot.getTurret().setPosition(-98);
+        robot.getManip().goToPosition(0);
+        robot.getDrivetrain().setMotorPowers(0.35,0,0,0.35);
 
-        Thread.sleep(900);
+        Thread.sleep(800);
 
-        robot.getDrivetrain().moveInchesAngleLock(-16, power + 0.25, true, robot.getSensors().getFirstAngle(), 5);
 
+        //Move and Grab
+        robot.getDrivetrain().moveInchesAngleLock(24, power + 0.25, false, robot.getSensors().getFirstAngle(), 5);
+        Thread.sleep(200);
+        robot.getManip().mechGrab();
         Thread.sleep(600);
+
+        //Move and Deliver
+        robot.getManip().goToPosition(120);
+        robot.getTurret().setPosition(180);
+        Thread.sleep(200);
+        robot.getDrivetrain().moveInchesAngleLock(-24, power + 0.25, false, robot.getSensors().getFirstAngle(), 5);
+        Thread.sleep(400);
+        robot.getDrivetrain().moveInchesAngleLock(-18, power + 0.25, true, robot.getSensors().getFirstAngle(), 5);
+        Thread.sleep(200);
+        robot.getManip().mechRelease();
+        Thread.sleep(700);
+
+        //Move back
+        robot.getTurret().setPosition(-98);
+        robot.getManip().goToPosition(0);
+        robot.getDrivetrain().moveInches(22, power + 0.2, true, 3);
+        Thread.sleep(200);
+
+
+        robot.getDrivetrain().moveInchesAngleLock(26, power + 0.25, false, robot.getSensors().getFirstAngle(), 4);
+        Thread.sleep(200);
 
         // Setup for teleop
         robot.getManip().rotateClawDown();

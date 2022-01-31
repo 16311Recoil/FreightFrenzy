@@ -133,7 +133,7 @@ public class RedAutoDeliverPark extends LinearOpMode {
         Thread.sleep(800);
 
 
-        robot.getDrivetrain().moveInchesAngleLock(16, power + 0.25, true, robot.getSensors().getFirstAngle(), 5);
+        robot.getDrivetrain().moveInchesAngleLock(24, power + 0.25, true, robot.getSensors().getFirstAngle(), 5);
         Thread.sleep(2000);
 
         // Setup for teleop

@@ -604,6 +604,63 @@ public void spinDuck(double turnPower, double movePower, double moveAngle, doubl
         setMotorPowers(0,0,0,0);
     }
 
+    public void moveInchesPIDAngleLock(double inches, double power, boolean strafe, Sensors sensor, double timeout){
+        double initAngle = sensor.getFirstAngle();
+        double powerF = 0, powerR = 0, powerL = 0, powerB = 0;
+        double initEncoder;
+        double tolerance = 3;
+        double adjust = 0;
+
+        ElapsedTime timer = new ElapsedTime();
+
+        if (strafe){
+            initEncoder = getSideEncoder();
+        }
+        else {
+            initEncoder = getForwardEncoder();
+        }
+
+        double goalEncoder = (inches * ENCODER_IN_INCHES) + initEncoder;
+
+        PID pid = new PID(power / inches, 0, 0, goalEncoder);
+
+        timer.reset();
+        if (strafe){
+           while ((Math.abs(goalEncoder - getSideEncoder()) > tolerance) && timer.seconds() < timeout && linear_OpMode.opModeIsActive()){
+
+               adjust = lockHeadingAngle(initAngle, sensor.getFirstAngle());
+               powerF = pid.loop(getSideEncoder(), timer.seconds()) - adjust;
+               powerB = pid.loop(getSideEncoder(), timer.seconds()) + adjust;
+
+               double m = Math.abs(max(powerF, powerB));
+               if (m > 1){
+                   powerF /= m;
+                   powerB /= m;
+               }
+
+               setMotorPowers(powerF, powerR, powerL, powerB);
+           }
+        }
+        else{
+            while (((goalEncoder - getForwardEncoder()) > tolerance) && timer.seconds() < timeout && linear_OpMode.opModeIsActive()){
+
+                adjust = lockHeadingAngle(initAngle, sensor.getFirstAngle());
+                powerR = pid.loop(getSideEncoder(), timer.seconds()) - adjust;
+                powerL = pid.loop(getSideEncoder(), timer.seconds()) + adjust;
+
+                double m = Math.abs(max(powerF, powerB));
+                if (m > 1){
+                    powerL /= m;
+                    powerR /= m;
+                }
+
+                setMotorPowers(powerF, powerR, powerL, powerB);
+            }
+        }
+
+        setMotorPowers(0,0,0,0);
+    }
+
     public void runToEncoderPositions(int f, int r, int l, int b){
         PID pidf = new PID(mPID.kP, mPID.kI, mPID.kD, f),
             pidr = new PID(mPID.kP, mPID.kI, mPID.kD, r),

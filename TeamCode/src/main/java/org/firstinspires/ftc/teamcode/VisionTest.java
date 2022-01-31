@@ -119,14 +119,16 @@ public class VisionTest extends LinearOpMode
         static final Scalar BLUE = new Scalar(0, 0, 255);
         static final Scalar GREEN = new Scalar(0, 255, 0);
 
+        static final int TOLERANCE = 10;
+
         /*
          * The core values which define the location and size of the sample regions
          */
-        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(10,40);
-        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(150,40);
-        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(240,40);
-        static final int REGION_WIDTH =  60;
-        static final int REGION_HEIGHT = 80;
+        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(50,90);
+        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(190,90);
+        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(125,160);
+        static final int REGION_WIDTH =  50;
+        static final int REGION_HEIGHT = 65;
 
         /*
          * Points which actually define the sample region rectangles, derived from above values
@@ -170,7 +172,7 @@ public class VisionTest extends LinearOpMode
         Mat region1_Cb, region2_Cb, region3_Cb;
         Mat YCrCb = new Mat();
         Mat Cb = new Mat();
-        int avg1, avg2, avg3;
+        int avg1, avg2, avg3, diffOne, diffTwo;
 
         // Volatile since accessed by OpMode thread w/o synchronization
         private volatile MarkerPosition position = MarkerPosition.LEFT;
@@ -300,16 +302,16 @@ public class VisionTest extends LinearOpMode
             /*
              * Find the max of the 3 averages
              */
-            int maxOneTwo = Math.min(avg1, avg2);// may need to change to min depending on color
-            int max = Math.min(maxOneTwo, avg3);
+            diffOne = Math.abs(avg1 - avg3);// may need to change to min depending on color
+            diffTwo = Math.abs(avg2 - avg3);
 
             /*
              * Now that we found the max, we actually need to go and
              * figure out which sample region that value was from
              */
-            if(max == avg1) // Was it from region 1?
+            if(diffOne > TOLERANCE) // Was it from region 1?
             {
-                position = MarkerPosition.LEFT; // Record our analysis
+                position = VisionTest.DeterminationPipeline.MarkerPosition.CENTER; // Record our analysis
 
                 /*
                  * Draw a solid rectangle on top of the chosen region.
@@ -322,9 +324,9 @@ public class VisionTest extends LinearOpMode
                         GREEN, // The color the rectangle is drawn in
                         -1); // Negative thickness means solid fill
             }
-            else if(max == avg2) // Was it from region 2?
+            else if(diffTwo > TOLERANCE) // Was it from region 2?
             {
-                position = MarkerPosition.CENTER; // Record our analysis
+                position = VisionTest.DeterminationPipeline.MarkerPosition.RIGHT; // Record our analysis
 
                 /*
                  * Draw a solid rectangle on top of the chosen region.
@@ -337,9 +339,9 @@ public class VisionTest extends LinearOpMode
                         GREEN, // The color the rectangle is drawn in
                         -1); // Negative thickness means solid fill
             }
-            else if(max == avg3) // Was it from region 3?
+            else if(diffOne < TOLERANCE && diffTwo < TOLERANCE) // Was it from region 3?
             {
-                position = MarkerPosition.RIGHT; // Record our analysis
+                position = VisionTest.DeterminationPipeline.MarkerPosition.LEFT; // Record our analysis
 
                 /*
                  * Draw a solid rectangle on top of the chosen region.

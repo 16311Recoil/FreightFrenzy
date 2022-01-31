@@ -98,7 +98,7 @@ public class BlueAutoSmallPark extends LinearOpMode {
 
         // move towards the hub
         // TODO: Move correct distance
-        robot.getDrivetrain().moveInches(21 + extra, power, false, 4);
+        robot.getDrivetrain().moveInches(20 + extra, power, false, 4);
         Thread.sleep(1700);
 
         // drop block
@@ -106,7 +106,7 @@ public class BlueAutoSmallPark extends LinearOpMode {
         Thread.sleep(1200);
 
         // Go back
-        robot.getDrivetrain().moveInches(-20 - extra, power + 0.15, false, 3);
+        robot.getDrivetrain().moveInches(-16 - extra, power + 0.15, false, 3);
         robot.getManip().rotateClawDown();
 
         Thread.sleep(400);
@@ -135,7 +135,6 @@ public class BlueAutoSmallPark extends LinearOpMode {
         robot.getDrivetrain().setAllMotors(0);
 
         // move away from wall to allow for spin
-
         timer.reset();
         while (timer.milliseconds() < 800){
             TelemetryPacket p = new TelemetryPacket();
@@ -144,34 +143,52 @@ public class BlueAutoSmallPark extends LinearOpMode {
             robot.getDrivetrain().spinDuck(0, 0.3, Math.PI, robot.getSensors().getFirstAngle() - init_heading, 2, false);
         }
 
+        robot.getDrivetrain().setAllMotors(0);
         Thread.sleep(600);
 
         TelemetryPacket p = new TelemetryPacket();
         p.put("here", "here");
         dashboard.sendTelemetryPacket(p);
 
-        Thread.sleep(1200);
+        Thread.sleep(500);
 
-        robot.getManip().setArmRotatorPower(0.1);
-        for (int i = 350; i >= 50; i -= 100)
-            robot.getManip().goToPosition(i);
-        // Park in freight area
 
-        robot.getDrivetrain().setAllMotors(0);
-        Thread.sleep(1000);
-
+        //Turn and move
         robot.getDrivetrain().turnToPID(0, robot.getSensors(), 0.3, 4);
 
-        robot.getDrivetrain().setMotorPowers(0,-0.35,-0.35,0);
-        Thread.sleep(800);
+
+        Thread.sleep(400);
+
+        telemetry.addLine("we are ddoing this");
+        telemetry.update();
+        robot.getDrivetrain().setMotorPowers(0,0.35,0.35,0);
+
+        Thread.sleep(400);
+
+        robot.getDrivetrain().setAllMotors(0);
+
+        //lower arm
+        robot.getManip().setArmRotatorPower(0.1);
+        for (int i = 360; i >= 100; i -= 5){
+            robot.getManip().goToPosition(i);
+            Thread.sleep(30);
+        }
+
+        Thread.sleep(300);
+
+        robot.getTurret().setPosition(-80);
 
         // Park in storage unit
-        robot.getDrivetrain().moveInchesAngleLock(12.5, 0.4, false,  robot.getSensors().getFirstAngle(), 3);
-        Thread.sleep(800);
+        robot.getDrivetrain().moveInchesAngleLock(20, power + 0.15, false, robot.getSensors().getFirstAngle(), 4);
+        Thread.sleep(400);
+        robot.getDrivetrain().moveInchesAngleLock(20, power + 0.15, false, robot.getSensors().getFirstAngle(), 4);
+        Thread.sleep(600);
 
         robot.getDrivetrain().turnToPID(Math.PI / 2, robot.getSensors(), 0.4, 2.25);
 
-        robot.getDrivetrain().moveInchesAngleLock(-12, power + 0.1, false, robot.getSensors().getFirstAngle(), 3);
+        Thread.sleep(400);
+
+        robot.getDrivetrain().moveInchesAngleLock(-20, power + 0.15, false, robot.getSensors().getFirstAngle(), 4);
 
 
         // Setup for teleop
