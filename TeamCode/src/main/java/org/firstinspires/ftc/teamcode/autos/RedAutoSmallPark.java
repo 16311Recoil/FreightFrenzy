@@ -133,8 +133,8 @@ public class RedAutoSmallPark extends LinearOpMode {
 
         ElapsedTime timer = new ElapsedTime();
         timer.reset();
-        while (timer.milliseconds() < 6000){
-            robot.getDrivetrain().spinDuck(0.3, 0.1, 1.35 * Math.PI, robot.getSensors().getFirstAngle() - init_heading, 4, false);
+        while (timer.milliseconds() < 5500){
+            robot.getDrivetrain().spinDuck(0.35, 0.1, 1.35 * Math.PI, robot.getSensors().getFirstAngle() - init_heading, 4, false);
         }
         robot.getDrivetrain().setAllMotors(0);
 
@@ -192,7 +192,7 @@ public class RedAutoSmallPark extends LinearOpMode {
 
         Thread.sleep(500);
 
-        robot.getTurret().setPosition(0);
+        robot.getTurret().setPosition(-30);
         robot.getManip().setArmRotatorPower(0.1);
         for (int i = 350; i >= 50; i -= 100)
             robot.getManip().goToPosition(i);

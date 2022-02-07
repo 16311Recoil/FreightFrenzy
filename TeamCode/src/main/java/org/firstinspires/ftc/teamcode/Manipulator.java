@@ -44,8 +44,8 @@ public class Manipulator {
     private final double UP = 0.36;
     private final double HALF_UP = 0.25;
     private final double DOWN = 0;
-    private final double GRAB = .75;
-    private final double UNGRAB = 0.04;
+    private final double GRAB = .675;
+    private final double UNGRAB = 0.0;
     private final double MAG_ON = 0.55;
     private final double MAG_OFF = 0;
     // private final double DUCK_POWER = 0;
@@ -350,6 +350,84 @@ public class Manipulator {
         }
 
         armRotator.setTargetPosition((int)goalEncoder);
+
+        /*iterative_OpMode.telemetry.addData("timer", timer.seconds());
+        iterative_OpMode.telemetry.addData("goal", goalEncoder);
+        iterative_OpMode.telemetry.addData("prev Timer", prevTime);
+        iterative_OpMode.telemetry.addData("stickPressed", stickPressed);
+        iterative_OpMode.telemetry.addData("Encoder", armRotator.getCurrentPosition());
+*/
+    }
+
+    public void teleOpControlsFake(double gamepad, boolean a, boolean b, boolean x, boolean y, boolean down, boolean left, boolean up, boolean right){
+        if (gamepad != 0){
+            if (!stickPressed){
+                timer.reset();
+                prevTime = 0;
+            }
+            stickPressed = true;
+
+            if ((timer.seconds() - prevTime) > 0.01){
+
+                if (gamepad > 0){
+                    if (goalEncoder < TOP_BOUND){
+                        goalEncoder += 5 * gamepad;
+                    }
+                }
+
+                if (gamepad < 0){
+                    if (goalEncoder > LOW_BOUND){
+                        goalEncoder += 5 * gamepad;
+                    }
+                }
+
+                prevTime = timer.seconds();
+            }
+        }
+        else {
+            timer.reset();
+            stickPressed = false;
+        }
+
+        magControl(b);
+        clawControl(y);
+        clawRotateControl(x);
+        if(!a) {
+            if (down) {
+                goalEncoder = 52;
+            }
+            if (up) {
+                goalEncoder = 375;
+            }
+            if (right) {
+                goalEncoder = 80;
+            }
+            if (left) {
+                goalEncoder = 240;
+            }
+        }
+
+        if (goalEncoder > armRotator.getCurrentPosition()){
+            while (armRotator.getCurrentPosition() < goalEncoder){
+                armRotator.setTargetPosition(armRotator.getCurrentPosition() + 5);
+                try {
+                    Thread.sleep(30);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        else if (goalEncoder < armRotator.getCurrentPosition()){
+            while (armRotator.getCurrentPosition() > goalEncoder){
+                armRotator.setTargetPosition(armRotator.getCurrentPosition() - 5);
+                try {
+                    Thread.sleep(30);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
 
         /*iterative_OpMode.telemetry.addData("timer", timer.seconds());
         iterative_OpMode.telemetry.addData("goal", goalEncoder);

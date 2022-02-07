@@ -134,7 +134,7 @@ public class RedAutoDeliverCycle extends LinearOpMode {
 
 
         //Move and Grab
-        robot.getDrivetrain().moveInchesAngleLock(24, power + 0.25, false, robot.getSensors().getFirstAngle(), 5);
+        robot.getDrivetrain().moveInchesAngleLock2(27, power + 0.25, 0.17,false, robot.getSensors(), 5);
         Thread.sleep(200);
         robot.getManip().mechGrab();
         Thread.sleep(600);
@@ -143,21 +143,21 @@ public class RedAutoDeliverCycle extends LinearOpMode {
         robot.getManip().goToPosition(120);
         robot.getTurret().setPosition(180);
         Thread.sleep(200);
-        robot.getDrivetrain().moveInchesAngleLock(-24, power + 0.25, false, robot.getSensors().getFirstAngle(), 5);
+        robot.getDrivetrain().moveInchesAngleLock2(-24, power + 0.25, 0.17,false, robot.getSensors(), 5);
         Thread.sleep(400);
-        robot.getDrivetrain().moveInchesAngleLock(-18, power + 0.25, true, robot.getSensors().getFirstAngle(), 5);
+        robot.getDrivetrain().moveInchesAngleLock2(-18, power + 0.25, 0,true, robot.getSensors(), 5);
         Thread.sleep(200);
         robot.getManip().mechRelease();
         Thread.sleep(700);
 
         //Move back
+        robot.getDrivetrain().moveInches(23, power + 0.2, true, 3);
+        Thread.sleep(500);
         robot.getTurret().setPosition(-98);
         robot.getManip().goToPosition(0);
-        robot.getDrivetrain().moveInches(22, power + 0.2, true, 3);
-        Thread.sleep(200);
 
 
-        robot.getDrivetrain().moveInchesAngleLock(26, power + 0.25, false, robot.getSensors().getFirstAngle(), 4);
+        robot.getDrivetrain().moveInchesAngleLock2(26, power + 0.25, 0.1,false, robot.getSensors(), 4);
         Thread.sleep(200);
 
         // Setup for teleop

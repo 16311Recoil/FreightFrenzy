@@ -27,7 +27,7 @@ public class teleOpBlue extends OpMode{
     }
 
     //drivetrain.moveTeleOp_Plus(gamepad1.left_stick_x, gamepad1.left_stick_y, drivetrain.lockHeadingAngle(relativeHeading - init_Heading, sensor.getFirstAngle()), 1, 1); //lock angle
-    //drivetrain.moveTeleOp_Plus(gamepad1.left_stick_x, gamepad1.left_stick_y, drivetrain.lockHeadingAngle(drivetrain.lockNearestX(sensor.getFirstAngle() - init_Heading), sensor.getFirstAngle()), 1, 1); //lock x-mode
+    //drivetrain.moveTeleOp_Plus(gamepad1.left_stick_x, gamepad1.left_stick_y, drivetrain.lockHeadingAngle(drivetrain.lockNearestX(sensor.getFirstAngle() - init_Heading), sensor.getFirstAngle()), 1, 1); //lock x-
 
     @Override
     public void loop() {
