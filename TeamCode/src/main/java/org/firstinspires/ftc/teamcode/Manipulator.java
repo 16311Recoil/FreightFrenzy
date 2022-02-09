@@ -44,7 +44,7 @@ public class Manipulator {
     private final double UP = 0.36;
     private final double HALF_UP = 0.25;
     private final double DOWN = 0;
-    private final double GRAB = .675;
+    private final double GRAB = .69;
     private final double UNGRAB = 0.0;
     private final double MAG_ON = 0.55;
     private final double MAG_OFF = 0;
