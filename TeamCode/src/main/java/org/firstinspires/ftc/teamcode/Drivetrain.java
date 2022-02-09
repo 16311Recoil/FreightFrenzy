@@ -604,11 +604,122 @@ public void spinDuck(double turnPower, double movePower, double moveAngle, doubl
         setMotorPowers(0,0,0,0);
     }
 
+    public void moveInchesAngleLock2(double inches, double power, double push, boolean strafe, Sensors sensor, double timeout){
+        double initAngle = sensor.getFirstAngle();
+        double powerF = push, powerR = push, powerL = push, powerB = push;
+        double multiplier = -1;
+        double initEncoder;
+        ElapsedTime timer = new ElapsedTime();
+
+        if (inches < 0){
+            multiplier *= -1;
+        }
+
+        double adjust = lockHeadingAngle(initAngle, sensor.getFirstAngle()) * 0.75;
+
+        if (strafe){
+            initEncoder = getSideEncoder();
+            powerF = (-power * multiplier) - adjust;
+            powerB = (-power * multiplier) + adjust;
+        }
+        else {
+            initEncoder = getForwardEncoder();
+            powerR = (power * multiplier) - adjust;
+            powerL = (power * multiplier) + adjust;
+        }
+
+        double m = Math.abs(max(powerF, powerR, powerL, powerB));
+        if (m > 1){
+            powerF /= m;
+            powerR /= m;
+            powerL /= m;
+            powerB /= m;
+        }
+
+        double goalEncoder = (inches * ENCODER_IN_INCHES) + initEncoder;
+
+        timer.reset();
+        if (strafe){
+            if (goalEncoder > initEncoder){
+
+                while (goalEncoder > getSideEncoder() && timer.seconds() < timeout && linear_OpMode.opModeIsActive()){
+
+
+                    adjust = lockHeadingAngle(initAngle, sensor.getFirstAngle()) * 0.75;
+                    powerF = (-power * multiplier) - adjust;
+                    powerB = (-power * multiplier) + adjust;
+
+                    linear_OpMode.telemetry.addData("goalEncoder", goalEncoder);
+                    linear_OpMode.telemetry.addData("initEncoder", initEncoder);
+                    linear_OpMode.telemetry.addData("sideEncoder", getSideEncoder());
+                    linear_OpMode.telemetry.update();
+
+                    setMotorPowers(powerF,powerR,powerL,powerB);
+
+
+                }
+            }
+            else {
+                while (goalEncoder < getSideEncoder() && timer.seconds() < timeout && linear_OpMode.opModeIsActive()){
+
+                    adjust = lockHeadingAngle(initAngle, sensor.getFirstAngle()) * 0.75;
+                    powerF = (-power * multiplier) - adjust;
+                    powerB = (-power * multiplier) + adjust;
+
+                    linear_OpMode.telemetry.addData("goalEncoder", goalEncoder);
+                    linear_OpMode.telemetry.addData("initEncoder", initEncoder);
+                    linear_OpMode.telemetry.addData("sideEncoder", getSideEncoder());
+                    linear_OpMode.telemetry.update();
+
+                    setMotorPowers(powerF,powerR,powerL,powerB);
+
+
+                }
+            }
+        }
+        else{
+            if (goalEncoder > initEncoder){
+                while (goalEncoder > getForwardEncoder() && timer.seconds() < timeout && linear_OpMode.opModeIsActive()){
+
+                    adjust = lockHeadingAngle(initAngle, sensor.getFirstAngle()) * 0.75;
+                    powerR = (power * multiplier) - adjust;
+                    powerL = (power * multiplier) + adjust;
+
+                    linear_OpMode.telemetry.addData("goalEncoder", goalEncoder);
+                    linear_OpMode.telemetry.addData("initEncoder", initEncoder);
+                    linear_OpMode.telemetry.addData("forwardEncoder", getForwardEncoder());
+                    linear_OpMode.telemetry.update();
+                    setMotorPowers(powerF,powerR,powerL,powerB);
+
+
+                    //linear_OpMode.telemetry.addData("", goalEncoder);
+                }
+            }
+            else {
+                while (goalEncoder < getForwardEncoder() && timer.seconds() < timeout && linear_OpMode.opModeIsActive()){
+
+                    adjust = lockHeadingAngle(initAngle, sensor.getFirstAngle()) * 0.75;
+                    powerR = (power * multiplier) - adjust;
+                    powerL = (power * multiplier) + adjust;
+
+                    linear_OpMode.telemetry.addData("goalEncoder", goalEncoder);
+                    linear_OpMode.telemetry.addData("initEncoder", initEncoder);
+                    linear_OpMode.telemetry.addData("forwardEncoder", getForwardEncoder());
+                    linear_OpMode.telemetry.update();
+                    setMotorPowers(powerF,powerR,powerL,powerB);
+
+                }
+            }
+        }
+
+        setMotorPowers(0,0,0,0);
+    }
+
     public void moveInchesPIDAngleLock(double inches, double power, boolean strafe, Sensors sensor, double timeout){
         double initAngle = sensor.getFirstAngle();
         double powerF = 0, powerR = 0, powerL = 0, powerB = 0;
         double initEncoder;
-        double tolerance = 3;
+        double tolerance = 20;
         double adjust = 0;
 
         ElapsedTime timer = new ElapsedTime();
@@ -622,7 +733,7 @@ public void spinDuck(double turnPower, double movePower, double moveAngle, doubl
 
         double goalEncoder = (inches * ENCODER_IN_INCHES) + initEncoder;
 
-        PID pid = new PID(power / inches, 0, 0, goalEncoder);
+        PID pid = new PID(power / (inches * 100), 0, 0, goalEncoder);
 
         timer.reset();
         if (strafe){
@@ -638,21 +749,27 @@ public void spinDuck(double turnPower, double movePower, double moveAngle, doubl
                    powerB /= m;
                }
 
+               powerF *= -1;
+               powerB *= -1;
+
                setMotorPowers(powerF, powerR, powerL, powerB);
            }
         }
         else{
-            while (((goalEncoder - getForwardEncoder()) > tolerance) && timer.seconds() < timeout && linear_OpMode.opModeIsActive()){
+            while ((Math.abs(goalEncoder - getForwardEncoder()) > tolerance) && timer.seconds() < timeout && linear_OpMode.opModeIsActive()){
 
                 adjust = lockHeadingAngle(initAngle, sensor.getFirstAngle());
-                powerR = pid.loop(getSideEncoder(), timer.seconds()) - adjust;
-                powerL = pid.loop(getSideEncoder(), timer.seconds()) + adjust;
+                powerR = pid.loop(getForwardEncoder(), timer.seconds()) - adjust;
+                powerL = pid.loop(getForwardEncoder(), timer.seconds()) + adjust;
 
                 double m = Math.abs(max(powerF, powerB));
                 if (m > 1){
                     powerL /= m;
                     powerR /= m;
                 }
+
+                powerL *= -1;
+                powerR *= -1;
 
                 setMotorPowers(powerF, powerR, powerL, powerB);
             }
