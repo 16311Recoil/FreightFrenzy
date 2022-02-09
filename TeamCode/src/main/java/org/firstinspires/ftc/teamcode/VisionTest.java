@@ -173,6 +173,7 @@ public class VisionTest extends LinearOpMode
         Mat YCrCb = new Mat();
         Mat Cb = new Mat();
         int avg1, avg2, avg3, diffOne, diffTwo;
+        boolean side = true;
 
         // Volatile since accessed by OpMode thread w/o synchronization
         private volatile MarkerPosition position = MarkerPosition.LEFT;
@@ -311,7 +312,13 @@ public class VisionTest extends LinearOpMode
              */
             if(diffOne > TOLERANCE) // Was it from region 1?
             {
-                position = VisionTest.DeterminationPipeline.MarkerPosition.CENTER; // Record our analysis
+                if (side){
+                    position = VisionTest.DeterminationPipeline.MarkerPosition.CENTER;
+                }
+                else{
+                    position = VisionTest.DeterminationPipeline.MarkerPosition.LEFT;
+                }
+                ; // Record our analysis
 
                 /*
                  * Draw a solid rectangle on top of the chosen region.
@@ -326,7 +333,13 @@ public class VisionTest extends LinearOpMode
             }
             else if(diffTwo > TOLERANCE) // Was it from region 2?
             {
-                position = VisionTest.DeterminationPipeline.MarkerPosition.RIGHT; // Record our analysis
+                if (side){
+                    position = VisionTest.DeterminationPipeline.MarkerPosition.RIGHT;
+                }
+                else {
+                    position = VisionTest.DeterminationPipeline.MarkerPosition.CENTER;
+                }
+                 // Record our analysis
 
                 /*
                  * Draw a solid rectangle on top of the chosen region.
@@ -341,7 +354,13 @@ public class VisionTest extends LinearOpMode
             }
             else if(diffOne < TOLERANCE && diffTwo < TOLERANCE) // Was it from region 3?
             {
-                position = VisionTest.DeterminationPipeline.MarkerPosition.LEFT; // Record our analysis
+                if (side){
+                    position = VisionTest.DeterminationPipeline.MarkerPosition.LEFT;
+                }
+                else{
+                    position = VisionTest.DeterminationPipeline.MarkerPosition.RIGHT;
+                }
+                 // Record our analysis
 
                 /*
                  * Draw a solid rectangle on top of the chosen region.
@@ -370,6 +389,10 @@ public class VisionTest extends LinearOpMode
         public MarkerPosition getAnalysis()
         {
             return position;
+        }
+
+        public void setSide(boolean left){
+            side = left;
         }
 
         public double targetDistance(Enum direction){

@@ -177,6 +177,7 @@ public class VisionTestRed extends LinearOpMode
         Mat YCrCb = new Mat();
         Mat Cb = new Mat();
         int avg1, avg2, avg3, diffOne, diffTwo;
+        boolean side;
 
         // Volatile since accessed by OpMode thread w/o synchronization
         private volatile MarkerPosition position = MarkerPosition.LEFT;
@@ -315,7 +316,12 @@ public class VisionTestRed extends LinearOpMode
              */
             if(diffOne > TOLERANCE) // Was it from region 1?
             {
-                position = MarkerPosition.CENTER; // Record our analysis
+                if (side){
+                    position = MarkerPosition.CENTER;
+                }
+                else{
+                    position = MarkerPosition.LEFT;
+                }
 
                 /*
                  * Draw a solid rectangle on top of the chosen region.
@@ -330,7 +336,12 @@ public class VisionTestRed extends LinearOpMode
             }
             else if(diffTwo > TOLERANCE) // Was it from region 2?
             {
-                position = MarkerPosition.RIGHT; // Record our analysis
+                if (side){
+                    position = MarkerPosition.RIGHT;
+                }
+                else {
+                    position = MarkerPosition.CENTER;
+                }
 
                 /*
                  * Draw a solid rectangle on top of the chosen region.
@@ -345,7 +356,12 @@ public class VisionTestRed extends LinearOpMode
             }
             else if(diffOne < TOLERANCE && diffTwo < TOLERANCE) // Was it from region 3?
             {
-                position = MarkerPosition.LEFT; // Record our analysis
+                if (side){
+                    position = MarkerPosition.LEFT;
+                }
+                else{
+                    position = MarkerPosition.RIGHT;
+                }
 
                 /*
                  * Draw a solid rectangle on top of the chosen region.
@@ -374,6 +390,10 @@ public class VisionTestRed extends LinearOpMode
         public MarkerPosition getAnalysis()
         {
             return position;
+        }
+
+        public void setSide(boolean left){
+            side = left;
         }
 
         public int getAvg1() {

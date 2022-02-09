@@ -47,6 +47,7 @@ public class RedAutoDeliverCycle extends LinearOpMode {
             }
         });
 
+        pipeline.setSide(true);
         while (!isStarted()) {
             TelemetryPacket p = new TelemetryPacket();
             dashboard.startCameraStream(robot.getSensors().getWebcam(), 30);

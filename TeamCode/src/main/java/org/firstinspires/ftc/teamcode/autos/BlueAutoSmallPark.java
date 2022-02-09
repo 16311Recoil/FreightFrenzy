@@ -46,6 +46,7 @@ public class BlueAutoSmallPark extends LinearOpMode {
             }
         });
 
+        pipeline.setSide(false);
         while (!isStarted()) {
             TelemetryPacket p = new TelemetryPacket();
             dashboard.startCameraStream(robot.getSensors().getWebcam(), 30);
