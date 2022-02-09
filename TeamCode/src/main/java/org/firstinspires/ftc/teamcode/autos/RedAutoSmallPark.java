@@ -62,7 +62,7 @@ public class RedAutoSmallPark extends LinearOpMode {
 
         waitForStart();
 
-        robot.getManip().goToPosition(38);
+        robot.getManip().goToPosition(48);
         Thread.sleep(700);
         robot.getManip().rotateClawUp();
         Thread.sleep(300);
@@ -75,7 +75,7 @@ public class RedAutoSmallPark extends LinearOpMode {
 
         // TODO: Fix vision
         if (pos == VisionTestRed.DeterminationPipeline.MarkerPosition.LEFT)
-            hub_pos = 57;
+            hub_pos = 70;
         else if (pos == VisionTestRed.DeterminationPipeline.MarkerPosition.CENTER)
             hub_pos = 120;
         else{
