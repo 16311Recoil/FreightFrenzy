@@ -77,7 +77,7 @@ public class BlueAutoDeliverPark extends LinearOpMode {
         if (pos == VisionTest.DeterminationPipeline.MarkerPosition.LEFT)
             hub_pos = 77;
         else if (pos == VisionTest.DeterminationPipeline.MarkerPosition.CENTER)
-            hub_pos = 130;
+            hub_pos = 137;
         else{
             hub_pos = 220;
             extra += 1.5;

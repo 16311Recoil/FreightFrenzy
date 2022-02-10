@@ -61,7 +61,6 @@ public class RedAutoDeliverPark extends LinearOpMode {
             pos = pipeline.getAnalysis();
         }
 
-
         waitForStart();
 
         robot.getManip().goToPosition(48);
@@ -79,7 +78,7 @@ public class RedAutoDeliverPark extends LinearOpMode {
         if (pos == VisionTestRed.DeterminationPipeline.MarkerPosition.LEFT)
             hub_pos = 70;
         else if (pos == VisionTestRed.DeterminationPipeline.MarkerPosition.CENTER)
-            hub_pos = 130;
+            hub_pos = 137;
         else{
             hub_pos = 220;
             extra += 1.5;
@@ -87,7 +86,7 @@ public class RedAutoDeliverPark extends LinearOpMode {
 
         // raise arm BEFORE we move forward
         if (pos == VisionTestRed.DeterminationPipeline.MarkerPosition.RIGHT){
-            robot.getTurret().setPosition(-69);
+            robot.getTurret().setPosition(27);
             robot.getManip().setArmRotatorPower(0.3);
             for (int i = 60; i <= 220; i += 5){
                 robot.getManip().goToPosition(i);
@@ -101,7 +100,7 @@ public class RedAutoDeliverPark extends LinearOpMode {
 
         // move towards the hub
         // TODO: Move correct distance
-        robot.getDrivetrain().moveInches(21 + extra, power, false, 4);
+        robot.getDrivetrain().moveInches(20.5 + extra, power, false, 4);
         Thread.sleep(1700);
 
         // drop block

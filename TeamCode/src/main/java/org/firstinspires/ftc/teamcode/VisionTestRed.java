@@ -128,10 +128,10 @@ public class VisionTestRed extends LinearOpMode
         /*
          * The core values which define the location and size of the sample regions
          */
-        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(50,90);
-        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(190,90);
-        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(125,160);
-        static final int REGION_WIDTH =  50;
+        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(55  ,90);
+        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(203,90);
+        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(120,160);
+        static final int REGION_WIDTH =  65;
         static final int REGION_HEIGHT = 65;
 
         /*
@@ -317,10 +317,10 @@ public class VisionTestRed extends LinearOpMode
             if(diffOne > TOLERANCE) // Was it from region 1?
             {
                 if (side){
-                    position = MarkerPosition.CENTER;
+                    position = MarkerPosition.LEFT;
                 }
                 else{
-                    position = MarkerPosition.LEFT;
+                    position = MarkerPosition.CENTER;
                 }
 
                 /*
@@ -337,10 +337,10 @@ public class VisionTestRed extends LinearOpMode
             else if(diffTwo > TOLERANCE) // Was it from region 2?
             {
                 if (side){
-                    position = MarkerPosition.RIGHT;
+                    position = MarkerPosition.CENTER;
                 }
                 else {
-                    position = MarkerPosition.CENTER;
+                    position = MarkerPosition.RIGHT;
                 }
 
                 /*
@@ -357,10 +357,10 @@ public class VisionTestRed extends LinearOpMode
             else if(diffOne < TOLERANCE && diffTwo < TOLERANCE) // Was it from region 3?
             {
                 if (side){
-                    position = MarkerPosition.LEFT;
+                    position = MarkerPosition.RIGHT;
                 }
                 else{
-                    position = MarkerPosition.RIGHT;
+                    position = MarkerPosition.LEFT;
                 }
 
                 /*
@@ -392,8 +392,8 @@ public class VisionTestRed extends LinearOpMode
             return position;
         }
 
-        public void setSide(boolean left){
-            side = left;
+        public void setSide(boolean warehouse){
+            side = warehouse;
         }
 
         public int getAvg1() {

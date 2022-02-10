@@ -83,7 +83,7 @@ public class RedAutoWarehouse extends LinearOpMode {
         if (pos == VisionTestRed.DeterminationPipeline.MarkerPosition.LEFT)
             hub_pos = 70;
         else if (pos == VisionTestRed.DeterminationPipeline.MarkerPosition.CENTER)
-            hub_pos = 120;
+            hub_pos = 137;
         else{
             hub_pos = 220;
             extra += 1.25;
