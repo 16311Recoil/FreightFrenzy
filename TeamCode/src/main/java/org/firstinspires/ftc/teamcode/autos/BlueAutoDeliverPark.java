@@ -77,7 +77,7 @@ public class BlueAutoDeliverPark extends LinearOpMode {
         if (pos == VisionTest.DeterminationPipeline.MarkerPosition.LEFT)
             hub_pos = 77;
         else if (pos == VisionTest.DeterminationPipeline.MarkerPosition.CENTER)
-            hub_pos = 137;
+            hub_pos = 132;
         else{
             hub_pos = 220;
             extra += 1.5;
@@ -87,7 +87,7 @@ public class BlueAutoDeliverPark extends LinearOpMode {
         if (pos == VisionTest.DeterminationPipeline.MarkerPosition.RIGHT){
             robot.getTurret().setPosition(-96);
             robot.getManip().setArmRotatorPower(0.3);
-            for (int i = 60; i <= 220; i += 5){
+            for (int i = 60; i <= 210; i += 5){
                 robot.getManip().goToPosition(i);
                 Thread.sleep(30);
             }
@@ -101,7 +101,12 @@ public class BlueAutoDeliverPark extends LinearOpMode {
         // TODO: Move correct distance
         robot.getDrivetrain().moveInches(21 + extra, power + 0.075, false, 4);
         Thread.sleep(1700);
-        robot.getDrivetrain().turnToPID(-Math.PI / 3.9, robot.getSensors(), 0.4, 2);
+        if (pos == VisionTest.DeterminationPipeline.MarkerPosition.RIGHT){
+            robot.getDrivetrain().turnToPID(-1 * Math.toRadians(55), robot.getSensors(), 0.4, 2);
+        }
+        else {
+            robot.getDrivetrain().turnToPID(-1 * Math.toRadians(50), robot.getSensors(), 0.4, 2);
+        }
         // drop block
         robot.getManip().mechRelease();
         Thread.sleep(1200);

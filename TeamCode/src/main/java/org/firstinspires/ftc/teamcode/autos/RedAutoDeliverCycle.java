@@ -146,7 +146,9 @@ public class RedAutoDeliverCycle extends LinearOpMode {
         Thread.sleep(200);
         robot.getDrivetrain().moveInchesAngleLock2(-24, power + 0.25, 0.17,false, robot.getSensors(), 5);
         Thread.sleep(400);
-        robot.getDrivetrain().moveInchesAngleLock2(-18, power + 0.25, 0,true, robot.getSensors(), 5);
+        robot.getDrivetrain().moveInches(2, power + 0.25, true, 1000);
+        Thread.sleep(400);
+        robot.getDrivetrain().moveInchesAngleLock2(-23, power + 0.25, 0,true, robot.getSensors(), 5);
         Thread.sleep(200);
         robot.getManip().mechRelease();
         Thread.sleep(700);
