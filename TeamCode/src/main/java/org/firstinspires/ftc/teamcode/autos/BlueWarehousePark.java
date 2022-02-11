@@ -2,11 +2,10 @@ package org.firstinspires.ftc.teamcode.autos;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.Crab;
-import org.firstinspires.ftc.teamcode.VisionTest;
+import org.firstinspires.ftc.teamcode.VisionTestBlueWarehouse;
 
 
 @Autonomous(name="BlueWarehousePark", group="Auto")
@@ -14,8 +13,8 @@ public class BlueWarehousePark extends LinearOpMode {
 
     Crab robot;
     FtcDashboard dashboard;
-    VisionTest.DeterminationPipeline pipeline;
-    VisionTest.DeterminationPipeline.MarkerPosition pos;
+    VisionTestBlueWarehouse.DeterminationPipeline pipeline;
+    VisionTestBlueWarehouse.DeterminationPipeline.MarkerPosition pos;
 
     public void runOpMode() throws InterruptedException{
 

@@ -22,8 +22,8 @@ import org.openftc.easyopencv.OpenCvPipeline;
  * detecting the team marker when lined up with
  * the sample regions over the first 3 stones.
  */
-@TeleOp(name = "visionTest", group = "test")
-public class VisionTestRed extends LinearOpMode
+@TeleOp(name = "visionTestRedDuck", group = "test")
+public class VisionTestRedDuck extends LinearOpMode
 {
     OpenCvInternalCamera phoneCam;
     DeterminationPipeline pipeline;
@@ -128,9 +128,9 @@ public class VisionTestRed extends LinearOpMode
         /*
          * The core values which define the location and size of the sample regions
          */
-        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(55  ,90);
-        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(203,90);
-        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(120,160);
+        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(35  ,90);
+        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(175,90);
+        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(105,160);
         static final int REGION_WIDTH =  65;
         static final int REGION_HEIGHT = 65;
 

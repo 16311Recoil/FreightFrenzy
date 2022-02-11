@@ -2,27 +2,19 @@ package org.firstinspires.ftc.teamcode.autos;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Crab;
-import org.firstinspires.ftc.teamcode.Drivetrain;
-import org.firstinspires.ftc.teamcode.Manipulator;
-import org.firstinspires.ftc.teamcode.PID;
-import org.firstinspires.ftc.teamcode.VisionTest;
-import org.firstinspires.ftc.teamcode.VisionTestRed;
-import org.openftc.easyopencv.OpenCvCamera;
-import org.openftc.easyopencv.OpenCvCameraRotation;
+import org.firstinspires.ftc.teamcode.VisionTestRedWarehouse;
 
 @Config
 @Autonomous(name="BlueShippingUnitPark", group="Auto")
 public class BlueUnitPark extends LinearOpMode {
     Crab robot;
-    VisionTestRed.DeterminationPipeline pipeline;
+    VisionTestRedWarehouse.DeterminationPipeline pipeline;
     FtcDashboard dashboard;
-    VisionTestRed.DeterminationPipeline.MarkerPosition pos;
+    VisionTestRedWarehouse.DeterminationPipeline.MarkerPosition pos;
     public static int extra = -4;
     public static double power = 0.3;
 

@@ -1,10 +1,5 @@
 package org.firstinspires.ftc.teamcode.autos;
 
-import android.graphics.Point;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
@@ -16,7 +11,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.Drivetrain;
 import org.firstinspires.ftc.teamcode.DrivetrainRR;
 import org.firstinspires.ftc.teamcode.Manipulator;
-import org.firstinspires.ftc.teamcode.VisionTest;
 
 @Disabled
 @Autonomous(name="BlueAutoRR", group="Auto")

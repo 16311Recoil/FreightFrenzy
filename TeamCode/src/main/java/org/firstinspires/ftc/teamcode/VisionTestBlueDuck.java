@@ -1,11 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
-import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -25,7 +22,7 @@ import org.openftc.easyopencv.OpenCvPipeline;
  * the sample regions over the first 3 stones.
  */
 //@TeleOp(name = "visionTest", group = "test")
-public class VisionTest extends LinearOpMode
+public class VisionTestBlueDuck extends LinearOpMode
 {
     OpenCvInternalCamera phoneCam;
     DeterminationPipeline pipeline;
@@ -124,9 +121,9 @@ public class VisionTest extends LinearOpMode
         /*
          * The core values which define the location and size of the sample regions
          */
-        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(47,90);
+        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(42,90);
         static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(180,90);
-        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(120,160);
+        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(115,160);
         static final int REGION_WIDTH =  65;
         static final int REGION_HEIGHT = 65;
 
@@ -313,10 +310,10 @@ public class VisionTest extends LinearOpMode
             if(diffOne > TOLERANCE) // Was it from region 1?
             {
                 if (side){
-                    position = VisionTest.DeterminationPipeline.MarkerPosition.CENTER;
+                    position = VisionTestBlueDuck.DeterminationPipeline.MarkerPosition.CENTER;
                 }
                 else{
-                    position = VisionTest.DeterminationPipeline.MarkerPosition.LEFT;
+                    position = VisionTestBlueDuck.DeterminationPipeline.MarkerPosition.LEFT;
                 }
                 ; // Record our analysis
 
@@ -334,10 +331,10 @@ public class VisionTest extends LinearOpMode
             else if(diffTwo > TOLERANCE) // Was it from region 2?
             {
                 if (side){
-                    position = VisionTest.DeterminationPipeline.MarkerPosition.RIGHT;
+                    position = VisionTestBlueDuck.DeterminationPipeline.MarkerPosition.RIGHT;
                 }
                 else {
-                    position = VisionTest.DeterminationPipeline.MarkerPosition.CENTER;
+                    position = VisionTestBlueDuck.DeterminationPipeline.MarkerPosition.CENTER;
                 }
                  // Record our analysis
 
@@ -355,10 +352,10 @@ public class VisionTest extends LinearOpMode
             else if(diffOne < TOLERANCE && diffTwo < TOLERANCE) // Was it from region 3?
             {
                 if (side){
-                    position = VisionTest.DeterminationPipeline.MarkerPosition.LEFT;
+                    position = VisionTestBlueDuck.DeterminationPipeline.MarkerPosition.LEFT;
                 }
                 else{
-                    position = VisionTest.DeterminationPipeline.MarkerPosition.RIGHT;
+                    position = VisionTestBlueDuck.DeterminationPipeline.MarkerPosition.RIGHT;
                 }
                  // Record our analysis
 

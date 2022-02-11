@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Crab;
-import org.firstinspires.ftc.teamcode.VisionTestRed;
+import org.firstinspires.ftc.teamcode.VisionTestRedDuck;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
@@ -16,9 +16,9 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 @Autonomous(name="RedAutoSmallPark", group="Auto")
 public class RedAutoSmallPark extends LinearOpMode {
     Crab robot;
-    VisionTestRed.DeterminationPipeline pipeline;
+    VisionTestRedDuck.DeterminationPipeline pipeline;
     FtcDashboard dashboard;
-    VisionTestRed.DeterminationPipeline.MarkerPosition pos;
+    VisionTestRedDuck.DeterminationPipeline.MarkerPosition pos;
     private double startAngle = 0;
     public static int extra = -4;
     public static double power = 0.3;
@@ -34,7 +34,7 @@ public class RedAutoSmallPark extends LinearOpMode {
         startAngle = robot.getSensors().getFirstAngle();
         dashboard = FtcDashboard.getInstance();
 
-        pipeline = new VisionTestRed.DeterminationPipeline();
+        pipeline = new VisionTestRedDuck.DeterminationPipeline();
         robot.getSensors().getWebcam().setPipeline(pipeline);
         robot.getSensors().getWebcam().openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
@@ -56,7 +56,7 @@ public class RedAutoSmallPark extends LinearOpMode {
             dashboard.sendTelemetryPacket(p);
 
             //pos = pipeline.getAnalysis();
-            pos = VisionTestRed.DeterminationPipeline.MarkerPosition.CENTER;
+            pos = VisionTestRedDuck.DeterminationPipeline.MarkerPosition.CENTER;
         }
 
 
@@ -74,9 +74,9 @@ public class RedAutoSmallPark extends LinearOpMode {
         int hub_pos;
 
         // TODO: Fix vision
-        if (pos == VisionTestRed.DeterminationPipeline.MarkerPosition.LEFT)
+        if (pos == VisionTestRedDuck.DeterminationPipeline.MarkerPosition.LEFT)
             hub_pos = 70;
-        else if (pos == VisionTestRed.DeterminationPipeline.MarkerPosition.CENTER)
+        else if (pos == VisionTestRedDuck.DeterminationPipeline.MarkerPosition.CENTER)
             hub_pos = 137;
         else{
             hub_pos = 220;
@@ -84,7 +84,7 @@ public class RedAutoSmallPark extends LinearOpMode {
         }
 
         // raise arm BEFORE we move forward
-        if (pos == VisionTestRed.DeterminationPipeline.MarkerPosition.RIGHT){
+        if (pos == VisionTestRedDuck.DeterminationPipeline.MarkerPosition.RIGHT){
             robot.getTurret().setPosition(-90);
             robot.getManip().setArmRotatorPower(0.3);
             for (int i = 60; i <= 220; i += 5){
@@ -123,7 +123,7 @@ public class RedAutoSmallPark extends LinearOpMode {
 
         // Put arm into excalibur mode
         robot.getManip().setArmRotatorPower(0.5);
-        for (int i = 160; i <= 360; i += 10){
+        for (int i = 160; i <= 370; i += 10){
             robot.getManip().goToPosition(i);
             Thread.sleep(31);
         }

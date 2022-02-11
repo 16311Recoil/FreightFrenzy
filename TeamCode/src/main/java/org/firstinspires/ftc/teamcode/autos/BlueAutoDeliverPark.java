@@ -4,19 +4,18 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Crab;
-import org.firstinspires.ftc.teamcode.VisionTest;
+import org.firstinspires.ftc.teamcode.VisionTestBlueWarehouse;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
 @Autonomous(name="BlueAutoDeliverPark", group="Auto")
 public class BlueAutoDeliverPark extends LinearOpMode {
     Crab robot;
-    VisionTest.DeterminationPipeline pipeline;
+    VisionTestBlueWarehouse.DeterminationPipeline pipeline;
     FtcDashboard dashboard;
-    VisionTest.DeterminationPipeline.MarkerPosition pos;
+    VisionTestBlueWarehouse.DeterminationPipeline.MarkerPosition pos;
     private double startAngle = 0;
     public static int extra = -4;
     public static double power = 0.3;
@@ -32,7 +31,7 @@ public class BlueAutoDeliverPark extends LinearOpMode {
         startAngle = robot.getSensors().getFirstAngle();
         dashboard = FtcDashboard.getInstance();
 
-        pipeline = new VisionTest.DeterminationPipeline();
+        pipeline = new VisionTestBlueWarehouse.DeterminationPipeline();
         robot.getSensors().getWebcam().setPipeline(pipeline);
         robot.getSensors().getWebcam().openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
@@ -74,9 +73,9 @@ public class BlueAutoDeliverPark extends LinearOpMode {
         int hub_pos;
 
         // TODO: Fix vision
-        if (pos == VisionTest.DeterminationPipeline.MarkerPosition.LEFT)
+        if (pos == VisionTestBlueWarehouse.DeterminationPipeline.MarkerPosition.LEFT)
             hub_pos = 77;
-        else if (pos == VisionTest.DeterminationPipeline.MarkerPosition.CENTER)
+        else if (pos == VisionTestBlueWarehouse.DeterminationPipeline.MarkerPosition.CENTER)
             hub_pos = 132;
         else{
             hub_pos = 220;
@@ -84,7 +83,7 @@ public class BlueAutoDeliverPark extends LinearOpMode {
         }
 
         // raise arm BEFORE we move forward
-        if (pos == VisionTest.DeterminationPipeline.MarkerPosition.RIGHT){
+        if (pos == VisionTestBlueWarehouse.DeterminationPipeline.MarkerPosition.RIGHT){
             robot.getTurret().setPosition(-96);
             robot.getManip().setArmRotatorPower(0.3);
             for (int i = 60; i <= 210; i += 5){
@@ -101,7 +100,7 @@ public class BlueAutoDeliverPark extends LinearOpMode {
         // TODO: Move correct distance
         robot.getDrivetrain().moveInches(21 + extra, power + 0.075, false, 4);
         Thread.sleep(1700);
-        if (pos == VisionTest.DeterminationPipeline.MarkerPosition.RIGHT){
+        if (pos == VisionTestBlueWarehouse.DeterminationPipeline.MarkerPosition.RIGHT){
             robot.getDrivetrain().turnToPID(-1 * Math.toRadians(55), robot.getSensors(), 0.4, 2);
         }
         else {

@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.Crab;
-import org.firstinspires.ftc.teamcode.VisionTestRed;
+import org.firstinspires.ftc.teamcode.VisionTestRedWarehouse;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
@@ -15,9 +15,9 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 @Autonomous(name="RedAutoDeliverCycle", group="Auto")
 public class RedAutoDeliverCycle extends LinearOpMode {
     Crab robot;
-    VisionTestRed.DeterminationPipeline pipeline;
+    VisionTestRedWarehouse.DeterminationPipeline pipeline;
     FtcDashboard dashboard;
-    VisionTestRed.DeterminationPipeline.MarkerPosition pos;
+    VisionTestRedWarehouse.DeterminationPipeline.MarkerPosition pos;
     private double startAngle = 0;
     public static int extra = -4;
     public static double power = 0.3;
@@ -33,7 +33,7 @@ public class RedAutoDeliverCycle extends LinearOpMode {
         startAngle = robot.getSensors().getFirstAngle();
         dashboard = FtcDashboard.getInstance();
 
-        pipeline = new VisionTestRed.DeterminationPipeline();
+        pipeline = new VisionTestRedWarehouse.DeterminationPipeline();
         robot.getSensors().getWebcam().setPipeline(pipeline);
         robot.getSensors().getWebcam().openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
@@ -75,9 +75,9 @@ public class RedAutoDeliverCycle extends LinearOpMode {
         int hub_pos;
 
         // TODO: Fix vision
-        if (pos == VisionTestRed.DeterminationPipeline.MarkerPosition.LEFT)
+        if (pos == VisionTestRedWarehouse.DeterminationPipeline.MarkerPosition.LEFT)
             hub_pos = 57;
-        else if (pos == VisionTestRed.DeterminationPipeline.MarkerPosition.CENTER)
+        else if (pos == VisionTestRedWarehouse.DeterminationPipeline.MarkerPosition.CENTER)
             hub_pos = 120;
         else{
             hub_pos = 220;
@@ -85,7 +85,7 @@ public class RedAutoDeliverCycle extends LinearOpMode {
         }
 
         // raise arm BEFORE we move forward
-        if (pos == VisionTestRed.DeterminationPipeline.MarkerPosition.RIGHT){
+        if (pos == VisionTestRedWarehouse.DeterminationPipeline.MarkerPosition.RIGHT){
             robot.getTurret().setPosition(-69);
             robot.getManip().setArmRotatorPower(0.3);
             for (int i = 60; i <= 220; i += 5){

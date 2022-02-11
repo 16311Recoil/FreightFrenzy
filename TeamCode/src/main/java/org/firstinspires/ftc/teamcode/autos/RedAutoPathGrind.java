@@ -6,13 +6,10 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.Crab;
-import org.firstinspires.ftc.teamcode.VisionTest;
+import org.firstinspires.ftc.teamcode.VisionTestBlueWarehouse;
 import org.openftc.easyopencv.OpenCvCamera;
-import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
-import org.openftc.easyopencv.OpenCvInternalCamera;
 
 @Disabled
 @Autonomous(name="RedGrind", group="Auto")
@@ -20,8 +17,8 @@ public class RedAutoPathGrind extends LinearOpMode {
 
     Crab robot;
     FtcDashboard dashboard;
-    VisionTest.DeterminationPipeline pipeline;
-    VisionTest.DeterminationPipeline.MarkerPosition pos;
+    VisionTestBlueWarehouse.DeterminationPipeline pipeline;
+    VisionTestBlueWarehouse.DeterminationPipeline.MarkerPosition pos;
 
     public void runOpMode() throws InterruptedException{
 
@@ -31,7 +28,7 @@ public class RedAutoPathGrind extends LinearOpMode {
         robot.getManip().magGrab();
 
 
-        pipeline = new VisionTest.DeterminationPipeline();
+        pipeline = new VisionTestBlueWarehouse.DeterminationPipeline();
         robot.getSensors().getWebcam().setPipeline(pipeline);
         robot.getSensors().getWebcam().openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
@@ -61,7 +58,7 @@ public class RedAutoPathGrind extends LinearOpMode {
 
         waitForStart();
 
-        if (pos == VisionTest.DeterminationPipeline.MarkerPosition.LEFT){
+        if (pos == VisionTestBlueWarehouse.DeterminationPipeline.MarkerPosition.LEFT){
             /*robot.getManip().goToPosition(35);
             robot.getTurret().setPosition(0);
             robot.getDrivetrain().moveInches(-9.5, 0.5, true);
@@ -79,7 +76,7 @@ public class RedAutoPathGrind extends LinearOpMode {
             Thread.sleep(4000);*/
         }
 
-        else if (pos == VisionTest.DeterminationPipeline.MarkerPosition.CENTER){
+        else if (pos == VisionTestBlueWarehouse.DeterminationPipeline.MarkerPosition.CENTER){
             /*robot.getManip().goToPosition(110);
             robot.getTurret().setPosition(0);
             robot.getDrivetrain().moveInches(-9, 0.5, true);
