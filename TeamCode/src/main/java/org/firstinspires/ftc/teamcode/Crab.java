@@ -191,6 +191,44 @@ public class Crab {
         changeY = teleOp.gamepad1.y;
     }
 
+    public void teleOpControlsBrendenTest(double init_Heading){
+        double currentAngle = sensors.getFirstAngle();
+
+        //drivetrain.moveTeleOp_Plus(gamepad1.left_stick_x, gamepad1.left_stick_y, drivetrain.lockHeadingAngle(relativeHeading - init_Heading, sensor.getFirstAngle()), 1, 1); //lock angle
+        //drivetrain.moveGyroTeleOp_Plus(gamepad1.left_stick_x, gamepad1.left_stick_y, drivetrain.lockHeadingAngle(drivetrain.lockNearestX(currentAngle - init_Heading), currentAngle), 1, 1, currentAngle); //lock x-mode
+        if (teleOp.gamepad1.y && !changeY){
+            teleOpState = State.DUCK;
+            duckTimer.reset();
+        }
+
+        if (teleOpState.equals(State.NOT_DUCK)){
+            if (teleOp.gamepad1.right_trigger > 0){
+                drivetrain.moveGyroTeleOp_Plus(teleOp.gamepad1.right_stick_x, teleOp.gamepad1.right_stick_y, drivetrain.lockHeadingAngle(drivetrain.lockNearestX(currentAngle - init_Heading), currentAngle - init_Heading), multiplier, multiplier, currentAngle - init_Heading); //lock x-mode
+            }
+            else if (teleOp.gamepad1.left_trigger > 0){
+                if (!triggerPressRight){
+                    relativeHeading = currentAngle;
+                }
+                triggerPressRight = true;
+                drivetrain.moveGyroTeleOp_Plus(teleOp.gamepad1.right_stick_x, teleOp.gamepad1.right_stick_y, drivetrain.lockHeadingAngle(relativeHeading - init_Heading, currentAngle - init_Heading), multiplier, multiplier, currentAngle - init_Heading); //lock angle
+
+            }
+            else { //regular driving
+                triggerPressRight = false;
+                drivetrain.moveGyroTeleOp_Plus(teleOp.gamepad1.right_stick_x, teleOp.gamepad1.right_stick_y, teleOp.gamepad1.left_stick_x, multiplier, multiplier, currentAngle - init_Heading);
+            }
+
+            manip.teleOpControls(-teleOp.gamepad2.left_stick_y, teleOp.gamepad2.a, teleOp.gamepad2.b, teleOp.gamepad2.x, teleOp.gamepad2.y, teleOp.gamepad2.dpad_down, teleOp.gamepad2.dpad_left, teleOp.gamepad2.dpad_up, teleOp.gamepad2.dpad_right);
+            turret.teleOpControlsTest(-teleOp.gamepad2.right_stick_x, teleOp.gamepad1.right_trigger, teleOp.gamepad1.left_trigger, teleOp.gamepad2.right_bumper, teleOp.gamepad2.a, teleOp.gamepad2.dpad_right, teleOp.gamepad2.dpad_down, teleOp.gamepad2.dpad_left, teleOp.gamepad2.dpad_up);
+            toggleSpeed();
+        }
+
+        else{
+            doDuck(init_Heading, duckTimer.seconds());
+        }
+        changeY = teleOp.gamepad1.y;
+    }
+
 
     public void doDuck(double init_Heading, double time){
         double movAng = 1.275 * Math.PI;

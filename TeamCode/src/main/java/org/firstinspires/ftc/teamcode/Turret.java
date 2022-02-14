@@ -213,6 +213,89 @@ public class Turret {
         iterative_OpMode.telemetry.update();
     }
 
+    public void teleOpControlsTest(double gamepad, double rightTrigger, double leftTrigger, boolean x, boolean a, boolean dpadRight, boolean dpadDown, boolean dpadLeft, boolean dpadUp){
+        double moveTurret = (gamepad + leftTrigger - rightTrigger);
+        if (x){
+            TOP_BOUND = calibrationMode(moveTurret);
+            setLOW_BOUND(TOP_BOUND);
+            goalEncoder = turretMotor.getCurrentPosition();
+        }
+
+        else if (moveTurret != 0){
+            if (!stickPressed){
+                timer.reset();
+                prevTime = 0;
+            }
+            stickPressed = true;
+
+            if ((timer.seconds() - prevTime) > 0.01){
+
+                if (moveTurret > 0){
+                    if (goalEncoder < TOP_BOUND){
+                        goalEncoder += 8 * moveTurret;
+                    }
+                }
+
+                if (moveTurret < 0){
+                    if (goalEncoder > LOW_BOUND){
+                        goalEncoder += 8 * moveTurret;
+                    }
+                }
+
+                prevTime = timer.seconds();
+            }
+        }
+        else {
+            timer.reset();
+            stickPressed = false;
+        }
+        //turretMotor.setTargetPosition((int)goalEncoder);
+        if (!x){
+            if(a){
+                if(blueSide){
+                    if(dpadDown){
+                        goalEncoder = LOW_BOUND + BLUE_MIDDLE_BOTTOM;
+                    }
+                    else if(dpadRight){
+                        goalEncoder = LOW_BOUND + BLUE_RIGHT_BOTTOM;
+
+                    }
+                    else if(dpadLeft){
+                        goalEncoder = LOW_BOUND + BLUE_LEFT_BOTTOM;
+                    }
+                    else if(dpadUp){
+                        goalEncoder = LOW_BOUND + BLUE_LEFT_TOP;
+                    }
+                }
+                else{
+                    if(dpadDown){
+                        goalEncoder = LOW_BOUND + RED_MIDDLE_BOTTOM;
+                    }
+                    else if(dpadRight){
+                        goalEncoder = LOW_BOUND + RED_RIGHT_BOTTOM;
+
+                    }
+                    else if(dpadLeft){
+                        goalEncoder = LOW_BOUND + RED_LEFT_BOTTOM;
+                    }
+                    else if(dpadUp){
+                        goalEncoder = LOW_BOUND + RED_LEFT_TOP;
+                    }
+                }
+
+
+            }
+
+            moveTurretPID((int) goalEncoder);
+
+        }
+        iterative_OpMode.telemetry.addData("timer", timer.seconds());
+        iterative_OpMode.telemetry.addData("Turret goal", goalEncoder);
+        iterative_OpMode.telemetry.addData("prev Timer", prevTime);
+        iterative_OpMode.telemetry.addData("stickPressed", stickPressed);
+        iterative_OpMode.telemetry.update();
+    }
+
     public int calibrationMode(double gamepad){
         turretMotor.setPower(gamepad * 0.5);
         return turretMotor.getCurrentPosition();
