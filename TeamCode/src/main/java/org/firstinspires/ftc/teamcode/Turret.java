@@ -214,7 +214,7 @@ public class Turret {
     }
 
     public void teleOpControlsTest(double gamepad, double rightTrigger, double leftTrigger, boolean x, boolean a, boolean dpadRight, boolean dpadDown, boolean dpadLeft, boolean dpadUp){
-        double moveTurret = (gamepad + leftTrigger - rightTrigger);
+        double moveTurret = (gamepad - leftTrigger + rightTrigger);
         if (x){
             TOP_BOUND = calibrationMode(moveTurret);
             setLOW_BOUND(TOP_BOUND);
