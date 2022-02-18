@@ -99,25 +99,20 @@ public class Turret {
     }
 
     public void update(double robotDirection){
-        turretMotor.setTargetPosition(nearestAngleToTurret((int)(targetAngle - robotDirection)));
+        turretMotor.setTargetPosition((int)(nearestAngleToTurret((int)(targetAngle - robotDirection)) / ENCODER_TO_ANGLE_RATIO));
     }
 
-    public void setAngle(double angle){
-
-        turretMotor.setTargetPosition((int)Math.round(angle / ENCODER_TO_ANGLE_RATIO));
-    }
-
+    // TODO: Rewrite this function
+    // Take the angle we want and add 360 until its the closest possible to the current turret angle
+    // to have continuous fluid movement
     public int nearestAngleToTurret(int angle){
-        int turretAngle = turretMotor.getCurrentPosition();
-        int normalizedAngle = normalizeAngle(angle), normalizedTurret = normalizeAngle(turretAngle);
-        int invert = 1;
-        if ((normalizedAngle < 90 && normalizedTurret > 270) || (normalizedTurret < 90 && normalizedAngle > 270))
-            invert = -1;
+        int turretAngle = (int)(turretMotor.getCurrentPosition() * ENCODER_TO_ANGLE_RATIO);
 
-        int change = Math.abs(normalizedAngle - normalizedTurret);
-        change = change > 180 ? 360 - change : change;
+        while (Math.abs(turretAngle - angle) >= 360){
+            angle += 360 * Math.signum(turretAngle - angle);
+        }
 
-        return turretAngle + change * (int)Math.signum(normalizedTurret - normalizedAngle) * invert;
+        return angle;
     }
 
     public int normalizeAngle(int angle){
