@@ -47,6 +47,8 @@ public class Turret {
 
     private int ENCODER_TOLERANCE = 3;
 
+    private boolean turretLock = true;
+
     public Turret(LinearOpMode opMode){
         linear_OpMode = opMode;
 
@@ -99,7 +101,13 @@ public class Turret {
     }
 
     public void update(double robotDirection){
-        turretMotor.setTargetPosition((int)(nearestAngleToTurret((int)(targetAngle - robotDirection)) / ENCODER_TO_ANGLE_RATIO));
+        if (turretLock)
+            turretMotor.setTargetPosition((int)(nearestAngleToTurret((int)(targetAngle - robotDirection)) / ENCODER_TO_ANGLE_RATIO));
+    }
+
+    public boolean toggleTurretLock(){
+        turretLock = !turretLock;
+        return turretLock;
     }
 
     // TODO: Rewrite this function
