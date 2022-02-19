@@ -1,7 +1,10 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.graphics.Color;
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -13,7 +16,7 @@ import java.util.concurrent.BrokenBarrierException;
 public class Turret {
     private LinearOpMode linear_OpMode;
     private OpMode iterative_OpMode;
-
+    ColorSensor colorSensor;
     DcMotor turretMotor;
 
     private int targetAngle = 0;
@@ -38,6 +41,7 @@ public class Turret {
 
     private boolean blueSide;
     private double goalEncoder = 0;
+    private double goalAngle = 0;
     private boolean stickPressed = false;
     private double prevTime = 0;
 
@@ -51,7 +55,8 @@ public class Turret {
         linear_OpMode = opMode;
 
         turretMotor = opMode.hardwareMap.get(DcMotor.class, "turret_motor");
-
+        // get a reference to our ColorSensor object.
+        colorSensor = opMode.hardwareMap.get(ColorSensor.class, "sensor_color");
         turretMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         turretMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         turretMotor.setTargetPosition(0);
@@ -74,7 +79,8 @@ public class Turret {
         turretMotor.setTargetPosition(0);
         turretMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         turretMotor.setPower(0.7);
-
+        // get a reference to our ColorSensor object.
+        colorSensor = opMode.hardwareMap.get(ColorSensor.class, "sensor_color");
         turretMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         opMode.telemetry.addLine("Turret Init Completed - Iterative");
@@ -290,6 +296,88 @@ public class Turret {
         iterative_OpMode.telemetry.addData("stickPressed", stickPressed);
         iterative_OpMode.telemetry.update();
     }
+    public void teleOpColorControls(double gamepad, boolean x, boolean a, boolean dpadRight, boolean dpadDown, boolean dpadLeft, boolean dpadUp){
+
+        if (x){
+            TOP_BOUND = calibrationMode(gamepad);
+            setLOW_BOUND(TOP_BOUND);
+            goalAngle = getHue();
+        }
+
+        else if (gamepad != 0){
+            if (!stickPressed){
+                timer.reset();
+                prevTime = 0;
+            }
+            stickPressed = true;
+
+            if ((timer.seconds() - prevTime) > 0.01){
+
+                if (gamepad > 0){
+                    if (goalAngle < TOP_BOUND){
+                        goalAngle += 8 * gamepad;
+                    }
+                }
+
+                if (gamepad < 0){
+                    if (goalAngle > LOW_BOUND){
+                        goalAngle += 8 * gamepad;
+                    }
+                }
+
+                prevTime = timer.seconds();
+            }
+        }
+        else {
+            timer.reset();
+            stickPressed = false;
+        }
+        //turretMotor.setTargetPosition((int)goalEncoder);
+        if (!x){
+            if(a){
+                if(blueSide){
+                    if(dpadDown){
+                        goalAngle = LOW_BOUND + BLUE_MIDDLE_BOTTOM;
+                    }
+                    else if(dpadRight){
+                        goalAngle = LOW_BOUND + BLUE_RIGHT_BOTTOM;
+
+                    }
+                    else if(dpadLeft){
+                        goalAngle = LOW_BOUND + BLUE_LEFT_BOTTOM;
+                    }
+                    else if(dpadUp){
+                        goalAngle = LOW_BOUND + BLUE_LEFT_TOP;
+                    }
+                }
+                else{
+                    if(dpadDown){
+                        goalAngle = LOW_BOUND + RED_MIDDLE_BOTTOM;
+                    }
+                    else if(dpadRight){
+                        goalAngle = LOW_BOUND + RED_RIGHT_BOTTOM;
+
+                    }
+                    else if(dpadLeft){
+                        goalAngle = LOW_BOUND + RED_LEFT_BOTTOM;
+                    }
+                    else if(dpadUp){
+                        goalAngle = LOW_BOUND + RED_LEFT_TOP;
+                    }
+                }
+
+
+            }
+
+            moveTurretPID((int) goalAngle);
+
+        }
+        iterative_OpMode.telemetry.addData("timer", timer.seconds());
+        iterative_OpMode.telemetry.addData("Turret goal", goalAngle);
+        iterative_OpMode.telemetry.addData("prev Timer", prevTime);
+        iterative_OpMode.telemetry.addData("stickPressed", stickPressed);
+        iterative_OpMode.telemetry.update();
+    }
 
     public int calibrationMode(double gamepad){
         turretMotor.setPower(gamepad * 0.5);
@@ -313,7 +401,11 @@ public class Turret {
     public void resetEncoder(){
         turretMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
-
+    public float getHue(){
+        float hsvValues[] = {0F,0F,0F};
+        Color.RGBToHSV(colorSensor.red() * 8, colorSensor.green() * 8, colorSensor.blue() * 8, hsvValues);
+        return hsvValues[0];
+    }
     public void setTOP_BOUND(int TOP){
         TOP_BOUND = TOP;
     }
