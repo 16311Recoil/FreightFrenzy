@@ -12,6 +12,8 @@ import org.firstinspires.ftc.teamcode.VisionTestBlueDuck;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
+import java.util.Timer;
+
 @Autonomous(name="BlueAutoWarehouse", group="Auto")
 public class BlueAutoWarehouse extends LinearOpMode {
     Crab robot;
@@ -63,7 +65,7 @@ public class BlueAutoWarehouse extends LinearOpMode {
 
         waitForStart();
 
-        robot.getManip().goToPosition(48);
+        robot.getManip().goToPosition(-50, 0);
         Thread.sleep(1000);
         robot.getManip().rotateClawUp();
         Thread.sleep(300);
@@ -74,33 +76,35 @@ public class BlueAutoWarehouse extends LinearOpMode {
 
         int hub_pos;
 
-        // TODO: Fix vision
+        // Adjustments for the turret rotating the arm isn't needed
+        // as the turret isn't rotated in this auto
+
         if (pos == VisionTestBlueDuck.DeterminationPipeline.MarkerPosition.LEFT)
-            hub_pos = 70;
+            hub_pos = -500;
         else if (pos == VisionTestBlueDuck.DeterminationPipeline.MarkerPosition.CENTER){
-            hub_pos = 137;
+            hub_pos = -1400;
         }
         else{
-            hub_pos = 220;
+            hub_pos = -2500;
             extra += 1.25;
         }
+
+        // TODO: Replace the rest of the arm positions
 
         // raise arm BEFORE we move forward
         if (pos == VisionTestBlueDuck.DeterminationPipeline.MarkerPosition.RIGHT){
             //robot.getTurret().setPosition(-96);
             robot.getManip().setArmRotatorPower(0.3);
-            for (int i = 60; i <= 220; i += 5){
-                robot.getManip().goToPosition(i);
-                Thread.sleep(30);
-            }
+
+            robot.getManip().goToPosition(hub_pos, 0); // no bias needs to be applied when
+                                                                // turret isn't spinning
         }
         else {
-            robot.getManip().goToPosition(hub_pos);
+            robot.getManip().goToPosition(hub_pos, 0);
         }
         robot.getManip().rotateClawUp();
 
         // move towards the hub
-        // TODO: Move correct distance
         robot.getDrivetrain().moveInches(14 + extra, power, false, 4);
         Thread.sleep(1700);
 
@@ -113,7 +117,7 @@ public class BlueAutoWarehouse extends LinearOpMode {
         robot.getManip().rotateClawDown();
 
         Thread.sleep(400);
-        robot.getManip().goToPosition(80);
+        robot.getManip().goToPosition(80, 0);
 
         // Move to duck
         robot.getDrivetrain().moveInchesAngleLock(38 + extra, power + 0.1, true, robot.getSensors().getFirstAngle(), 7);
@@ -122,7 +126,7 @@ public class BlueAutoWarehouse extends LinearOpMode {
         // Put arm into excalibur mode
         robot.getManip().setArmRotatorPower(0.5);
         for (int i = 160; i <= 370; i += 10){
-            robot.getManip().goToPosition(i);
+            robot.getManip().goToPosition(i, 0);
             Thread.sleep(25);
         }
 
@@ -150,8 +154,6 @@ public class BlueAutoWarehouse extends LinearOpMode {
 
        /* double curAngle = robot.getSensors().getFirstAngle();
         double range = Math.sin(Math.PI * 3 / 4) - Math.cos(Math.PI * 3 / 4);
-
-        // TODO: Test that this math is correct
 
         double moveForward = (Math.cos(curAngle) - Math.sin(curAngle)) / range * 10,
         moveSide = (Math.sin(curAngle) + Math.cos(curAngle)) / range * 10;
@@ -193,7 +195,7 @@ public class BlueAutoWarehouse extends LinearOpMode {
 
         robot.getManip().setArmRotatorPower(0.1);
         for (int i = 350; i >= 50; i -= 100)
-            robot.getManip().goToPosition(i);
+            robot.getManip().goToPosition(50, 0);
         // Park in freight area
 
 

@@ -41,7 +41,7 @@ public class Manipulator {
 
     private int STATE_TOLERANCE = 3;
 
-    // All measurements in inches or degrees
+    // All measurements in inches or scalars 0-1
     private final double UP = 0.36;
     private final double HALF_UP = 0.25;
     private final double DOWN = 0;
@@ -234,8 +234,15 @@ public class Manipulator {
         armRotator.setPower(power);
     }
 
+    /*
     public void goToPosition (int position){
         armRotator.setTargetPosition(position);
+    }
+     */
+
+    public void goToPosition(int targetPos, int turretPos){
+        double bias = getBias(turretPos);
+        armRotator.setTargetPosition((int)(targetPos - bias));
     }
 
     public void goToLevel(double level) {
