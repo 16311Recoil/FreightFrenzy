@@ -17,6 +17,7 @@ public class Manipulator {
     private boolean grabEnabled = false;
     private boolean magEnabled = false;
     private boolean upEnabled = false;
+    private boolean armDown = false;
 
     DcMotorEx armRotator;
 
@@ -50,7 +51,7 @@ public class Manipulator {
     private final double MAG_OFF = 0;
     // private final double DUCK_POWER = 0;
     // private final int DUCK_TIME = 0;
-    private final double ARM_POWER = 0.5;
+    private final double ARM_POWER = 0.85;
     private final double MOTOR_ARM_GEAR_RATIO = 14 / 32.0; // 0.25 = The motor rotation is 1/4 of the resulting arm rotation
     private final double ARM_LENGTH = 15;
     private final double ROBOT_HEIGHT = 16;
@@ -63,14 +64,16 @@ public class Manipulator {
     private ElapsedTime timer = new ElapsedTime();
     private ElapsedTime magTimer = new ElapsedTime();
     private ElapsedTime clawTimer = new ElapsedTime();
-    private final int TOP_BOUND = 290;
+    private final int TOP_BOUND = -4600;
     private final int LOW_BOUND = 0;
+    private double PICK_UP = -400;
     private double goalEncoder = 0;
     private boolean stickPressed = false;
     private double prevTime = 0;
 
     private boolean changeX = false;
     private boolean changeY = false;
+    private boolean changeA1 = false;
 
     private final double[] LEVELS = {6, 3 + 2 + 0.5, 8.5 + 2 + 0.5, 14.75 + 2 + 0.5};
 
@@ -196,6 +199,16 @@ public class Manipulator {
             magGrab();
         }
         magEnabled = !magEnabled;
+    }
+
+    public void toggleArmDown(){
+        if (armDown) {
+            goalEncoder = -1200;
+        }
+        else {
+            goalEncoder = PICK_UP;
+        }
+        armDown = !armDown;
     }
 
     public void toggleClawRotate(){
@@ -359,7 +372,13 @@ public class Manipulator {
 */
     }
 
-    public void teleOpControlsFake(double gamepad, boolean a, boolean b, boolean x, boolean y, boolean down, boolean left, boolean up, boolean right){
+    public void teleOpNewControls(double gamepad, boolean a, boolean b, boolean x, boolean y, boolean down, boolean left, boolean up, boolean right, boolean stickButton, int turPos, boolean a1){
+        double bias = getBias(turPos);
+
+        if (stickButton){
+            PICK_UP = goalEncoder;
+        }
+
         if (gamepad != 0){
             if (!stickPressed){
                 timer.reset();
@@ -370,14 +389,14 @@ public class Manipulator {
             if ((timer.seconds() - prevTime) > 0.01){
 
                 if (gamepad > 0){
-                    if (goalEncoder < TOP_BOUND){
-                        goalEncoder += 5 * gamepad;
+                    if (goalEncoder - bias > TOP_BOUND - bias){
+                        goalEncoder -= 50 * gamepad;
                     }
                 }
 
                 if (gamepad < 0){
-                    if (goalEncoder > LOW_BOUND){
-                        goalEncoder += 5 * gamepad;
+                    if (goalEncoder - bias < LOW_BOUND - bias){
+                        goalEncoder -= 50 * gamepad;
                     }
                 }
 
@@ -392,49 +411,38 @@ public class Manipulator {
         magControl(b);
         clawControl(y);
         clawRotateControl(x);
+        armControl(a1);
         if(!a) {
             if (down) {
-                goalEncoder = 52;
+                goalEncoder = PICK_UP;
             }
             if (up) {
-                goalEncoder = 375;
+                goalEncoder = TOP_BOUND;
             }
             if (right) {
-                goalEncoder = 80;
+                goalEncoder = -1200;
             }
             if (left) {
-                goalEncoder = 240;
+                goalEncoder = -3100;
             }
         }
-
-        if (goalEncoder > armRotator.getCurrentPosition()){
-            while (armRotator.getCurrentPosition() < goalEncoder){
-                armRotator.setTargetPosition(armRotator.getCurrentPosition() + 5);
-                try {
-                    Thread.sleep(30);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        else if (goalEncoder < armRotator.getCurrentPosition()){
-            while (armRotator.getCurrentPosition() > goalEncoder){
-                armRotator.setTargetPosition(armRotator.getCurrentPosition() - 5);
-                try {
-                    Thread.sleep(30);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
+        armRotator.setTargetPosition((int)(goalEncoder - bias));
 
 
-        /*iterative_OpMode.telemetry.addData("timer", timer.seconds());
-        iterative_OpMode.telemetry.addData("goal", goalEncoder);
-        iterative_OpMode.telemetry.addData("prev Timer", prevTime);
-        iterative_OpMode.telemetry.addData("stickPressed", stickPressed);
-        iterative_OpMode.telemetry.addData("Encoder", armRotator.getCurrentPosition());
-*/
+        iterative_OpMode.telemetry.addData("ArmGoal", goalEncoder);
+        iterative_OpMode.telemetry.addData("ArmPos", armRotator.getCurrentPosition());
+        iterative_OpMode.telemetry.addData("lowBound", LOW_BOUND - bias);
+        iterative_OpMode.telemetry.addData("highBound", TOP_BOUND + bias);
+        iterative_OpMode.telemetry.addData("bias", bias);
+
+    }
+
+    public double getBias(int turPos){
+        return 0.7858 * turPos;
+    }
+
+    public int getBiasedPosition(int turPos){
+        return (int)(goalEncoder - getBias(turPos));
     }
 
     public void teleOpControlsStateMachine (double gamepad, boolean a, boolean b, boolean x, boolean y, boolean down, boolean left, boolean up, boolean right){
@@ -590,6 +598,13 @@ public class Manipulator {
             magRelease();
             magTimer.reset();
         }
+    }
+
+    public void armControl(boolean a1){
+        if (a1 && !changeA1){
+            toggleArmDown();
+        }
+        changeA1 = a1;
     }
 
     public void clawControl(boolean y){

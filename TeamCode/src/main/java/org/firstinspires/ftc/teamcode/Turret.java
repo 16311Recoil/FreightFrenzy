@@ -22,7 +22,7 @@ public class Turret {
     private int targetAngle = 0;
 
     private final double ROTATION_SPEED = 0;
-    double ENCODER_TO_ANGLE_RATIO = 0.4643;
+    double ENCODER_TO_ANGLE_RATIO = 1.24444;  //0.4643
 
     //teleo-op utility
     private PID pid = new PID();
@@ -45,7 +45,7 @@ public class Turret {
     private boolean stickPressed = false;
     private double prevTime = 0;
 
-    private double K_P = 0.03;
+    private double K_P = 0.025;
     private double K_I = 0;
     private double K_D = 0.0;
 
@@ -63,7 +63,7 @@ public class Turret {
         turretMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         turretMotor.setTargetPosition(0);
         turretMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        turretMotor.setPower(0.7);
+        turretMotor.setPower(0.5);
 
         turretMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
@@ -80,7 +80,7 @@ public class Turret {
         turretMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         turretMotor.setTargetPosition(0);
         turretMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        turretMotor.setPower(0.7);
+        turretMotor.setPower(0.5);
         // get a reference to our ColorSensor object.
         colorSensor = opMode.hardwareMap.get(ColorSensor.class, "sensor_color");
         turretMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -386,6 +386,46 @@ public class Turret {
         iterative_OpMode.telemetry.addData("stickPressed", stickPressed);
         iterative_OpMode.telemetry.update();
     }
+
+    public void teleOpNewTurretControls(double gamepad, double rightTrigger, double leftTrigger, boolean x, boolean a, boolean dpadRight, boolean dpadDown, boolean dpadLeft, boolean dpadUp){
+        double moveTurret = (gamepad + leftTrigger - rightTrigger);
+
+        if (moveTurret != 0){
+            if (!stickPressed){
+                timer.reset();
+                prevTime = 0;
+            }
+            stickPressed = true;
+
+            if ((timer.milliseconds() - prevTime) > 1){
+
+                if (x){
+                    K_P = 0.02;
+                    goalAngle += 14 * moveTurret;
+                }
+                else{
+                    K_P = 0.01;
+                    goalAngle += 7 * moveTurret;
+                }
+
+
+                prevTime = timer.milliseconds();
+            }
+        }
+        else {
+            timer.reset();
+            stickPressed = false;
+        }
+
+
+        iterative_OpMode.telemetry.addData("goalAngle", goalAngle);
+        iterative_OpMode.telemetry.addData("turPos", turretMotor.getCurrentPosition());
+        iterative_OpMode.telemetry.addData("leftTrigger", leftTrigger);
+        iterative_OpMode.telemetry.addData("rightTrigger", rightTrigger);
+
+        moveTurretPID( (int) goalAngle);
+    }
+
 
     public int calibrationMode(double gamepad){
         turretMotor.setPower(gamepad * 0.5);

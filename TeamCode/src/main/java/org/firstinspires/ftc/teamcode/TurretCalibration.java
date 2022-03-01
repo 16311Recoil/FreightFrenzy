@@ -28,7 +28,7 @@ public class TurretCalibration extends OpMode {
 
         if (gamepad1.x){
             turret.setTurretMode(false);
-            turret.setAngle(90);
+            //turret.setAngle(90);
         }
 
     }
