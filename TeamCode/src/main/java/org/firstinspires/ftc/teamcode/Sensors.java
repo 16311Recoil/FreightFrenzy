@@ -52,6 +52,7 @@ public class Sensors {
     public Encoder forwardOdom, sideOdom;
     public List<Encoder> encoders;
     TwoWheelTrackingLocalizerRegular odom;
+    NormalizedColorSensor colorSensor;
 
     private boolean autoBulkRead = true;
 
